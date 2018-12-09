@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/buttons">
+        <file>images/check.BMP</file>
+        <file>images/copy.bmp</file>
+        <file>images/save.BMP</file>
+        <file>images/scale.bmp</file>
+        <file>images/check.ico</file>
+        <file>images/copy.ico</file>
+        <file>images/dockStack.ico</file>
+        <file>images/docSingle.ico</file>
+        <file>images/marker.ico</file>
+        <file>images/save.ico</file>
+        <file>images/print.ico</file>
+        <file>images/title.ico</file>
+        <file>images/cursor.ico</file>
+        <file>images/refreshUpdate.ico</file>
+        <file>images/scale1.bmp</file>
+        <file>images/scale1.ico</file>
+        <file>images/arrowUp.ico</file>
+        <file>images/arrowDown.ico</file>
+    </qresource>
+</RCC>
