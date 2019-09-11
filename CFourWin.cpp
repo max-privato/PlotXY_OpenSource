@@ -19,6 +19,7 @@
 
 #include "CFourWin.h"
 #include "ui_CFourWin.h"
+#include "SuppFunctions.h"
 #include <QDateTime>
 #include <QDebug>
 #include <QFileInfo>
@@ -35,6 +36,98 @@
 #define _min(a, b)  (((a) < (b)) ? (a) : (b))
 
 typedef std::complex <double>dcmplx;
+
+
+CFourWin::CFourWin(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::CFourWin)
+{
+  ui->setupUi(this);
+  setWindowFlags(windowFlags() | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
+  //I font fissati in Win MS Shell Dlg 8 punti vencongono convertiti in Ubuntu in font 11 punti"!
+#if defined(Q_OS_UNIX)
+  QFont font=ui->saveSetBtn->font();
+  font.setPointSize(8);
+  ui->saveSetBtn->setFont(font);
+  ui->gridChkBox->setFont(font);
+  ui->iniTimeLbl->setFont(font);
+  ui->finTimeLbl->setFont(font);
+  ui->infoBtn->setFont(font);
+  ui->valuesBox->setFont(font);
+  font.setPointSize(7);
+  ui->harmNLbl->setFont(font);
+  ui->harmValLbl->setFont(font);
+
+#endif
+
+  dftDone=false;
+  optionsSetOk=false;
+  harmOrders=nullptr;
+  ampl=nullptr;
+  amplitudes=nullptr;
+  phases=nullptr;
+  ui->amplChart->plotType=ptBar;
+  ui->phaseChart->plotType=ptBar;
+  amplValueTxt="<i>value (peak):</i><br>";
+//    initialFontPoints=font().pointSize();
+  ui->amplChart->addLegend=false;
+  ui->amplChart->linearInterpolate=false;
+  ui->amplChart->setActiveDataCurs(1);
+  ui->amplChart->yGrid=ui->gridChkBox->isChecked();
+  ui->phaseChart->addLegend=false;
+  ui->phaseChart->linearInterpolate=false;
+  ui->phaseChart->setActiveDataCurs(1);
+  ui->phaseChart->yGrid=ui->gridChkBox->isChecked();
+  ui->saveSetLbl->setVisible(false);
+  connect(ui->amplChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(valChangedAmp(SXYValues,bool,bool)));
+  connect(ui->phaseChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(valChangedPh(SXYValues,bool,bool)));
+  fourOptions= new CFourOptions(this);
+  fourOutInfo= new CFourOutputInfo(this);
+  QScreen *screen=QGuiApplication::primaryScreen();
+  double myDPI=screen->logicalDotsPerInch();
+
+  //rendo L'ASPETTO DPI-aware
+  if(myDPI>100.){
+    // Qui sono nella fase della costruzione, quindi prima del caricamento del registry. Pertanto le modifiche al size che faccio qui non hanno influenza su quello che poi è salvato dall'utente. Mi posso quindi permettere le seguenti righe:
+    int w=geometry().width();
+    int h=geometry().height();
+
+    resize(int(qMin(1.3,myDPI/96.0))*w,int(qMin(1.1,myDPI/96.0))*h);
+
+    w=ui->frame->maximumSize().width();
+    ui->frame->setMaximumWidth(w*int(qMax(1.0,0.90*myDPI/96.0)));
+    w=ui->frame->minimumSize().width();
+    ui->frame->setMinimumWidth(w*int(qMax(1.0,0.95*myDPI/96.0)));
+  }
+
+ #if defined(Q_OS_MAC)
+  QFont dummyF=ui->harmNLbl->font();
+  int dummySize=dummyF.pointSize();
+  dummySize*=1.5;
+  dummyF.setPointSize(dummySize);
+  ui->gridChkBox->setFont(dummyF);
+  ui->infoBtn->setFont(dummyF);
+  ui->iniTimeLbl->setFont(dummyF);
+  ui->finTimeLbl->setFont(dummyF);
+  ui->valuesBox->setFont(dummyF);
+  ui->harmNLbl->setFont(dummyF);
+  ui->harmValLbl->setFont(dummyF);
+  ui->saveSetBtn->setFont(dummyF);
+#else
+  ;
+  //Per ragioni misteriose sul Vaio il font delle due label vengono troppo grossi, ed in particolare più grossi di quelli del tempo iniziale e finale! Per ora faccio un aggiustamento euristico:
+  /*
+  if(myDPI>100){
+      QFont dummyF=ui->harmNLbl->font();
+      int dummySize=dummyF.pointSize();
+      dummySize*=0.85;
+      dummyF.setPointSize(dummySize);
+      ui->harmNLbl->setFont(dummyF);
+      ui->harmValLbl->setFont(dummyF);
+  }
+  */
+ #endif
+}
 
 int  CFourWin::analyseAndShow(bool changed){
     /* Questa funzione analizza le opzioni e aggiorna i grafici di ampiezza e/o fase.
@@ -67,23 +160,25 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
         amplValueTxt="<i>value (peak):</i><br>";
         break;
        case rms:
-        amplFactor=1./SQRT2;
+        amplFactor=float(1.0/SQRT2);
         amplValueTxt="<i>value (rms):</i><br>";
         break;
        case puOf0:
-        amplFactor=(1/SQRT2)/fabs(ampl01[0]);
+        amplFactor=float((1.0/SQRT2)/fabs(double(ampl01[0])));
         amplValueTxt="<i>value (pu/h0):</i><br>";
         break;
        case puOf1:
-        amplFactor=1./fabs(ampl01[1]);
+        amplFactor=float(1./fabs(double(ampl01[1])));
         amplValueTxt="<i>value (pu/h1):</i><br>";
         break;
     }
     ui->harmValLbl->setText(amplValueTxt);
 
     amplitudes[0]=ampl[0];
-    if(myData.opt.amplUnit==puOf0) amplitudes[0]=1.0;
-    if(myData.opt.amplUnit== puOf1) amplitudes[0]=fabs(ampl[0]/ampl[1]);
+    if(myData.opt.amplUnit==puOf0)
+        amplitudes[0]=1.0;
+    if(myData.opt.amplUnit== puOf1)
+        amplitudes[0]=fabsf(ampl[0]/ampl[1]);
     for(harm=_max(1,harm1); harm<=harm2; harm++)
         amplitudes[harm]=ampl[harm]*amplFactor;
 
@@ -108,78 +203,17 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     if(myData.opt.amplSize==hundred){
       ui->phaseChart->setVisible(false);
     }
+    computeTHD();
+    QString msg0, msg1;
+    msg0.setNum(THD0,'g',4);
+    msg1.setNum(THD1,'g',4);
+    //La seguente thdString viene poi visualizzata alla pressione del bottone "?"
+    thdString="";
+    if(myData.opt.harm1==0)
+       thdString= "THD0: "+msg0+"%; THD1: "+msg1+"%";
+    if(myData.opt.harm1==1)
+       thdString= "THD1: "+msg1+"%";
     return ret;
-}
-
-
-CFourWin::CFourWin(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::CFourWin)
-{
-  ui->setupUi(this);
-  setWindowFlags(windowFlags() | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
-
-  dftDone=false;
-  optionsSetOk=false;
-  harmOrders=NULL;
-  ampl=NULL;
-  amplitudes=NULL;
-  phases=NULL;
-  ui->amplChart->plotType=ptBar;
-  ui->phaseChart->plotType=ptBar;
-  amplValueTxt="<i>value (peak):</i><br>";
-//    initialFontPoints=font().pointSize();
-  ui->amplChart->addLegend=false;
-  ui->amplChart->linearInterpolate=false;
-  ui->amplChart->setActiveDataCurs(1);
-  ui->amplChart->yGrid=ui->gridChkBox->isChecked();
-  ui->phaseChart->addLegend=false;
-  ui->phaseChart->linearInterpolate=false;
-  ui->phaseChart->setActiveDataCurs(1);
-  ui->phaseChart->yGrid=ui->gridChkBox->isChecked();
-  ui->saveSetLbl->setVisible(false);
-  connect(ui->amplChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(valChangedAmp(SXYValues,bool,bool)));
-  connect(ui->phaseChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(valChangedPh(SXYValues,bool,bool)));
-  fourOptions= new CFourOptions(this);
-  fourOutInfo= new CFourOutputInfo(this);
-  QScreen *screen=QGuiApplication::primaryScreen();
-  int myDPI=screen->logicalDotsPerInch();
-
-  //rendo L'ASPETTO DPI-aware
-  if(myDPI>100){
-    // Qui sono nella fase della costruzione, quindi prima del caricamento del registry. Pertanto le modifiche al size che faccio qui non hanno influenza su quello che poi è salvato dall'utente. Mi posso quindi permettere le seguenti righe:
-    int w=geometry().width();
-    int h=geometry().height();
-
-    resize(qMin(1.3,myDPI/96.0)*w,qMin(1.1,myDPI/96.0)*h);
-
-    w=ui->frame->maximumSize().width();
-    ui->frame->setMaximumWidth(w*qMax(1.0,0.90*myDPI/96.0));
-    w=ui->frame->minimumSize().width();
-    ui->frame->setMinimumWidth(w*qMax(1.0,0.95*myDPI/96.0));
-  }
-
- #if defined(Q_OS_MAC)
-  QFont dummyF=ui->harmNLbl->font();
-  int dummySize=dummyF.pointSize();
-  dummySize*=0.85;
-  dummyF.setPointSize(dummySize);
-  ui->harmNLbl->setFont(dummyF);
-  ui->harmValLbl->setFont(dummyF);
-#else
-  ;
-  //Per ragioni misteriose sul Vaio il font delle due label vengono troppo grossi, ed in particolare più grossi di quelli del tempo iniziale e finale! Per ora faccio un aggiustamento euristico:
-  /*
-  if(myDPI>100){
-      QFont dummyF=ui->harmNLbl->font();
-      int dummySize=dummyF.pointSize();
-      dummySize*=0.85;
-      dummyF.setPointSize(dummySize);
-      ui->harmNLbl->setFont(dummyF);
-      ui->harmValLbl->setFont(dummyF);
-  }
-  */
- #endif
 }
 
 
@@ -189,10 +223,12 @@ void CFourWin::computeTHD(){
     THD+=amplitudes[harm]*amplitudes[harm];
 
   // THD % relative ad armoniche 0 e 1:
-  if(amplitudes[0]==0)return;
-  THD0=100*sqrt(THD)/fabs(amplitudes[0]);
-  if(amplitudes[1]==0)return;
-  THD1=100*sqrt(THD)/fabs(amplitudes[1]);
+  if(amplitudes[0]==0)
+      return;
+  THD0=float(100*sqrt(double(THD))/fabs(double(amplitudes[0])));
+  if(amplitudes[1]==0)
+      return;
+  THD1=float(100*sqrt(double(THD))/fabs(double(amplitudes[1])));
 }
 
 void CFourWin::copyOrPrint(EOutType type){
@@ -210,7 +246,7 @@ void CFourWin::copyOrPrint(EOutType type){
   int imageWidth, imageHeight; //larghezza e altezza dell'immagine combinata contenente intestazione e grafici a barre (o grafico a barre)
   int yPosition;
   QClipboard *clipboard = QApplication::clipboard();
-  QImage * amplImg=0, *phImg=0, *combinedImage;
+  QImage * amplImg=nullptr, *phImg=nullptr, *combinedImage;
   QPainter *painter;
   QString pdfFileName, fullFileName;
   QString dateStr=QDateTime::currentDateTime().date().toString();
@@ -230,8 +266,8 @@ void CFourWin::copyOrPrint(EOutType type){
   QString headText1, headText2; // testo che si mette all'inizio in tutti i casi; la prima variabie in bold
   headText1="MC's PlotXY - Fourier chart(s). Copied on "+ dateStr.mid(4);
   headText2="File: "+myData.fileName +"; Variable: "+myData.varName+"\n";
-  headText2+=QString("t1: %1; ").arg(myData.opt.initialTime,0,'g',5);
-  headText2+=QString("t2: %1").arg(myData.opt.finalTime,0,'g',5);
+  headText2+=QString("t1: %1; ").arg(double(myData.opt.initialTime),0,'g',5);
+  headText2+=QString("t2: %1").arg(double(myData.opt.finalTime),0,'g',5);
 
   if(fourOutInfo->numData){
    //E' stato richiesto un copy dei valori numerici.
@@ -243,9 +279,9 @@ void CFourWin::copyOrPrint(EOutType type){
        for(int i=myData.opt.harm1; i<=myData.opt.harm2; i++){
          allText+=QString("%1").arg(i);
          allText+="\t";
-         allText+=QString("%1").arg(amplitudes[i],8);
+         allText+=QString("%1").arg(double(amplitudes[i]),8);
          allText+="\t";
-         allText+=QString("%1").arg(phases[i],8);
+         allText+=QString("%1").arg(double(phases[i]),8);
          allText+="\n";
        }
        clipboard->setText(allText);
@@ -283,9 +319,9 @@ void CFourWin::copyOrPrint(EOutType type){
          xPos=0;
          prPainter.drawText(xPos,yPos,QString("%1").arg(i));
          xPos+=50;
-         prPainter.drawText(xPos,yPos,QString("%1").arg(amplitudes[i],8));
+         prPainter.drawText(xPos,yPos,QString("%1").arg(double(amplitudes[i]),8));
          xPos+=100;
-         prPainter.drawText(xPos,yPos,QString("%1").arg(phases[i],8));
+         prPainter.drawText(xPos,yPos,QString("%1").arg(double(phases[i]),8));
          yPos+=prPainter.fontMetrics().height();
        }
      }
@@ -398,8 +434,8 @@ void CFourWin::getData(struct SFourData data_){
     myData=data_;
     QSettings settings;
     settings.beginGroup("fourWin");
-    myData.opt.amplUnit=(EAmplUnit)settings.value("amplUnit",0).toInt();  //EAmplUnit=peak;
-    myData.opt.amplSize=(EAmplSize)settings.value("amplSize",1).toInt();  //EAmplSize=seventy;
+    myData.opt.amplUnit=EAmplUnit(settings.value("amplUnit",0).toInt());  //EAmplUnit=peak;
+    myData.opt.amplSize=EAmplSize(settings.value("amplSize",1).toInt());  //EAmplSize=seventy;
     myData.opt.harm1=settings.value("harm1",DEFAULTHARM1).toInt();
     myData.opt.harm2=settings.value("harm2",DEFAULTHARM2).toInt();
     if(myData.opt.harm2<myData.opt.harm1+2){
@@ -424,7 +460,7 @@ Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcol
   bool changed=false;
   int i, stepsPerSecond;
   int nearInt(float);
-  stepsPerSecond=(data.numOfPoints-1) / (data.x[data.numOfPoints-1]-data.x[0]);
+  stepsPerSecond=int((data.numOfPoints-1) / (data.x[data.numOfPoints-1]-data.x[0]));
   i= nearInt( (data.opt.initialTime-data.x[0])*stepsPerSecond)+1;
   if(i!=indexLeft){
       indexLeft=i;
@@ -470,10 +506,21 @@ void CFourWin::on_optionsBtn_clicked(){
        optionsSetOk=false;
        return;
     }
-    if(newOpts.finalTime > myData.x[myData.numOfPoints-1]){
-       QMessageBox::information(this,"CFourWin","invalid final time");
+    if(newOpts.initialTime >= newOpts.finalTime){
+       QMessageBox::information(this,"CFourWin","initial time must be less than than final time");
        optionsSetOk=false;
        return;
+    }
+    // Devo verificare che l'istante finale richiesto non superi il massimo campione.
+    if(newOpts.finalTime > myData.x[myData.numOfPoints-1]){
+      //Può accadere che il valore richiesto superi di pochissimo l'ultimo campione, e la differenza non sia visibile nelle stringhe visualizzate. In questo caso considero i due numeri uguali
+       QString str0, str;
+       str0.setNum(newOpts.finalTime);
+       str.setNum( myData.x[myData.numOfPoints-1]);
+       if(str!=str0)
+         QMessageBox::information(this,"CFourWin","Chosen t1 beyond final time.\n"
+          "Selected final time, t2="+str);
+       newOpts.finalTime = myData.x[myData.numOfPoints-1];
     }
     bool changed=false;
     if(newOpts.harm1!=myData.opt.harm1 ||newOpts.harm2!=myData.opt.harm2)
@@ -496,7 +543,7 @@ Significato di alcune variabili:
   int ret=0;
   int harm, sample, nSamples=indexRight-indexLeft;
   int harm1=myData.opt.harm1, harm2=myData.opt.harm2;
-  const double pi=3.141592654;
+  const double pi=3.14159265358979;
   float *y1=myData.y+indexLeft;
   double  aux2, dft0;
   dcmplx dft, j(0,1), auxC, auxC1;
@@ -507,8 +554,8 @@ Significato di alcune variabili:
       return 1;
   }
   delete[] harmOrders;
-  delete[] ampl;  //Ampiezze delle armoniche prima della correzione con AmplFactor
-  delete[] amplitudes; //Ampiezze dopo la correzione con AmplFactor (ad es. per trasformaz. in p.u.).
+  delete[] ampl;  //Ampiezze delle armoniche prima della correzione con amplFactor
+  delete[] amplitudes; //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
   delete[] phases;
   harmOrders=new float[harm2+1];
   ampl=new float[harm2+1];
@@ -516,32 +563,34 @@ Significato di alcune variabili:
   phases=new float[harm2+1];
    // Riga per debug:
   if(indexRight>=myData.numOfPoints){
-    QMessageBox::critical(this,"CFourWin","myData.indexRight\" in CFourWin");
+    QMessageBox::critical(this,"CFourWin","Internal error \"myData.indexRight\" in CFourWin");
     QApplication::closeAllWindows();
   }
-  auxC1=j*(dcmplx)(2.0*pi/nSamples);
+  auxC1=j*dcmplx(2.0*pi/nSamples);
   aux2=180./pi;
   harmOrders[0]=0;
   dftDone=true;
 
   for(harm=harm1+(harm1==0); harm<=harm2; harm++){
     dft=0;
-    auxC=auxC1*(dcmplx)harm;
+    auxC=auxC1*dcmplx(harm);
     for (sample=0; sample<nSamples; sample++){
-      dft+=(dcmplx)y1[sample]*exp(-auxC*(dcmplx)sample);
+      dft+=dcmplx(double(y1[sample]))*exp(-auxC*dcmplx(sample));
     }
-    ampl[harm]=abs((dcmplx)2*dft/(dcmplx)nSamples);
-    phases[harm]=aux2*phase(dcmplx(-imag(dft),real(dft)));
+    ampl[harm]=float(abs(dcmplx(2.0)*dft/dcmplx(nSamples)));
+    double phase(dcmplx x);
+    phases[harm]= float(aux2*phase(dcmplx(-imag(dft),real(dft))));
+
     harmOrders[harm]=harm;
   }
   //Calcolo della componente continua (va comunque calcolata per poter fare
   //l'eventuale p.u.):
   dft0=0;
   for (sample=0; sample<nSamples; sample++)
-      dft0+=y1[sample];
-  ampl01[0]=dft0/nSamples;
+      dft0+=double(y1[sample]);
+  ampl01[0]=float(dft0)/nSamples;
   if(harm1==0){
-    ampl[0]=dft0/nSamples;
+    ampl[0]=float(dft0)/nSamples;
     phases[0]=0;
   }
   //Calcolo della componente di ordine 1 (va comunque calcolata per poter fare
@@ -551,9 +600,9 @@ Significato di alcune variabili:
    }else{
      dft=0;
      for (sample=0; sample<nSamples; sample++){
-       dft+=(dcmplx)y1[sample]*exp(-auxC1*(dcmplx)sample);
+       dft+=dcmplx(double(y1[sample]))*exp(-auxC1*dcmplx(sample));
      }
-     ampl01[1]=2*abs(dft)/nSamples;
+     ampl01[1]=2*float(abs(dft))/nSamples;
    }
   QApplication::restoreOverrideCursor();
   return ret;
@@ -573,7 +622,7 @@ void CFourWin::showEvent(QShowEvent *){
         case 'v': curveParam.unitS[0]='V'; break;
         case 'c': case 'i': curveParam.unitS[0]='A'; break;
         case '1': curveParam.unitS[0]='A'; break;
-        case 'a': curveParam.unitS[0]=(char)'^'; break;
+        case 'a': curveParam.unitS[0]=char('^'); break;
         case 'p': curveParam.unitS[0]='W'; break;
         case 'e': curveParam.unitS[0]='J'; break;
         default: curveParam.unitS[0]=0;
@@ -583,21 +632,6 @@ void CFourWin::showEvent(QShowEvent *){
 
    //Richiedo l'analisi completa, quindi con anche il calcolo di DFT (parametro passato changed=true). Coincide con l'analisi che si fa quando si cambiano le opzioni con il relativo bottone. Non comprende quindi solo le operazioni che non si modificano con il cambio di quelle opzioni come la definizione dell'unità di misura fatta qui sopra.
     analyseAndShow(true);
-}
-
-double phase(std::complex<double> x) {
-    double fase;
-    const double pi=3.141592654;
-
-  if(real(x)==0){
-    fase=pi/2.;
-    if(imag(x)<0) fase+=pi;
-  }else
-        fase=atan(imag(x)/real(x));
-  //atan ritorna una fase fra -pi/2 e pi/; ma la fase è fra -180 e +180:
-  if(real(x)<0) fase+=pi;
-  if(fase>pi)fase-=2*pi;
-    return fase;
 }
 
 void CFourWin::valChangedAmp(SXYValues values, bool , bool ){
@@ -631,13 +665,14 @@ void CFourWin::valChanged(SXYValues values){
   // Se visualizzo solo alcune armoniche, ad es. dalla 5 alla 30, le armoniche precedenti non devono avere alcun punto e non devono emettere il relativo valore.
   //In effetti è stato visto che questo accade correttamente, salve che in prossimità dello 0 dove può arrivare un valore.
   // In attesa di comprendere in dettaglio cosa accade, una soluzione pratica e funzionante è di uscire se l'armonica visualizzata è inferiore alla minima visualizzabile
- if (values.X[0]<myData.opt.harm1-0.5)
+ if (values.X[0]<myData.opt.harm1-0.5f)
      return;
 
-  msg=msg.setNum((int)(values.X[0]+0.5));
+  msg=msg.setNum(int(values.X[0]+0.5f));
 
   ui->harmNLbl->setText("<i>harm n.:</i> "+msg);
-  msg=msg.setNum(values.Y[0][0],'g',5);
+//  msg=msg.setNum(values.Y[0][0],'g',5);
+  msg=smartSetNum(values.Y[0][0],5);
 
   ui->harmValLbl->setText(ui->harmValLbl->text()+msg);
 
@@ -651,8 +686,9 @@ CFourWin::~CFourWin()
 }
 
 int nearInt(float f){
-    int i=f;
-    if(f-i>0.5) i++;
+    int i=int(f);
+    if(f-i>0.5f)
+        i++;
     return i;
 }
 
@@ -672,7 +708,7 @@ void CFourWin::on_gridChkBox_clicked()
 }
 
 void CFourWin::on_saveSetBtn_clicked(){
-   /* Tutti i settings da salvare, tranne hGrid si trovano all'interno di fourOptnions.
+   /* Tutti i settings da salvare, tranne hGrid si trovano all'interno di fourOptions.
     * Quindi me li faccio dire da lui e li salvo.
    */
 
@@ -681,11 +717,14 @@ void CFourWin::on_saveSetBtn_clicked(){
     settings.setValue("useGrids",ui->gridChkBox->isChecked());
 
     //Salvataggio dei settaggi presenti all'interno di fourOptions:
-    SFourOptions data=fourOptions->giveData();
-    settings.setValue("amplUnit",(int)data.amplUnit);
-    settings.setValue("amplSize",(int)data.amplSize);
-    settings.setValue("harm1",data.harm1);
-    settings.setValue("harm2",data.harm2);
+    fourOptions->getData(myData);
+    SFourOptions options=fourOptions->giveData();
+    settings.setValue("amplUnit",int(options.amplUnit));
+    settings.setValue("amplSize",int(options.amplSize));
+    settings.setValue("harm1",options.harm1);
+    settings.setValue("harm2",options.harm2);
+    settings.setValue("initialTime",options.initialTime);
+    settings.setValue("finalTime",options.finalTime);
     settings.endGroup();
 
     ui->saveSetBtn ->setVisible(false);
@@ -693,4 +732,20 @@ void CFourWin::on_saveSetBtn_clicked(){
 
     QTimer::singleShot(700, this, SLOT(resetStateBtns()));
 
+}
+double phase(dcmplx x) {
+  double phase;
+  const double pi=3.141592654;
+
+  if(fabs(real(x))<1e-100){
+    phase=pi/2.;
+    if(imag(x)<0) phase+=pi;
+  }else
+   phase=atan(imag(x)/real(x));
+  //atan ritorna una fase fra -pi/2 e pi/2; ma la fase è fra -180 e +180:
+  if(real(x)<0)
+    phase+=pi;
+  if(phase>2*pi)
+    phase-=2*pi;
+  return phase;
 }
