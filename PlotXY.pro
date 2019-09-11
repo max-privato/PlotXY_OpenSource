@@ -15,6 +15,9 @@ win32{
    QTPLUGIN += cocoaprintersupport
 }
 
+# QMAKE__CXXFLAGS += -Wfloat-conversion -Wconversion
+QMAKE__CXXFLAGS_WARN_OFF
+
 TARGET = PlotXY
 TEMPLATE = app
 CONFIG += c++11
@@ -29,16 +32,18 @@ SOURCES += main.cpp\
     CVarMenu.cpp \
     CVarTableComp.cpp \
     CLineCalc.cpp \
-    dialogs/CFourOutputInfo.cpp \
-    dialogs/CFourOptions.cpp \
-    dialogs/CProgOptions.cpp \
-    dialogs/CPlotOptions.cpp \
-    dialogs/CScaleDlg.cpp \
-    dialogs/CPrintWOptions.cpp \
-    dialogs/CHelpDlg.cpp \
-    dialogs/CFunStrInput.cpp \
-    dialogs/CUnitsDlg.cpp \
-    suppFunctions.cpp
+    Dialogs/CFourOutputInfo.cpp \
+    Dialogs/CFourOptions.cpp \
+    Dialogs/CProgOptions.cpp \
+    Dialogs/CPlotOptions.cpp \
+    Dialogs/CScaleDlg.cpp \
+    Dialogs/CPrintWOptions.cpp \
+    Dialogs/CHelpDlg.cpp \
+    Dialogs/CFunStrInput.cpp \
+    Dialogs/CUnitsDlg.cpp \
+    suppFunctions.cpp \
+    CParamView.cpp \
+    Dialogs/CCustomiseCol.cpp
 
 HEADERS  += CDataSelWin.h\
     CFourWin.h \
@@ -51,15 +56,19 @@ HEADERS  += CDataSelWin.h\
     matrix.h \
     CVarTableComp.h \
     CLineCalc.h \
-    dialogs/CFourOutputInfo.h \
-    dialogs/CFourOptions.h \
-    dialogs/CProgOptions.h \
-    dialogs/CPlotOptions.h \
-    dialogs/CScaleDlg.h \
-    dialogs/CPrintWOptions.h \
-    dialogs/CHelpDlg.h \
-    dialogs/CFunStrInput.h \
-    dialogs/CUnitsDlg.h
+    Dialogs/CFourOutputInfo.h \
+    Dialogs/CFourOptions.h \
+    Dialogs/CProgOptions.h \
+    Dialogs/CPlotOptions.h \
+    Dialogs/CScaleDlg.h \
+    Dialogs/CPrintWOptions.h \
+    Dialogs/CHelpDlg.h \
+    Dialogs/CFunStrInput.h \
+    Dialogs/CUnitsDlg.h \
+    CParamView.h \
+    suppFunctions.h \
+    ExcludeATPCode.h \
+    Dialogs/CCustomiseCol.h
 
 win32:DEFINES+=_CRT_SECURE_NO_WARNINGS \
 
@@ -67,17 +76,18 @@ FORMS    += CDataSelWin.ui \
     CFourWin.ui \
     CPlotWin.ui \
     CValuesWin.ui \
-    dialogs/CFourOutputInfo.ui \
-    dialogs/CFourOptions.ui \
-    dialogs/CProgOptions.ui \
-    dialogs/CPlotOptions.ui \
-    dialogs/CScaleDlg.ui \
-    dialogs/CPrintWOptions.ui \
-    dialogs/CHelpDlg.ui \
-    dialogs/CFunStrInput.ui \
-    dialogs/CUnitsDlg.ui
+    Dialogs/CFourOutputInfo.ui \
+    Dialogs/CFourOptions.ui \
+    Dialogs/CProgOptions.ui \
+    Dialogs/CPlotOptions.ui \
+    Dialogs/CScaleDlg.ui \
+    Dialogs/CPrintWOptions.ui \
+    Dialogs/CHelpDlg.ui \
+    Dialogs/CFunStrInput.ui \
+    Dialogs/CUnitsDlg.ui \
+    CParamView.ui \
+    Dialogs/CCustomiseCol.ui
 
 RESOURCES =  Images.qrc
 ICON = xyNew.icns
 RC_ICONS = xyNew.ico
-

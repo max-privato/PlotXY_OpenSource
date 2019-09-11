@@ -24,8 +24,8 @@
 #include <QString>
 #include <QVector>
 
-// *** Valori limite ad allocazione statica:
-#define MAXSHEETS 4
+// *** Valori limite ad allocazione statica POI METTERE 8 A MAXSHEETS!):
+#define MAXPLOTWINS 8
 #define MAXFUNPLOTS MAXVARS  //Numero massimo di funzioni di variabili plottabili simultaneamente
 #define VARTABLEPANELS 4
 
@@ -35,6 +35,7 @@
 #define BARCHARTFORFS false
 #define BARCHARTFORHFS false
 #define COMMASARESEPARATORS true
+#define COMPACTMMVARMENU true
 #define DEFAULTFREQ 50.
 #define ENABLEAUTOREFRESH false
 #define LARGERFONTS false
@@ -65,16 +66,18 @@ struct SOptions{
     bool autoLabelXY, //Mette etichette automatiche sugli assi
     barChartForFS, //il default per frequency scan è diagramma a barre
     commasAreSeparators, //accetta come separatori di campi anch ele virgole; utile per leggere i CSV
+    compactMMvarMenu, //compatta il varMenu di file mat-Modelica; utile per leggere i CSV
     largerFonts, //Font di un punto più larghi in DataSel Win: utile su PC con grandi schermi 4k
     onlyPoints, //per default traccia i diagrammmi con i soli punti, senza le linee di collegamento
     rememberWinPosSize, //chiede di memorizzare posizioni e dimensioni delle finestre da un'esecuzione all'altra
-    showElapsTime, //chiede di vusalizzare il tempo di esecuzione nella sbarra del titolo
+    showElapsTime, //chiede di visualizzare il tempo di esecuzione nella sbarra del titolo
     showFullFilelist, // in multifile mostra l'intera lista di 8 file nella fileTable
     trimQuotes, //elimina caratteri virgolette a inizio e fine dei nomi (utile per CSV di Modelica)
     useGrids, //per default aggiunge le gridlines ai plot
     useMatLib, //usa la libreria matlab., se presente nella lettura dei files mat
     useOldColors, //usa i primi tre colori con logica RGB
     useBrackets;  //usa parentesi intorno alle unità di misura
+    int drawType; // corrisponde al valore della variabile enumerata
     int firstFileIndex;
     int plotPenWidth;
     /* AGO 2017 Da oggi uso la seguente frequenza in double anzichhé in float La ragione
@@ -97,7 +100,7 @@ struct SGlobalVars {
       instNum, //Variabile globale rappresentante il numero dell'istanza del programma
       firstNameIndex, //indice fra i parametri passati del primo fileName.
       fileNameNum;  //numero di nomi di file passati fra i parametri
-  short int WinPosAndSize[3+10*MAXSHEETS];
+  short int WinPosAndSize[3+10*MAXPLOTWINS];
   QVector <int> varNumsLst;
   struct SOptions PO;
 };

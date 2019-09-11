@@ -40,7 +40,6 @@ void CVarMenu::setCurrFile(int fileNum){
    currFile=fileNum;
 }
 
-
 void CVarMenu::mouseMoveEvent(QMouseEvent *event)
  {
      int row, column;
@@ -113,7 +112,8 @@ void CVarMenu::mouseReleaseEvent(QMouseEvent *event){
     }
   }else{
     //Qui faccio una selezione semplice (click su variabile)
-    if(event->button()==Qt::RightButton)   rightBtn=true;
+    if(event->button()==Qt::RightButton)
+      rightBtn=true;
     // Il seguente emit causa l'esecuzione di CDataSelWin::varMenuTable_cellClicked()
     // (connect in CDataSelWin::CDataSelWin()  )
     // iy e ix sono gli indici di riga e colonna in cui è avvenuto il click.

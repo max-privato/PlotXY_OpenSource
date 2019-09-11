@@ -24,45 +24,32 @@
 #include <QScreen>
 #include <QtWidgets>
 
-// Funzione statica:
-QString giveUnits(QChar c){
-    int ic=c.toLatin1();
-    switch (ic){
-    case 't': return "s";
-    case 'f': return "s";
-    case 'v': return "V";
-    case 'c': return "A";
-    case 'i': return "A";
-    case 'p': return "W";
-    case 'e': return "J";
-  }
-  return "";
-}
-
-
-
-CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent)
-{
+CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     int i,j;
     Qt::ItemFlags flags;
     QBrush myBrush;
     QScreen *screen=QGuiApplication::primaryScreen();
     myDPI=screen->logicalDotsPerInch();
-
+    horizontalHeader()->setVisible(false);
+    customiseCol=new CCustomiseCol(this);
     funStrInput=new CFunStrInput(this);
 
     allowSaving=false;
     timeVarReset=false;
+    highestUsedRowIdx=1;
     numOfPlotFiles=0;
     numOfTotVars=0;
     singleFileNum=0;
     neCellBkColor.setRgb(245,245,245);
     headerGray.setRgb(210,210,210);
-    hdrs[0]="  ";
+    hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
+    setColumnWidth(VARNUMCOL,fontMetrics().width(hdrs[VARNUMCOL]));
+    iniVarNumColWidth=2*fontMetrics().width(hdrs[VARNUMCOL]);
     hdrs[FILENUMCOL]="f";
     hdrs[VARCOL]=" Variable name ";
     hdrs[XVARCOL]="X";
+
 
     //Il seguente connect è inutile in quanto la presenza di mouseReleaseEvent lo rende inattivo; pertanto myClicked viene richiamato esplicitamente dall'interno di mouseReleaseEvent.
 //    connect(this, SIGNAL(cellClicked(int,int)), this, SLOT(myClicked(int,int)));
@@ -70,19 +57,18 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent)
     for(i=0;i<=TOTROWS-8;i+=8){
       colors[2+i]=Qt::blue;
       colors[3+i]=Qt::red;
-      colors[4+i]=Qt::green;  colors[4+i]=colors[4+i].darker(145);
+      colors[4+i]=Qt::green;  colors[4+i]=colors[4+i].darker(145);  //0xff00b0
       colors[5+i]=Qt::darkBlue;
       colors[6+i]=Qt::darkRed;
       colors[7+i]=Qt::darkGreen;
       colors[8+i]=Qt::magenta;
     }
-
-
+//    unsigned int color=colors[3].rgb();
     setAcceptDrops(true);
     setRowCount(TOTROWS);
     setColumnCount(TOTCOLS);
 
-    /* L'altezza delle righe non va toccata qui. E' scelta nel costruttore di CDataSelWin.
+    /* L'altezza delle righe non va toccata qui. E' scelta in CDataSelWin.::adaptToDPI
      */
 
     myDPI=screen->logicalDotsPerInch();
@@ -114,6 +100,9 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent)
         if(j!=VARCOL)
           newItem->setTextAlignment(Qt::AlignCenter);
       }
+      item(i,COLORCOL)->setForeground(Qt::white);
+      if(i>8)
+         item(i,COLORCOL)->setText("-");
     }
     //Sul mac il font del numero di variabile può essere un po' più piccolo:
 #if defined(Q_OS_MAC)
@@ -142,7 +131,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent)
     for(int i=0; i<MAXVARSPERFUN; i++){
      // I vettori yLine[i]contengono valori fittizzi e vengono creati per consentire di effettuare un check sintattico sulla linea descrivente una funzione di variabile al momento della sua introduione, per evitare di accettare già all'inizio una linea palsemente errata. Per semplicità quindi sono tutti composti da un unico elemento il cui valore è pari al suo indice i.
       yLine[i]=new float[1];
-      *yLine[i]=(float)i;
+      *yLine[i]=float(i);
     }
 
 }
@@ -167,6 +156,7 @@ La funzione determina inoltre "xVarNum" che è l'indice della variabile da mette
 
 La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel caso di file singolo l'unico valore di iFile è  0.
 */
+    extern QString giveUnits(QChar c); //definita in CLineCalc
     int iRow, iFile;
     QString str;
     SCurveParam myPar;
@@ -179,11 +169,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     //Per prima cosa gestisco la variabile x.
     for(iRow=0; iRow<rowCount(); iRow++){
       if(item(iRow,XVARCOL)->text()!="x")continue;
-/*  CORREGGERE La seguente riga va aggiustata: numofPlotFiles viene calcolato più sotto!!
-In realtà mi sembra logico togliere l'if e attribuire all'indice della var. x sempre quello corrispondente a dove compare "x" in tabella*/
-//      if(multiFile && numOfPlotFiles>1)
-//          xVarIdx=0;
-//      else
+
       str=item(iRow,VARNUMCOL)->text();
       if(str[0]=='f'){
         xInfo.isFunction=true;
@@ -195,7 +181,6 @@ In realtà mi sembra logico togliere l'if e attribuire all'indice della var. x s
       myPar.name=item(iRow,VARCOL)->text();
       myPar.color=item(iRow,VARCOL)->foreground().color();
       myPar.rightScale=false;
-//      myPar.monotonic =monotonic[iRow];
       myPar.isMonotonic =(xInfo.idx==0);
       xInfo=myPar;
     }
@@ -220,14 +205,18 @@ In realtà mi sembra logico togliere l'if e attribuire all'indice della var. x s
               continue;
         }
         if(multiFile && item(iRow,FILENUMCOL)->text().toInt()!=iFile+1)continue;
-        if(item(iRow,VARCOL)->text()=="")continue;
+        if(item(iRow,VARCOL)->text()=="")
+            continue;
         myPar.idx=item(iRow,VARNUMCOL)->text().toInt()-1;
         myPar.name=item(iRow,VARCOL)->text();
         myPar.color=item(iRow,VARCOL)->foreground().color();
         myPar.rightScale=false;
         if(item(iRow,XVARCOL)->text()=="r")
           myPar.rightScale=true;
-        myPar.unitS=giveUnits(c);
+        if(item(iRow,COLORCOL)->text()=="-")
+          myPar.style=(Qt::DashLine);
+        else
+          myPar.style=(Qt::SolidLine);
         yInfo[iFile].append(myPar);
       }
     }
@@ -239,13 +228,12 @@ In realtà mi sembra logico togliere l'if e attribuire all'indice della var. x s
 
     //Ora compilo funInfoLst
     CLineCalc myLineCalc;
-    myLineCalc.getVarNumVect(varNumVect);
     QString ret;
     SXYNameData calcData;
     funInfoLst.clear();
+    myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
     for (int i=0; i<rowCount(); i++){
       if(item(i,VARNUMCOL)->text()[0]=='f'){
-        myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
         QString cCalcLine=item(i,VARCOL)->text();
         myLineCalc.getLine(item(i,VARCOL)->text(),currFileIdx+1);
         calcData=myLineCalc.checkAndFindNames();
@@ -279,8 +267,10 @@ void CVarTableComp::myReset(bool deep) {
       if(j<columnCount()-1)item(i,j)->setBackground(neCellBkColor);
       item(i,j)->setForeground(myBrush);
       item(i,j)->setText("");
+      item(i,j)->setToolTip("");
     }
-    item(i,0)->setBackgroundColor(colors[i]);
+    item(i,COLORCOL)->setBackgroundColor(colors[i]);
+    item(i,COLORCOL)->setForeground(Qt::white);
   }
   numOfTotVars=0;
   item(1,XVARCOL)->setText("x");
@@ -293,30 +283,44 @@ void CVarTableComp::myReset(bool deep) {
   xInfo.isFunction=false;
   funSet.clear();
   tabFileNums.clear();
+  highestUsedRowIdx=1;
 }
 
 void CVarTableComp::resizeEvent(QResizeEvent *){
+
     int i,j,
            wi[TOTCOLS]; //larghezze delle varie colonne
 
     int x,y,w,h;
+    double factor=96.;
+
     geometry().getRect(&x,&y,&w,&h);
-    //L'altezza delle righe rowHeight() è scelta per tutte le righe nell costruttore del presente oggetto.
+
+    //L'altezza delle righe rowHeight() è scelta per tutte le righe in CDataSelWin.::adaptToDPI.
     setGeometry(x,y,w,rowCount()*rowHeight(0)+1);
 
-    /* Assegno la larghezza delle colonne.
-La larghezza di VARNUMCOL deve essere adeguata al contenuto.
-Le altre colonne eccetto VARCOL hanno larghezza prefissata, determinata dalle dimensioni orizzontali delle celle di header.
-La larghezza di VARCOL viene scelta in modo che la tabella occupi tutto lo spazio disponibile:*/
+    // Assegno la larghezza delle colonne. La larghezza di VARNUMCOL deve essere adeguata al contenuto. Le altre colonne eccetto VARCOL hanno larghezza prefissata, determinata dalle dimensioni orizzontali delle celle di header. La larghezza di VARCOL viene scelta in modo che la tabella occupi tutto lo spazio disponibile.
 
-    resizeColumnToContents(VARNUMCOL);
-    i=0;
-    wi[VARNUMCOL]=columnWidth(VARNUMCOL);
-    for(j=0;j<TOTCOLS;j++){
-        if(j!=VARNUMCOL) wi[j]=fontMetrics().width(hdrs[j]);
-        if(j!=VARCOL)i+=wi[j];
+    //Purtroppo resizeColumnToContents(VARNUMCOL); ha un comportamento insoddisfacente, quindi faccio il calcolo manuale.
+    wi[VARNUMCOL]=0;
+    for (i=1; i<rowCount(); i++){
+      wi[VARNUMCOL]=qMax(wi[VARNUMCOL],fontMetrics().width(item(i,VARNUMCOL)->text()));
+//      if(i<4){
+//        qDebug()<<"item text: "<<item(i,VARNUMCOL)->text();
+//        qDebug()<<"width: "<<fontMetrics().width(item(i,VARNUMCOL)->text());
+//      }
     }
-    float factor=96.0;
+    wi[VARNUMCOL]=myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL]));
+    wi[VARNUMCOL]+=myDPI/factor*fontMetrics().width("X");
+    setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
+
+    i=0;
+    for(j=0;j<TOTCOLS;j++){
+        if(j!=VARNUMCOL)
+            wi[j]=fontMetrics().width(hdrs[j]);
+        if(j!=VARCOL)
+            i+=wi[j];
+    }
 #if defined(Q_OS_MAC)
     factor=72.0;
 #endif
@@ -326,7 +330,7 @@ La larghezza di VARCOL viene scelta in modo che la tabella occupi tutto lo spazi
     wi[FILENUMCOL]+=3*myDPI/factor;
     wi[XVARCOL]+=2*myDPI/factor;
 #endif
-    wi[VARCOL]=w-i-17*myDPI/factor; //attribuisco a VARCOL tutto lo spazio disponibile diminuito di quello occupato dalle altre colonne, determinato sulla base dei contenuti (e non delle dimensioni della tabella, così come risultano dal resize in atto)
+    wi[VARCOL]=w-i-int(17.*myDPI/factor); //attribuisco a VARCOL tutto lo spazio disponibile diminuito di quello occupato dalle altre colonne, determinato sulla base dei contenuti (e non delle dimensioni della tabella, così come risultano dal resize in atto)
     for(i=0;i<TOTCOLS;i++)
       setColumnWidth(i,wi[i]);
 }
@@ -357,13 +361,14 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
         QString str;
         int varIdx,fileIdx;
         dataStream >> varName >> varIdx >> fileIdx;
-        tabFileNums<<fileIdx;
+        tabFileNums<<fileIdx+1;
         item(row,VARNUMCOL)->setText(str.setNum(varIdx+1));
         if(multiFile)
           item(row,FILENUMCOL)->setText(str.setNum(fileIdx+1));
         item(row,VARCOL)->setText(varName);
         item(row,FILENUMCOL)->setBackgroundColor(neCellBkColor);
-        resizeEvent(NULL);
+        highestUsedRowIdx=qMax(row,highestUsedRowIdx);
+        resizeEvent(nullptr);
         // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
         for(int ii=1; ii<rowCount(); ii++){
             if(item(ii,FILENUMCOL)->text()==""&&item(ii,VARNUMCOL)->text()=="")
@@ -379,9 +384,6 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
     }
 }
 
-void CVarTableComp::getVarNumVect(QVector <int> list){
-     varNumVect=list;
-}
 
 void CVarTableComp::getFileNums(QList <int> fileNums, QList <int> varNums) {
     /* Quasi sempre fileNumsLst vengono chieste da CVarTableComp::queryFileNums all'esterno, in quanto esse servono a seguito di azioni dell'utente.
@@ -410,19 +412,22 @@ int CVarTableComp::giveFileNum(int row){
 }
 
 void CVarTableComp::filterOutVars(QList <QString> varList){
- /*Questa funzione è richiamata quando c'è un refresh in atto per aggiorrnare le variabili.
-  * Infatti variabili possono essere state aggiunte, alterando il numero di variabile nel
-  * file corrispondente al nome scelto, e variabili possono essere state rimosse.
-  * In questo caso ho con lo stesso effetto ed in più la possibile necessità di rimuovere
-  * la relativa riga nella SelectedVarTable, se la variabile rimossa non è più presente
-  * nel file.
-  * individuare variabili selezionate per il plottaggio che non sono più presenti nel
-  * file corrente dopo il refresh, ed eliminare la relativa richiesta di grafico.
+ /*Questa funzione serve per eliminare dalla tabella variabili presenti che però non
+  * sono anche presenti nella varLilst passata.
+  * Essa è richiamata quando c'è un refresh in atto per aggiornare le variabili.
+  * Infatti alcune variabili possono essere state aggiunte, alterando il numero di variabili nel
+  * file corrispondente al nome scelto, e altre possono essere state rimosse.
+  *
+  * varList contiene la lista delle variabili nella varMenuTable: dovrò filtrare via
+  * quindi  le variabili in "this" che non sono presenti in varList
   */
     int varIndex;
-    for (int iRow=0; iRow<rowCount(); iRow++){
+    for (int iRow=1; iRow<rowCount(); iRow++){
         if(item(iRow,FILENUMCOL)->text().toInt()!=currFileIdx+1)
             continue;
+        if(item(iRow,XVARCOL)->text()=="x")
+            continue;
+        QString str=item(iRow,VARCOL)->text();
         varIndex=varList.indexOf(item(iRow,VARCOL)->text());
         if(varIndex>-1)
             // aggiorno il valore numerico a quello del file refreshato:
@@ -434,36 +439,36 @@ void CVarTableComp::filterOutVars(QList <QString> varList){
 
 void CVarTableComp::getFont(QFont font_){
     cellFont=font_;
-    for(int i=0;i<TOTROWS; i++)
-        for(int j=0;j<TOTCOLS; j++)
+    for(int i=0; i<rowCount(); i++)
+      for(int j=0; j<columnCount(); j++)
          item(i,j)->setFont(cellFont);
 }
 
 void CVarTableComp::getColorScheme(bool useOldColors_){
 
-    /*
-     Il numero massimo di variabili in tabella, incluso il tempo, è TOTROWS (attualmente, e probabilmente per sempre) pari a 16). I colori differenti sono 8; i colori andranno quindi mappati in blocchi di 8 distinti colori.
-    */
-        for(int i=0;i<=TOTROWS-8;i+=8){
-          if(useOldColors_){
-            colors[2+i]=Qt::red;
-            colors[3+i]=Qt::green;  colors[3+i]=colors[3+i].darker(145);
-            colors[4+i]=Qt::blue;
-          }else{
-            colors[2+i]=Qt::blue;
-            colors[3+i]=Qt::red;
-            colors[4+i]=Qt::green;  colors[4+i]=colors[4+i].darker(145);
-          }
-          colors[5+i]=Qt::darkBlue;
-          colors[6+i]=Qt::darkRed;
-          colors[7+i]=Qt::darkGreen;
-          colors[8+i]=Qt::magenta;
-        }
-
+  /* Il numero massimo di variabili in tabella, incluso il tempo, è TOTROWS (attualmente,
+   * e probabilmente per sempre) pari a 16). I colori differenti sono 8; i colori andranno
+   * quindi mappati in blocchi di 8 distinti colori.
+   */
+  for(int i=0;i<=rowCount()-8;i+=8){
+    if(useOldColors_){
+      colors[2+i]=Qt::red;
+      colors[3+i]=Qt::green;  colors[3+i]=colors[3+i].darker(145);
+      colors[4+i]=Qt::blue;
+    }else{
+      colors[2+i]=Qt::blue;
+      colors[3+i]=Qt::red;
+      colors[4+i]=Qt::green;  colors[4+i]=colors[4+i].darker(145);
+    }
+    colors[5+i]=Qt::darkBlue;
+    colors[6+i]=Qt::darkRed;
+    colors[7+i]=Qt::darkGreen;
+    colors[8+i]=Qt::magenta;
+  }
 }
 
-void CVarTableComp::getState(QStringList &list, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_ ){
-  /* In questa routine si ripristina lo stato salvato in precedenza. In realtà passo solo il testo da mettere nelle celle; sulla base dei contenuti di questo testo vengono poi ricomposte le altre variabili strutturate che vengono compilate durante il normale funzionamento del programma.
+void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_ ){
+  /* In questa routine si ripristina lo stato salvato in precedenza. In realtà passo solo il testo da mettere nelle celle e i colori delel variabili; sulla base dei contenuti del testo vengono poi ricomposte le altre variabili strutturate che vengono compilate durante il normale funzionamento del programma.
 */
   int r,c;
   int i=-1;
@@ -472,9 +477,14 @@ void CVarTableComp::getState(QStringList &list, bool xIsFunction_, int xInfoIdx_
   xInfo.isFunction=xIsFunction_;
   xInfo.idx=xInfoIdx_;
   multiFile=multiFileMode_;
+  styleData=styleData_;
   tabFileNums.clear();
   funSet.clear();
   for(r=1; r<TOTROWS; r++){
+    item(r,COLORCOL)->setBackgroundColor(QColor(varColRgb[r-1]));
+    if (styleData_&1<<r)
+        // il + 1 perché la riga 0 della tabella è l'header e ad essa non corrisponde alcun colore e alcun dash
+        item(r+1,COLORCOL)->setText("-");
     for(c=1;c<TOTCOLS; c++){
       i++;
       item(r,c)->setText(list[i]);
@@ -482,6 +492,8 @@ void CVarTableComp::getState(QStringList &list, bool xIsFunction_, int xInfoIdx_
     if(item(r,XVARCOL)->text()=="x")
         xVarRow=r;
   }
+  // Ora che ho messo i colori e i dash sulla tabella passo i relativi valori a customiseCol, in modo che alla prossima visualizzazione si parta dai valori recuperati:
+  customiseCol->getStates(styleData_, varColRgb);
   // numOfTotVars è 0 se prima di cliccare sul bottone di caricamento dello stato non avevo ancora caricato la variabile tempo, 1 altrimenti.
   if(item(1,VARNUMCOL)->text()=="")
       numOfTotVars=0;
@@ -501,15 +513,20 @@ void CVarTableComp::getState(QStringList &list, bool xIsFunction_, int xInfoIdx_
       if(item(r,VARNUMCOL)->text()[0]=='f')
         funStrInput->getStr(item(r,VARCOL)->text());
     }
-    if(item(r,XVARCOL)->text()=="")
+//    if(item(r,XVARCOL)->text()=="")
+    if(item(r,FILENUMCOL)->text().toInt()>0)
       tabFileNums.append(item(r,FILENUMCOL)->text().toInt());
     if(item(r,VARNUMCOL)->text().left(1) =="f")
       funSet.insert(item(r,VARNUMCOL)->text().mid(1,1).toInt());
   }
+  if(numOfTotVars>1)
+    allowSaving=true;
+  else
+    allowSaving=false;
   //Ora faccio lo scambio di colori di riga se la x non è in prima riga
   if(xVarRow!=0){
     QColor color=item(1,0)->backgroundColor();
-    QBrush brush=item(1,0)->foreground();
+    QBrush brush=item(1,0)->background();
     item(1,0)->setBackgroundColor(item(xVarRow,0)->backgroundColor());
     item(xVarRow,0)->setBackgroundColor(color);
     for(c=1; c<TOTCOLS; c++){
@@ -517,6 +534,10 @@ void CVarTableComp::getState(QStringList &list, bool xIsFunction_, int xInfoIdx_
       item(xVarRow,c)->setForeground(brush);
     }
   }
+}
+
+int CVarTableComp::givehighestUsedRowIdx(){
+  return highestUsedRowIdx;
 }
 
 
@@ -535,6 +556,12 @@ SVarTableState CVarTableComp::giveState(){
   int r,c;
   struct SVarTableState s;
   for(r=1; r<TOTROWS; r++){
+    QColor color=item(r,COLORCOL)->backgroundColor();
+    s.varColors.append(color.rgb());
+    if(item(r,COLORCOL)->text()=="-")
+      s.styles.append(Qt::DashLine);
+    else  // in questo caso text = ""
+      s.styles.append(Qt::SolidLine);
     for(c=1;c<TOTCOLS; c++)
       s.allNames.append(item(r,c)->text());
   }
@@ -587,8 +614,12 @@ NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
 }
 
 void CVarTableComp::fillFunNames(void){
-    /* Questa funzione serve per completare i nomi delle variabili nelle funzioni di variabile, con l'indicazione del file. Ad es. v23 diviene f2v23 nel caso in cui il file la cui lista di variabili visualizzata (cioè il file "default") è il 2.
-     * Questo tipo di conversione viene usata quando l'utente cammbia il file default, per non creare difficoltà di interpretazione delle stringhe di definizione delle funzioni di variabile.
+    /* Questa funzione serve per completare i nomi delle variabili nelle funzioni di
+     * variabile, con l'indicazione del file. Ad es. v23 diviene f2v23 nel caso in cui
+     * il file la cui lista di variabili visualizzata (cioè il file "default") è il 2.
+     * Questo tipo di conversione viene usata quando l'utente cammbia il file default,
+     * per non creare difficoltà di interpretazione delle stringhe di definizione delle
+     * funzioni di variabile.
 */
     QString filled;
     for(int r=0; r<rowCount(); r++){
@@ -608,18 +639,46 @@ void CVarTableComp::blankCell()  {
 void CVarTableComp::myClicked(int r, int c){
 /*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima gestisce il click destro e per il click sinistro rimanda qui.
 */
+
+//    QSet <int> testSet;
   int j, nextFun, oldXVarRow=xVarRow;
   QString str, ret;
   CLineCalc myLineCalc;
-  myLineCalc.getVarNumVect(varNumVect);
+  // Chiedo a CDataSelWin informazioni sui files e le passo a myLineCalc:
+  emit queryFileInfo(allFileNums,allFileNames,varMaxNumsLst);
+  myLineCalc.getFileInfo(allFileNums,allFileNames,varMaxNumsLst);
 
   SXYNameData calcData;
   QString defaultStr=item(r,VARCOL)->text();
   if(r==0) return;  //si è cliccato sull'intestazione
 
   switch(c){
+    case COLORCOL:
+      if(customiseCol->exec()==QDialog::Accepted){
+        QList <QColor> setColors=customiseCol->setColorf();
+        QVector <Qt::CheckState> checkStates=customiseCol->checkStatesf();
+        QBrush myBrush;
+        for (int  row=1; row<TOTROWS; row++){
+          //remember that first row is the header in our table!
+          int  row_1=row-1;
+          myBrush.setColor(setColors[row_1]);
+          item(row,COLORCOL)->setBackgroundColor(setColors[row_1]);
+          item(row,FILENUMCOL)->setForeground(myBrush);
+          item(row,VARNUMCOL)->setForeground(myBrush);
+          item(row,VARCOL)->setForeground(myBrush);
+          colors[row]=customiseCol->setColorf()[row_1];
+          if(checkStates[row_1]==Qt::Checked){
+            item(row,COLORCOL)->setText("-");
+          }else{
+           item(row,COLORCOL)->setText("");
+          }
+        }
+//        int iii=0;
+      }
+      break;
     case VARCOL:
-      /* Se si è cliccato su un nome di variabile vengono posti uguali a "" (semplice spazio) tutti gli items della riga e il tooltip della variabile
+      /* Se si è cliccato su un nome di variabile vengono posti uguali a "" (semplice
+       * spazio) tutti gli items della riga e il tooltip della variabile
       */
       if(item(r,XVARCOL)->text()=="x"){
         QMessageBox::warning(this,"CVarTableComp","Removing x variable not allowed");
@@ -630,16 +689,27 @@ void CVarTableComp::myClicked(int r, int c){
          if(item(r,VARNUMCOL)->text()[0]=='f'){
            funSet.remove(item(r,VARNUMCOL)->text().mid(1,1).toInt());
          }
-         if(item(r,VARNUMCOL)->text()!="") item(r,FILENUMCOL)->setBackgroundColor(Qt::white);
+         if(item(r,VARNUMCOL)->text()!="")
+             item(r,FILENUMCOL)->setBackgroundColor(Qt::white);
       }
       tabFileNums.removeOne(item(r,FILENUMCOL)->text().toInt());
       for(j=0;j<TOTCOLS;j++)
         item(r,j)->setText("");
       item(r,VARCOL)->setToolTip("");
-
+      //Se ho rimosso l'ultima riga visuaalizzata devo ricarlcolare quale è ora l'ultima:
+      if(r==highestUsedRowIdx){
+        highestUsedRowIdx=0;
+        for (int i=1; i<rowCount(); i++)
+          if(item(i,1)->text()!="")
+            highestUsedRowIdx=i;
+      }
       allowSaving=true;
+//      testSet=tabFileNums.toSet();
+//      j=tabFileNums.toSet().size();
       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
           allowSaving=false;
+      // Chiedo a CDataSelWin di aggiornare le informazioni sulla tabella myLineCalc.
+      // Gestisce solo l'attivazione dei bottoni sotto la varTable stessa
       emit contentChanged();
 /****  Qui manca l'analisi delle funzioni che eventualmente usano questa variabile!
        ****** se ve ne sono occorrerà deselezionare anch'esse!****/
@@ -656,8 +726,6 @@ void CVarTableComp::myClicked(int r, int c){
         str=funStrInput->giveStr();
 
         defaultStr=str;
-        emit queryFileInfo(allFileNums,allFileNames,varMaxNumsLst);
-        myLineCalc.getFileInfo(allFileNums,allFileNames,varMaxNumsLst);
         ret=myLineCalc.getLine(str,currFileIdx+1);
         if(ret.length()>0){
           QMessageBox::warning(this,"",ret);
@@ -707,8 +775,6 @@ void CVarTableComp::myClicked(int r, int c){
       if(nextFun!=-1)
         item(r,VARNUMCOL)->setText("f"+QString::number(nextFun));
       item(r,VARCOL)->setText(str);
-      //Il seguente resizeEvent può essere necessario in auanto altrimenti il nome del file può non entrare nello spazio disponibile e quindi non essere visualizzato:
-      resizeEvent(0);
       fillNames(str,currFileIdx+1);
       allowSaving=true;
       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
@@ -718,6 +784,11 @@ void CVarTableComp::myClicked(int r, int c){
     case VARNUMCOL: //colonna del "#"
       return;
     case XVARCOL: //Colonna della "X"
+      // Qui cambio qual è la riga da considerare come variabile cx. Però fa fatto solo se il numero di variabili selezionate (incluso il tempo) è almeno pari a 2)
+      if(numOfTotVars<3 && !timeVarReset){
+        QMessageBox::warning(this,"CVarTableComp","Setting x-variable requires at least two variables to be selected");
+        return;
+      }
       if(multiFile){
         //In multifile devo verificare se il numero di files da cui fare il plot è 1.
         //Per far questo devo comandare un analyse.
@@ -728,6 +799,21 @@ void CVarTableComp::myClicked(int r, int c){
           return;
         }else{
           commonXSet=false;
+        }
+      }
+      // Se ho scelto come variabile x una function plot non ci devono essere altre function plots (altrimenti succede un crash. Non è stata ancora analizzata completamente la causa di questo crash):
+      if(item(r,VARNUMCOL)->text()[0]=='f'){
+        bool manyFunctionPlots=false;
+        for (int i=0; i<rowCount(); i++){
+          if(item(i,VARNUMCOL)->text()[0]=='f'&&i!=r){
+            manyFunctionPlots=true;
+            break;
+          }
+        }
+        if(manyFunctionPlots){
+          QMessageBox::warning(this,"PlotXY-varTableComp",
+            "You can use a function-plot as an X variable only when no other function plots are requested");
+          return;
         }
       }
       if(item(r,XVARCOL)->text()!="")return;
@@ -770,9 +856,10 @@ Di conseguenza se siamo già con una variabile x diversa da quella di prima riga
       return;
   }
   if (c!=VARCOL)return;
-  /* Se si è cliccato sull'ultima colonna la corrispondente variabile diviene la x; e si swappa il colore con la precedente variabile x
-  */
+  //Aggiusto le dimensioni. Ad esempio posso aver rimosso una variabile con un numero di variabile a 3 cifre e le rimanenti hanno 2 cifre. In tal caso la larghezza della relativa colonna va ridotta.
+  resizeEvent(nullptr);
 }
+
 
 bool CVarTableComp::isEmpty(){
   bool empty= item(1,2)->text()=="";
@@ -781,6 +868,8 @@ bool CVarTableComp::isEmpty(){
 void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
     int r=indexAt(event->pos()).row();
     int c=indexAt(event->pos()).column();
+    if(c<0 || r<0)
+       return;
     if(event->button()!=Qt::RightButton){
         myClicked(r,c);
         return;
@@ -792,6 +881,7 @@ void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
     else if(item(r,XVARCOL)->text()=="r")
         item(r,XVARCOL)->setText("");
 }
+
 
 
 void CVarTableComp::setCurrFile(int fileIdx){
@@ -856,15 +946,24 @@ Faccio qui una funzione specializzata proprio per selezionare la variabile x com
     return 0;
 }
 
-int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightScale, bool monotonic_){
+int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightScale, bool monotonic_, QString unit_){
   /* Questa funzione inserisce una variabile nella prima riga disponibile.
-Per far questo individua la prima riga con item sulla casella del nome di variabile non nullo e scrive su di essa. La funzione ritorna 0 in caso di funzionamento corretto.
-Questa funzione PUO' essere usata sia per singleFile che per multiFile. Nel caso di singleFile non scrive alcun numero nella colonna del file.
-Parametri passati:
-- str: nome del file
-- varNum: numero della variabile così come comparirà nella tabella
-- fileNum: numero del file come comparirà nella tabella se siamo in Multifile, altrimenti verrà memorizzato in singleFileNum
-- rightScale: dice se la variabile dovrà essere plottata con scala numerica destra
+   * Per far questo individua la prima riga con item sulla casella del nome di variabile
+   * non nullo e scrive su di essa. La funzione ritorna 0 in caso di funzionamento corretto.
+   *
+   * Questa funzione PUO' essere usata sia per singleFile che per multiFile. Nel caso di
+   * singleFile non scrive alcun numero nella colonna del file.
+   * Parametri passati:
+   * - str: nome del file
+   * - varNum: numero della variabile così come comparirà nella tabella
+   * - fileNum: numero del file come comparirà nella tabella se siamo in Multifile,
+   * altrimenti verrà memorizzato in singleFileNum
+   * - rightScale: dice se la variabile dovrà essere plottata con scala numerica destra
+   *
+   * Per quanto riguarda l'ultimo parametro, "unit_", non sarebbe necessario a questo
+   * oggetto ed in effetti è stato aggiunto solo a Ottobre 2017. La ragione perché ora viene
+   * passato è che CDataSelWin quando deve richiedere un plot chiede a CVarTable l'intera
+   * lista yInfo, ed è particolarmente agevole qui aggiungere a yInfo il valore di unitS
 */
   int i;
   QResizeEvent * event;
@@ -874,9 +973,9 @@ Parametri passati:
 
   //se in X-Y mode devo verificare che la variabile selezionata provenga dal file a cui appartengono le altre, altrimenti emetto un messaggio di errore ed esco
   if(tabFileNums.count()>0)
-      //La sequente condizione non deve avere xInfo-idx!=0 in quanto se ho appena caricato lo stato con saveState e lo stato salvato non aveva alcuna operazione effettuata sulla tabella xInfo.idx è -1.
+      //La seguente condizione non deve avere xInfo-idx!=0 in quanto se ho appena caricato lo stato con saveState e lo stato salvato non aveva alcuna operazione effettuata sulla tabella xInfo.idx è -1.
     if(xInfo.idx>0 && !tabFileNums.contains(fileNum)){
-      QMessageBox::warning(this,"",
+      QMessageBox::warning(this,"PlotXY-varTableComp",
         "X-Y Plots require selected vars being all from the same file");
       return 1;
     }
@@ -886,13 +985,18 @@ Parametri passati:
     item(1,XVARCOL)->setText("x");
     xInfo.idx=varNum;
   }
-  if(multiFile && fileNum>=TOTROWS)return 2;
+  if(multiFile && fileNum>=TOTROWS)
+      return 2;
   //cerco la prima riga disponibile:
-  for(i=1;i<TOTROWS;i++) if(item(i,VARCOL)->text()=="") break;
+  for(i=1;i<TOTROWS;i++)
+    if(item(i,VARCOL)->text()=="")
+      break;
   //se accade la seguente condizione la tabella era piena:
-  if(i==TOTROWS)return 3;
+  if(i==TOTROWS)
+      return 3;
   item(i,VARCOL)->setText(varName);
   item(i,VARCOL)->setToolTip(varName);
+  highestUsedRowIdx=qMax(i,highestUsedRowIdx);
 
   QString sNum;
   sNum=sNum.number(varNum);
@@ -912,11 +1016,13 @@ Parametri passati:
       item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
   }
   item(i,FILENUMCOL)->setBackgroundColor(neCellBkColor);
-  allowSaving=true;
+  item(i,XVARCOL)->setToolTip(unit_);
+  if(numOfTotVars>1)
+    allowSaving=true;
   if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-      allowSaving=false;
+    allowSaving=false;
   emit contentChanged();
-  resizeEvent(event=0);
+  resizeEvent(event=nullptr);
    return 0;
 }
 

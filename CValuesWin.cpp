@@ -21,25 +21,25 @@
 #include <QScreen>
 #include "ui_CValuesWin.h"
 
-CValuesWin::CValuesWin(QWidget *parent, Qt::WindowFlags) :
+CValuesWin::CValuesWin(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CValuesWin){
     ui->setupUi(this);
     aVarHPos=8;
     fileHPos=3;
-    setWindowFlags(Qt::Dialog|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::Dialog|Qt::CustomizeWindowHint|Qt::WindowTitleHint|Qt::Tool);
 
     //Definisco il font in maniera DPI-aware
 
     //rendo il minimumSize DPI-aware
     QSize minSize=minimumSize();
     QScreen *screen=QGuiApplication::primaryScreen();
-    int myDPI=screen->logicalDotsPerInch();
+    int myDPI=int(screen->logicalDotsPerInch());
 
     if(myDPI>100){
        myFont=QFont("Arial",10);
-      setMinimumHeight(2.0*minSize.height());
-      setMinimumWidth(1.7*minSize.width());
+      setMinimumHeight(int(2.0f*minSize.height()));
+      setMinimumWidth(int(1.7f*minSize.width()));
     } else{
         myFont=QFont("Arial",10);
     }

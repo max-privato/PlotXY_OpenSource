@@ -36,6 +36,7 @@ CProgOptions::CProgOptions(QWidget *parent) :
 void CProgOptions::getData(struct SOptions PO){
     ui->autoUnitCkb->setChecked(PO.autoLabelXY);
     ui->commasCkb->setChecked(PO.commasAreSeparators);
+    ui->CompactMMCkb->setChecked(PO.compactMMvarMenu);
     ui->largeFCkb->setChecked(PO.largerFonts);
     ui->onlyPointsCkb->setChecked(PO.onlyPoints);
     ui->trimCkb->setChecked((PO.trimQuotes));
@@ -63,6 +64,7 @@ SOptions CProgOptions::giveData(){
     opt.autoLabelXY         =ui->autoUnitCkb->isChecked();
     opt.barChartForFS       =ui->useBarCkb->isChecked();
     opt.commasAreSeparators =ui->commasCkb->isChecked();
+    opt.compactMMvarMenu    =ui->CompactMMCkb->isChecked();
     opt.largerFonts         =ui->largeFCkb->isChecked();
     opt.onlyPoints          =ui->onlyPointsCkb->isChecked();
     opt.rememberWinPosSize  =ui->remWinCkb->isChecked();
@@ -93,6 +95,8 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     settings.clear();
     GV.PO.autoLabelXY           =AUTOLABELXY;
     GV.PO.barChartForFS         =BARCHARTFORFS;
+    GV.PO.commasAreSeparators   =COMMASARESEPARATORS;
+    GV.PO.compactMMvarMenu      =COMPACTMMVARMENU;
     GV.PO.defaultFreq           =DEFAULTFREQ;
     GV.PO.largerFonts           =LARGERFONTS;
     GV.PO.useBrackets           =USEBRACKETS;
@@ -100,7 +104,6 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     GV.PO.useOldColors          =USEOLDCOLORS;
     GV.PO.onlyPoints            =ONLYPOINTSINPLOTS;
     GV.PO.trimQuotes            =TRIMQUOTES;
-    GV.PO.commasAreSeparators   =COMMASARESEPARATORS;
     GV.PO.rememberWinPosSize    =REMEMBERWINPOSANDSIZE;
 
     GV.PO.plotPenWidth          =PLOTPENWIDTH;;
@@ -119,6 +122,7 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     settings.beginGroup("globalOptions");
     settings.setValue("autoLabelXY", GV.PO.autoLabelXY);
     settings.setValue("barChartForFS", GV.PO.barChartForFS);
+    settings.setValue("compactMMvarMenu", GV.PO.compactMMvarMenu);
     settings.setValue("largerFonts", GV.PO.largerFonts);
     settings.setValue("useBrackets", GV.PO.useBrackets);
     settings.setValue("useGrids", GV.PO.useGrids);

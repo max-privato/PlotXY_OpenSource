@@ -26,8 +26,8 @@
 #include <QDialog>
 #include "CLineChart.h"
 #include "Globals.h"
-#include "dialogs/CFourOptions.h"
-#include "dialogs/CFourOutputInfo.h"
+#include "Dialogs/CFourOptions.h"
+#include "Dialogs/CFourOutputInfo.h"
 
 
 namespace Ui {
@@ -40,7 +40,7 @@ class CFourWin : public QWidget
     
 public:
     struct SFourData myData;
-    explicit CFourWin(QWidget *parent = 0);
+    explicit CFourWin(QWidget *parent = nullptr);
     void getData(struct SFourData data_);
     ~CFourWin();
 public slots:

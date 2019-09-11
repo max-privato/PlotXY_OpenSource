@@ -118,7 +118,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/title.ico</normaloff>:/buttons/images/title.ico</iconset>
+          <normaloff>:/buttons/Images/title.ico</normaloff>:/buttons/Images/title.ico</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -156,7 +156,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/check.ico</normaloff>:/buttons/images/check.ico</iconset>
+          <normaloff>:/buttons/Images/check.ico</normaloff>:/buttons/Images/check.ico</iconset>
         </property>
         <property name="autoRaise">
          <bool>false</bool>
@@ -194,7 +194,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/scale1.ico</normaloff>:/buttons/images/scale1.ico</iconset>
+          <normaloff>:/buttons/Images/scale1.ico</normaloff>:/buttons/Images/scale1.ico</iconset>
         </property>
        </widget>
       </item>
@@ -229,7 +229,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/cursor.ico</normaloff>:/buttons/images/cursor.ico</iconset>
+          <normaloff>:/buttons/Images/cursor.ico</normaloff>:/buttons/Images/cursor.ico</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -419,7 +419,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/marker.ico</normaloff>:/buttons/images/marker.ico</iconset>
+          <normaloff>:/buttons/Images/marker.ico</normaloff>:/buttons/Images/marker.ico</iconset>
         </property>
         <property name="autoRaise">
          <bool>false</bool>
@@ -457,7 +457,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/copy.ico</normaloff>:/buttons/images/copy.ico</iconset>
+          <normaloff>:/buttons/Images/copy.ico</normaloff>:/buttons/Images/copy.ico</iconset>
         </property>
         <property name="autoRaise">
          <bool>false</bool>
@@ -495,7 +495,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/save.ico</normaloff>:/buttons/images/save.ico</iconset>
+          <normaloff>:/buttons/Images/save.ico</normaloff>:/buttons/Images/save.ico</iconset>
         </property>
        </widget>
       </item>
@@ -527,7 +527,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/print.ico</normaloff>:/buttons/images/print.ico</iconset>
+          <normaloff>:/buttons/Images/print.ico</normaloff>:/buttons/Images/print.ico</iconset>
         </property>
        </widget>
       </item>

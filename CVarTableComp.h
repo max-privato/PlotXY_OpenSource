@@ -27,16 +27,21 @@
 #include <QInputDialog>
 #include "Globals.h"
 #include "CLineChart.h"
+//#include "CLineChart.h"
+#include "Dialogs/CCustomiseCol.h"
+
+#define COLORCOL 0 //colonna del numero del file
 #define FILENUMCOL 1 //colonna del numero del file
-#define TOTCOLS 5 //numero totale di colonne
-#define TOTROWS 17 //numero di righe (incluso l'header)
+#define XVARCOL 4 //colonna dell'indicazione di quale è la variabile x
 #define VARNUMCOL 2 //colonna del numero della variabile
 #define VARCOL 3 //colonna del nome della variabile
-#define XVARCOL 4 //colonna dell'indicazione di quale è la variabile x
+
+#define TOTCOLS 5 //numero totale di colonne
+#define TOTROWS 17 //numero di righe (incluso l'header)
 #define MAXVARSPERFUN 10  //massimo numero di variabili accettate in una medesima funzione di variabile
 
 #include "CLineCalc.h"
-#include "dialogs/CFunStrInput.h"
+#include "Dialogs/CFunStrInput.h"
 //#include "C:/Qt5Source/calc3/CLineCalc.h"
 
 // Le colonne saranno: colore, N. file, funzione (bool), nome variabile, Xvar
@@ -62,6 +67,8 @@ Le celle della tabella non sono editabili: le operazioni vengono effettuate tram
 struct SVarTableState{
     QStringList allNames;
     QList <int> fileList;
+    QVector <QRgb> varColors;
+    QVector <Qt::PenStyle> styles;
     QSet <int> funSet;
     bool xIsFunction;
     int xInfoIdx;
@@ -72,12 +79,16 @@ class CVarTableComp:public QTableWidget
     Q_OBJECT
 private:
     bool multiFile, commonXSet, monotonic[TOTROWS], timeVarReset;
-    int xVarRow, currFileIdx;
+    int currFileIdx;
+    int highestUsedRowIdx; // indice dell'ultima riga con contenuto
+    int iniVarNumColWidth; // valore iniziale di varNumCol
     int singleFileNum; //numero del file se in SingleFile
-    int myDPI; //valore del numero di DPI logici del PC: di base in win (non 4k): 96 dpi.
+    int styleData;
     int tabNameNum; //index of the tab containining the object: for debug purposes
+    int xVarRow;
+    double myDPI; //valore del numero di DPI logici del PC: di base in win (non 4k): 96 dpi.
     float **yLine;
-    // I vettori yLine[i] contengono valori fittizzi che simulano dei puntatori a vettori y. Essi sono usati per effettuare un check sintattico su line. Per semplicità quindi sono tutti composti da un unico elemento il cui valore è pari al suo indice i; il numero di elementi di yLine è stato fissato in MAXVARSPERFUN.
+    // I vettori yLine[i] contengono valori fittizi che simulano dei puntatori a vettori y. Essi sono usati per effettuare un check sintattico su line. Per semplicità quindi sono tutti composti da un unico elemento il cui valore è pari al suo indice i; il numero di elementi di yLine è stato fissato in MAXVARSPERFUN.
 
     QColor headerGray; //Colore grigio della prima riga di intestazione setRgb(230,230,230);
     QFont cellFont;
@@ -85,13 +96,12 @@ private:
     QList <int> allFileNums;  //Lista di tutti i numeri di files disponibili, anche non visualizzati nella varTable, utilizzabili nelle funzioni di variabili
     QList <QString> allFileNames;  //Lista dei nomi di files usati nella tabella (eccetto in funzioni di variabili);
     //i nomi sono messi in indici corrispondenti all'indice di riga della tabella in cui il file è usato
-    QList <int> varMaxNumsLst; //Lista dei numeri di variabili dei files correntemente visualizzati nella
+    QList <int> varMaxNumsLst; //Lista dei numeri di variabili dei files correntemente visualizzati
     QSet <int> funSet; //contiene gli indici delle funzioni definite.
 /* La seguente variabile funInfoLst contiene una lista di informazioni delle varie variabili, così come introdotte dall'utente. In questa copia privata di CVarTableComp, varNames equivalenti quali ad es. f1v3 e v3 se f1 è il file corrente vengono mantenute distinte.
 Quando però il programma chiamente chiede giveFuninfo, i nomi equivalenti vengono unificati. Infatti vi sarebbe altrienti un problema con la memoria perché i vettori numerici passati per il calcolo sono in numero pari alle variabili effettivamente distinte, mentre e se esistono nomi duplicati si crea un disallineamento pernicioso.*/
 
     QList <SXYNameData> funInfoLst;
-    QVector <int> varNumVect; //contiene il numero di variabili per ognuno dei MAXFILES files; serve per il check sintattico quando si fanno le funzioni di varabili
     void resizeEvent(QResizeEvent *);
     QColor colors[TOTROWS], bkgroundColor;
     QBrush xVarBrush;
@@ -101,7 +111,7 @@ Quando però il programma chiamente chiede giveFuninfo, i nomi equivalenti vengo
     void dropEvent(QDropEvent *event);
     void mouseReleaseEvent(QMouseEvent * event);
     void showEvent(QShowEvent *);
-
+    CCustomiseCol *customiseCol;
     CFunStrInput *funStrInput;
 
 public:
@@ -126,8 +136,9 @@ public:
     void getVarNumVect(QVector<int> list); //serve per consentire la diagnostica delle funzioni di variabile
     void getColorScheme(bool useOldColors_);
 
-    void getState(QStringList &list, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_);
+    void getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_);
     int giveFileNum(int row);
+    int givehighestUsedRowIdx();
     SVarTableState giveState();
     QList <SXYNameData> giveFunInfo();
     void myReset(bool deep=false);
@@ -145,7 +156,7 @@ public slots:
     void blankCell();
     void myClicked(int r, int c); //Implementa la deselezione di variabile come SLOT di clicked()
     void setCurrFile(int fileIdx);
-    int setVar(QString varName, int varNum, int giveFileNum, bool rightScale, bool monotonic_);
+    int setVar(QString varName, int varNum, int giveFileNum, bool rightScale, bool monotonic_, QString unit_);
     int unselectFileVars(int fileIndex);
     int varColumn();
 };

@@ -43,7 +43,7 @@ public:
 private slots:
     void showEvent(QShowEvent *);
     void on_buttonBox_accepted();
-    void on_buttonBox_rejected();  
+    void on_buttonBox_rejected();
     void on_numDataChkBox_clicked(bool checked);
     void on_amplChkBox_clicked(bool checked);
     void on_phaseChkBox_clicked(bool checked);

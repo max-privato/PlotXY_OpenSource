@@ -31,20 +31,28 @@
 
 #define MAXFILES 8  //numero massimo di files (le linee inizialmente visualizzate sono invece 3)
 #define MAXVARS 15  //Numero massimo di variabili nella lista (escluso il tempo)
+
+#include "SuppFunctions.h"
+#define RATIOLIM 0.799f
+#define MAXAUTOMARKS 4
+#define MAXMANUMARKS 8
+#define MAXLOGTICS 26  //Cinque tacche per decade, cinque decadi più una
+#define EXPFRACTION 0.75f  //dimensioni dell'esponente in frazione delle dimensioni della base
+
+
 struct SFileInfo {
-    bool frequencyScan; // CURRENLY NOT USED in CLineChart
+    bool frequencyScan; // CURRENTLY NOT USED in CLineChart
     bool variableStep; //Tells if points are constantly spaced or not. Normally CLineChart is used with variableStep files. If it is known that the step is constant (i.e. points equally spaced) some faster algorithms are used in some contingencies
-    int fileNum, // CURRENLY NOT USED in CLineChart
+    int fileNum, // CURRENTLY NOT USED in CLineChart
     numOfPoints; //The total number of points contained in the considered file (every point will have an x-axis value, e.g. a time for simulations)
-    float timeShift; // CURRENLY NOT USED in CLineChart
+    float timeShift; // CURRENTLY NOT USED in CLineChart
     QString name; //A file name used by CLineChart legends
 };
 
 struct SXVarParam{
-    bool isMonotonic, //Tells whether the x-values are monotonically increasing. When this is not true, some functions are disabled. In case of parametric curves, for instance the horizontal-axis is not monotonic and the vertical rectangle to see numerical values is disabled.
+    bool isMonotonic, //Tells whether the x-values are monotonically increasing. When this is not true, some functions are disabled. In fase oc parametric curves, for instance the horizontal-axis is not monotonic and the vertical rectangle to see numerical values is disabled.
          isVariableStep;
     QString unitS; //le unità di misura, ad es. "s" "kA", etc.
-    QString description; //Ad esempio la description negli output di Dymola e OM
     QString name;
 };
 struct SCurveParam {
@@ -56,6 +64,7 @@ struct SCurveParam {
     QString midName;  //per le funzioni la loro stringa, tipo f1v1+2*v3
     QString fullName; // per le funzioni il nome completo, tipo voltage1-voltage2/2.0
     QColor color; // il colore (anche se non definito per la var. x sarà sempre black)
+    Qt::PenStyle style;
     bool rightScale; //valore non definito per la variabile x
     QString unitS;
 };
@@ -67,13 +76,6 @@ struct SUserLabel {
 
 struct SFloatRect2{float Left,Right,LTop,LBottom,RTop,RBottom;};
 
-#include "suppFunctions.h"
-#define RATIOLIM 0.80001
-#define MAXAUTOMARKS 4
-#define MAXMANUMARKS 8
-#define MAXLOGTICS 26  //Cinque tacche per decade, cinque decadi più una
-#define EXPFRACTION 0.75  //dimensioni dell'esponente in frazione delle dimensioni della base
-
 class QCursor;
 
 enum EPlotType{ptLine,ptBar, ptSwarm};
@@ -82,6 +84,7 @@ enum EScaleType {stLin, stDB, stLog};
 enum ESwarmPointSize {ssPixel, ssSquare};
 enum EDrawType {dtMC, //Filtraggio con gli algoritmi di MC, come sviluppati
                       //nell'implementazione storica BCB
+       dtMcD, //come dtMC ma con uso di double invece di float
        dtQtF, //assenza di filtraggio e uso della funzione painter.lineTo fra numeri float
        dtQtI,//assenza di filtraggio e uso della funzione painter.lineTo fra numeri int.
        dtPoly}; //assenza di filtraggio e uso di Polygon invece di drawPath.
@@ -122,12 +125,11 @@ public:
     enum EAxisType {atX, atYL, atYR};
 private:
     struct SDigits{
-        unsigned i1,i2,i3,i4;
+        int i1,i2,i3,i4;
       int ie;
         float Value, roundValue;
         char Sign;
     };
-    struct FloatPoint{float X,Y;};
     struct SAxis{
       /* Tutti i dati sono relativi a scale lineari eccetto eMin ed eMax*/
       bool
@@ -141,20 +143,24 @@ private:
       enum EScaleType scaleType; //dice se ho scala lineare, DB o logaritmica pura
       int eMin,   //potenza di 10 relativa all'estremo inferiore di scala logaritmica
           eMax,   //potenza di 10 relativa all'estremo superiore di scala logaritmica
-          done,  //se  0 i due estremi, arrotondati a quattro cifre significative, sono uguali,
-                //in tal caso di usano due sole tacche, in posizioni convenzionali;
-                //se  1, sono riuscito a trovare due estremi distinti ma non "rotondi",
-                //2 se il risultato  OK, cio se ho eseguito la scalatura in modo
+          done,  //se è 0 i due estremi, arrotondati a quattro cifre significative, sono uguali,
+                 //in tal caso di usano due sole tacche, in posizioni convenzionali;
+                 //se è 1, sono riuscito a trovare due estremi distinti ma non "rotondi",
+                 //è 2 se il risultato è OK, cioè se ho eseguito la scalatura in modo
                 //"exactMatch", oppure ho trovato i due numeri rotondi.
-          width, //ampiezza dell'asse in pixel: X1-X0, o Y1-Y0
+          widthPix, //ampiezza dell'asse in pixel: X1-X0, o Y1-Y0
                  //(in realtà sull'asse X c'è una piccola correzione nel solo caso delle bar).
           maxTextWidth, //massima ampiezza in pixel dei testi sugli assi, comprendendo
                     // i numeri sulle tacche e le eventuali label
-          ticDecimals, //Numero di decimali sulle tacche
+          ticPixWidth, //ampiezza delle tacche in pixel
+          ticDecimals, //Numero di decimali sulle label numeriche
           scaleExponent; //la scala si intende moltiplicata per 10^ScaleExponent
       float scaleFactor, //Fattore di scala per evitare numeri troppo grossi o piccoli
                           //sulle tacche degli assi  = 10^ScaleExponent
-            ticInterval;	//distanza numerica fra le tacche
+            ticInterval,    //distanza numerica fra le tacche (unità della grandezza)
+            ticIntervalPix,
+            pixPerValue; //rapporto fra widthPix e scaleFactor*(scaleMax-scaleMin) se in scala lineare
+                         //rapporto fra widthPix e scaleFactor*(eMax-eMin) se in scala log
       float minF,  //=minVal*scaleFactor
             maxF;  //=maxVal*scaleFactor
       float minVal, // minimo effettivo dell'asse senza arrotondamento
@@ -177,54 +183,118 @@ private:
 /*$$$*********************************************************************************/
 /***********Inizio definizione della classe FilterClip*******************************/
 /*************************************************************************************/
-    class CFilterClip{
-  /* Questa classe implementa le funzioni necessarie per
-    1. filtrare da grafici punti ridondanti
-    2. fare una ClipRegion manuale in quanto wuella standard di Windows non ha effetto
-       sulle metafile una volta che queste ultime siano state aperte dal programma di
-       destinazione.
-    Per quanto riguarda la funzione 1 viene definita una striscia intorno ad una retta:
-    se un dato punto dsi trova entro la striscia definita dai due punti precedenti
-    può essere filtrato via.
-      OCT '98. L'algoritmo della striscia semplice funziona erroneamente in alcuni casi:
-        se ad es. ho un overshoot di un solo pixel e poi si torna indietro restando nella
-        striscia se non adotto correttivi il punto di picco dell'overshoot viene escluso dal
-        grafico. Pertanto devo includere nel grafico oltre che i punti fuori della striscia
-        anche quelli che "tornano indietro". Questo risultato lo ottengo considerando il
-        segno del prodotto scalare di un vettore rappresentativo, in direzione e verso,
-        della retta (LineVector), e un vettore congiungente penultimo e ultimo punto
-        considerato.
-    Per quanto riguarda la funzione 2 essa  implementata nel metodo "GiveRectIntersect"
-    che dà l'intersezione di una retta orientata con un rettangolo.
-  */
-        public:
-          bool strongFilter; //Se  true vuol dire che sto facendo un Copy e il LineChart
-                               //di cui FC fa parte ha StrongFilter=true.
-          struct FloatPoint{float X,Y;};
-            float maxErr; //SemiLarghezza della striscia
-            CFilterClip(void);
-            bool getLine(float X1, float Y1, float X2, float Y2); //si passano le coordinate
-                //di due punti per cui passa la retta, e si definisce in tal modo la retta di
-                //riferimento. Se i due punti passati erano coincidenti, la retta non  definibile
-                //e la funzione ritorna false;
-            void getRect(int X0, int Y0, int X1, int Y1);
-              int giveRectIntersect(FloatPoint & I1, FloatPoint &I2);
-                bool isRedundant(float X, float Y); //ritorna true se il punto passato non  all'interno della striscia
-            bool isInRect(float X, float Y); //ritorna true se il punto passato  all'interno del rettangolo
-        private:
-          struct FloatRect{	float Top, Bottom, Left, Right;};
-            float X1,Y1,X2,Y2;
-            FloatRect R; //Rettangolo del grafico su cui effettuare il taglio delle curve
-              FloatPoint Vector;  //vettore che mi dà direz. e verso della StraightLine
-            bool lineDefined;
-            float A, B, C,  //coefficienti dell'equazione della retta e sqrt(A^2+B^2)
-                        aux, lastX, lastY;
-            float inline giveX(float Y), giveY(float X);
-            bool giveX(float Y, float &X), giveY(float X, float &Y);
-        };
+class CFilterClip{
+/* Questa classe implementa le funzioni necessarie per
+  1. filtrare da grafici punti ridondanti
+  2. fare una ClipRegion manuale in quanto wuella standard di Windows non ha effetto
+     sulle metafile una volta che queste ultime siano state aperte dal programma di
+     destinazione.
+  Per quanto riguarda la funzione 1 viene definita una striscia intorno ad una retta:
+  se un dato punto dsi trova entro la striscia definita dai due punti precedenti
+  può essere filtrato via.
+    OCT '98. L'algoritmo della striscia semplice funziona erroneamente in alcuni casi:
+      se ad es. ho un overshoot di un solo pixel e poi si torna indietro restando nella
+      striscia se non adotto correttivi il punto di picco dell'overshoot viene escluso dal
+      grafico. Pertanto devo includere nel grafico oltre che i punti fuori della striscia
+      anche quelli che "tornano indietro". Questo risultato lo ottengo considerando il
+      segno del prodotto scalare di un vettore rappresentativo, in direzione e verso,
+      della retta (LineVector), e un vettore congiungente penultimo e ultimo punto
+      considerato.
+  Per quanto riguarda la funzione 2 essa  implementata nel metodo "GiveRectIntersect"
+  che dà l'intersezione di una retta orientata con un rettangolo.
+*/
+  public:
+    bool strongFilter; //Se  true vuol dire che sto facendo un Copy e il LineChart
+                       //di cui FC fa parte ha StrongFilter=true.
+    struct FloatPoint{float X,Y;};
+    float maxErr; //SemiLarghezza della striscia
+    CFilterClip(void);
+    bool getLine(float X1, float Y1, float X2, float Y2); //si passano le coordinate
+        //di due punti per cui passa la retta, e si definisce in tal modo la retta di
+        //riferimento. Se i due punti passati erano coincidenti, la retta non  definibile
+        //e la funzione ritorna false;
+    void getRect(int X0, int Y0, int X1, int Y1);
+    int giveRectIntersect(FloatPoint & I1, FloatPoint &I2);
+    bool isRedundant(float X, float Y); //ritorna true se il punto passato non  all'interno della striscia
+    bool isInRect(float X, float Y); //ritorna true se il punto passato  all'interno del rettangolo
+  private:
+    struct FloatRect{	float Top, Bottom, Left, Right;};
+    float X1,Y1,X2,Y2;
+    FloatRect R; //Rettangolo del grafico su cui effettuare il taglio delle curve
+    FloatPoint Vector;  //vettore che mi dà direz. e verso della StraightLine
+    bool lineDefined;
+    float A, B, C,  //coefficienti dell'equazione della retta e sqrt(A^2+B^2)
+          aux, lastX, lastY;
+    float inline giveX(float Y), giveY(float X);
+    bool giveX(float Y, float &X), giveY(float X, float &Y);
+};
 /*$$$***********************************************************************/
 /*************Fine definizione della classe FilterClip**********************/
 /***************************************************************************/
+
+
+/*$$$*********************************************************************************/
+/***********Inizio definizione della classe FilterClipD*******************************/
+/*************************************************************************************/
+class CFilterClipD{
+/* Classe variante di CFilterClip, creata nel Dicembre 2018.
+ * L'obiettivo per la quale è stata realizzata era verificare se l'uso di numeri double
+ * velocizzasse o rallentasse l'esecuzione.
+ * La domanda era legittima in quanto il lineTo() di painter richiede dei double, e l'uso
+ * di float comporta continue conversioni di formato. L'utilizzo estensivo di double,
+ * però comporta di lavorare con uin numero maggiore di bytes per numero, e comunque di
+ * fare conversione dai dati interni delle matrici contenenti i risultati delle simulazioni
+ * da fload a double.
+ *
+ * Il risultato è stato sorprendente (e riproducibile attraverso test TestLineChart) i tempi
+ * di calcolo sono paragonabili nei due casi se uso linee di spessore di un pixel, mentre
+ * sono 50 volte più lenti se uso linee a due pixel. In sostanza si ottiene la seguente
+ * situazione:
+ * - i grafici con drawCurves() e CFilterClip e numeri sempre float sono paragonabili nei
+ *   tempi a quelli ottenibili con tutte le atre funzioni: drawCurvesD(),
+ *   drawCurvedPoly(), drawCurvesQtF(), drawCurvesQtI()
+ * - i grafici con drawCurves() e CFilterClip e numeri sempre float sono enormemente più
+ *   veloci (50 volte) di quelli ottenibili con tutte le atre funzioni: drawCurvesD(),
+ *   drawCurvedPoly(), drawCurvesQtF(), drawCurvesQtI()
+ * La ragione di queste forti differenze è per me oscura. Comunque la soluzione da
+ * scegliere è semmplice:
+ * - usare sempre drawCurves()
+ * - lasciare nel codice le altre funzioni, per futuri test.
+ *   */
+    public:
+      bool strongFilter; //Se  true vuol dire che sto facendo un Copy e il LineChart
+                         //di cui FC fa parte ha StrongFilter=true.
+      struct DoublePoint{double X,Y;};
+      double maxErr; //SemiLarghezza della striscia
+      CFilterClipD(void);
+      bool getLine(double X1, double Y1, double X2, double Y2); //si passano le coordinate
+                //di due punti per cui passa la retta, e si definisce in tal modo la retta di
+                //riferimento. Se i due punti passati erano coincidenti, la retta non  definibile
+                //e la funzione ritorna false;
+      void getRect(int X0, int Y0, int X1, int Y1);
+      int giveRectIntersect(DoublePoint & I1, DoublePoint &I2);
+      bool isRedundant(double X, double Y); //ritorna true se il punto passato non  all'interno della striscia
+      bool isInRect(double X, double Y); //ritorna true se il punto passato  all'interno del rettangolo
+    private:
+      struct DoubleRect{double Top, Bottom, Left, Right;};
+      double X1,Y1,X2,Y2;
+      DoubleRect R; //Rettangolo del grafico su cui effettuare il taglio delle curve
+      DoublePoint Vector;  //vettore che mi dà direz. e verso della StraightLine
+      bool lineDefined;
+      double A, B, C,  //coefficienti dell'equazione della retta e sqrt(A^2+B^2)
+             aux, lastX, lastY;
+      double inline giveX(double Y), giveY(double X);
+      bool giveX(double Y, double &X), giveY(double X, double &Y);
+  };
+/*$$$***********************************************************************/
+/*************Fine definizione della classe FilterClipD**********************/
+/***************************************************************************/
+
+
+
+
+
+
 
 // *************  2) VARIABILI PRIVATE IMPLEMENTATE COME PROPERTY
   int activeDataCurs; //Il cursore dati attivo di massimo numero (se  2 o 3  attivo anche il cursore 1!)
@@ -275,17 +345,17 @@ private:
       nPlots1, //cella contenente l'informazione "nPlots" per l'uso di funzioni relative al caso di file singoli
       numOfTotPlots, //Numero di grafici visualizzati
       numOfVSFiles, //Numero di files a passo variabile aventi variabili visualizzate
-      pointsDrawn, //Numero di punti utilizzati per il tracciamento
       smallHSpace, //circa mezzo carattere di spaziatura con GeneralFontSize (orizzontale)
       svgOffset, //Serve per correggere un errore non chiarito del tracciamento SVG
       swarmPointWidth,
       textHeight, //Altezza testo valori numerici degli assi
       X0,Y0,X1,Y1, //ascisse e ordinate del rettanglolo del grafico;
       xVarIndex, //Indice che nel vettore delle variabili  selectedVarNames indicizza il nome della variabile dell'asse x
-      **pixelToIndexDX; //matrice che punta, per ogni pixel, all'indice del punto immediatamente alla sua destra (solo per le variabili variableStep)
+      **pixelToIndexDX; //matrice che punta, per ogni pixel, all'indice del punto immediatamente alla sua destra (solo per le variabili variableStep). I pixel si incominnciano a contare dal rettangolo del grafico, cioè da X0. Quindi quanto l'indice di pixel è 0 mi riferisco al segmento verticale di sinistra.
   int *startIndex, *stopIndex, //Indici di inizio e fine di grafico in caso di zoom
-      xStartIndex[MAXFILES], //ascissa in pixel del primo punto visualizzato (che corrisponde a StartIndex[0])
-      xStopIndex[MAXFILES]; //ascissa in pixel dell'ultimo punto visualizzato (che corrisponde a StopIndex[0])
+      xStartIndex[MAXFILES], //ascissa in pixel del primo punto visualizzato (che corrisponde a startIndex[0]. Originariamente è stato messo per individuare quando il cursore si trova fuori range nel caso di più grafici da di versi files con diversi range asse x.
+  // A partire da Apr 2018 si cercherà di usarlo anche nel caso in cui con scala logaritmica il grafico non parte proprio dall'origine dell'asse x, quindi xStartIndex non è X0. Questo accade per evitare, in un caso molto particolare, che vanga valutato il logaritmo di 0.
+      xStopIndex[MAXFILES]; //ascissa in pixel dell'ultimo punto visualizzato (che corrisponde a stopIndex[0])
   float aspectRatio;  //altezza/larghezza
   float markHalfWidth; //metà della dimensione orizzontale dei Mark
 
@@ -298,7 +368,7 @@ private:
                **cursorYValBkp; //Valori di salvataggio del cursore numerico
   ELegendFontSizeType legendFontSizeType;
 //  SCurveParam *curveParam;
-  QList <SCurveParam> lCurveParam;
+  QList <SCurveParam> curveParamLst;
   QVector <int>   nPlots; //Vettore dei numeri di grafici per i vari files
 
   SXVarParam xVarParam;
@@ -308,8 +378,7 @@ private:
   SFloatRect2 dispRect; //Rettangolo di visualizzazione attuale
   QString baseFontFamily;
   CFilterClip FC;
-  struct {float x,y,ry;} ticInterv,
-         ratio; //rapporto fra ampiezza asse in pixel e ampiezza numerica della grandezza visualizzata nel rettangolo del grafico
+  CFilterClipD FCd;
   struct SUserUnits {QString x, y, ry;} userUnits;
   QCursor myCursor;
   QFont numFont, baseFont, expFont, lgdFont; //Loro utilizzo in Developer.odtQuesti tre font vengono definiti solo nel design plot. Essi sono funzione della dimensione del grafico. se é fontSizeType==fsFixed, allora il baseFont assumerà come pixelSize fixedFontPx
@@ -325,7 +394,6 @@ private:
   QPen framePen, gridPen, plotPen, ticPen, txtPen;
   QPointF stZoomRectPos, endZoomRectPos;
   QPointF markPositions[MAXVARS]; //Posizioni dei marcatori sui nomi delle variabili
-  QPoint ticWidth;
 /* In debugRect copierò sempre dataCurs in quanto a seguito di un bug non chiarito capita che all'evento paint vengano spesso inviati dei dataCurs con valore x  errato!*/
   QRect debugCurs;
   QRect dataCurs, dataCurs2;
@@ -354,13 +422,14 @@ private:
   void designPlot(void);
   void drawBars(void);
   int drawCurves(bool NoCurves);
+  int drawCurvesD(bool NoCurves);
   void drawCurvesQtF(bool NoCurves);
   void drawCurvesQtI(bool NoCurves);
   void drawCurvesPoly(bool NoCurves);
   void drawMark(float X, float Y, int mark, bool markName);
   void drawSwarm(void);
-  int drawText2(int X, int Y, EadjustType hAdjust, EadjustType vAdjust, QString msg1, QString msg2, bool addBrackets, bool Virtual);
-  int smartDrawUnit(QPainter * myPainter, QFont baseFont, int X, int Y, EadjustType hAdjust, EadjustType vAdjust, QString text,  bool addBrackets, bool Virtual );
+  int writeText2(QPainter *myPainter, int X, int Y, EadjustType hAdjust, EadjustType vAdjust, QString msg1, QString msg2, bool addBrackets, bool Virtual);
+  int smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int Y, EadjustType hAdjust, EadjustType vAdjust, QString text,  bool addBrackets, bool Virtual );
   bool fillPixelToIndex(int **pixelToIndexDX);
   bool fillPixelToIndexLog(int **pixelToIndexDX);
   //Funzione che dà i valori delle X e delle Y in corrispondenza di una data posizione
@@ -370,7 +439,7 @@ private:
   SXYValues giveValues(int cursorX, bool interpolation, bool xDdiff, bool yDdiff);
   SFloatRect2 giveZoomRect(int startSelX, int startSelY, int X, int Y);
   QString goPlot(bool Virtual, bool includeFO);
-  struct SMinMax findMinMax(float * vect, unsigned dimens);
+  struct SMinMax findMinMax(float * vect, int dimens);
   void keyPressEvent(QKeyEvent * event) override;
   void mark(bool store);
   void markAll();
@@ -378,13 +447,13 @@ private:
   //orizzontale del cursore e del file e del grafico specificati attraverso i primi due
   //parametri passati:
   void markSingle(int iFile, int iVSFile, int iPlot, int iTotPlot, bool store);
-  static float minus(struct SDigits d, unsigned icifra, unsigned ifrac);
-  static float plus(struct SDigits d, unsigned icifra, unsigned ifrac);
+  static float minus(struct SDigits d, int icifra, int ifrac);
+  static float plus(struct SDigits d, int icifra, int ifrac);
   void resizeEvent(QResizeEvent *) override;
   void selectUnzoom(QMouseEvent *event);
-  QString setFullDispRect();
+  SFloatRect2 setFullDispRect();
   int scaleAxis(SAxis &Axis, float minVal, float maxVal, int minTic, unsigned include0, bool exactMatch);
-  int scaleXY(SFloatRect2 r, const bool justTic);
+  int scaleXY(SFloatRect2 &dispRect, const bool justTic);
   void setRect(QRect r);
   QTimer * tooltipTimer;
   int writeAxisLabel(int X, int Y, SAxis &Axis, bool Virtual);
@@ -430,6 +499,7 @@ bool  exactMatch, //se true DispRect  correntemente visualizzato in modalità "E
 int drawTimeMs; //drawing time in milliseconds
 int drawTimeUs; //drawing time in microseconds
 int fixedFontPx; //default pixel size of text font, when "fsFixed" is selected by the user
+int pointsDrawn; //Numero di punti utilizzati per il tracciamento
 int tooltipMargin; //distanza  in pixel dal punto per visualizzare il tootip dei valori
 
 // *************  6) FUNZIONI PUBBLICHE (in ordine alfabetico)
@@ -455,7 +525,7 @@ int tooltipMargin; //distanza  in pixel dal punto per visualizzare il tootip dei
   QString makePng(QString fullName, bool issueMsg);
   QString makeSvg(QString fullName, bool issueMsg=true);
   void mark(void), markAuto(void);
-  QString plot(bool autoScale=2);
+  QString plot(bool autoScale=true);
   QString print(QPrinter * printer, bool thinLines);
   void resetMarkData();
   void setDispRect(SFloatRect2 rect);
@@ -472,6 +542,7 @@ int tooltipMargin; //distanza  in pixel dal punto per visualizzare il tootip dei
 
   // *************  8)   SIGNALS
   signals:
+  void chartResizeStopped(void);
   void valuesChanged(SXYValues values, bool hDifference, bool vDifference);
 
   // *************  9)   PRIVATE SLOTS

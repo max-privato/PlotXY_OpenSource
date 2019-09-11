@@ -18,13 +18,16 @@
  */
 
 #include <QApplication>  //#include <QtGui/QApplication>
+#include <QMessageBox>
 #include <QSettings>
 #include "CDataSelWin.h"
 #include "Globals.h"
 
 
-/*La seguente struttura, in PlotXY di BCB era pensata per trasferire agevolmente poche variabili globali fra i vari moduli.
-Nella traduzione Qt è risultato possibile fare un migliore incapsulamento delle variabili, e pertanto questa struttura è condivisa al momento (18/1/2014)solo fra main e CDataSelWin!!
+/* The following structure, in BCB's PlotXY, was designed to easily transfer a
+ * few global variables between the various modules. In the Qt translation it
+ * was possible to make a better encapsulation of the variables, and therefore
+ * this structure is shared at the moment (18/1/2014) only between main and CDataSelWin !!
 */
 SGlobalVars GV;
 
@@ -32,25 +35,29 @@ int main(int argc, char *argv[])
 {
     int i;
     QApplication a(argc, argv);
-    //Le informazioni delle seguenti due righe sono utilizzate poi per la scrittura sul registry dei dati registrati mediante l'oggetto "QSettings".
-    //Il nome dell'organizzazione è diverso da quello del vecchio PlotXY, in modo da mantenere l'indipendenza sul registro. La cancellazione delle chiavi sotto "University of Pisa" non cancellerà le chiavi del sotto "University of Pisa - MC's" e viceversa.
+
+    // The information in the following two lines is used laer to write on the registry the data recorded using the "QSettings" object.
+    // The name of the organization is different from that of the old PlotXY, in order to maintain independence of the two on the register. The deletion of the keys under "University of Pisa" will not delete the keys  under "University of Pisa - MC's" and vice versa.
+    // In Linux, the data is stored in $HOME/.config/University of Pisa - MC's/MC's PlotXY.conf
     QCoreApplication::setOrganizationName("University of Pisa - MC's");
     QCoreApplication::setApplicationName("MC's PlotXY");
-    //Ora se l'utente ha generato dei settings in precedenti istanze (in windows voci del registro di sistema) li carico.
-    // Successivamente tali valori potranno essere modificati sulla base di parametri passati
-    // Le seguenti variabili tutte maiuscole sono definite in appositi defines in Globals.h
+
+    // Now if the user has generated settings in previous instances (in windows registry entries) I load them.
+    // Later these values ​​can be modified on the basis of passed parameters
+    // The following all uppercase variables are defined in special terms in Globals.h
     QSettings settings;
 //    struct SOptions* PO=&GV.PO;
     settings.beginGroup("globalOptions");
     GV.PO.autoLabelXY=settings.value("autoLabelXY",AUTOLABELXY).toBool();
     GV.PO.barChartForFS=settings.value("barChartForFS",BARCHARTFORHFS).toBool();
+    GV.PO.commasAreSeparators=settings.value("commasAreSeparators",COMMASARESEPARATORS).toBool();
+    GV.PO.compactMMvarMenu=settings.value("compactMMvarMenu",COMPACTMMVARMENU).toBool();
     GV.PO.largerFonts=settings.value("largerFonts",LARGERFONTS).toBool();
     GV.PO.useBrackets=settings.value("useBrackets",USEBRACKETS).toBool();
     GV.PO.useGrids=settings.value("useGrids",USEGRIDS).toBool();
     GV.PO.useOldColors=settings.value("useOldColors",USEOLDCOLORS).toBool();
     GV.PO.plotPenWidth=settings.value("plotPenWidth",PLOTPENWIDTH).toInt();
     GV.PO.onlyPoints=settings.value("onlyPoints",ONLYPOINTSINPLOTS).toBool();
-    GV.PO.commasAreSeparators=settings.value("commasAreSeparators",COMMASARESEPARATORS).toBool();
     GV.PO.rememberWinPosSize=settings.value("rememberWinPosSize",REMEMBERWINPOSANDSIZE).toBool();
     GV.PO.trimQuotes=settings.value("trimQuotes",TRIMQUOTES).toBool();
     GV.PO.defaultFreq=settings.value("defaultFreq",DEFAULTFREQ).toDouble();
@@ -58,30 +65,50 @@ int main(int argc, char *argv[])
     GV.multiFileMode =settings.value("multifileMode",true).toBool();
     for(int i=0;i<MAXFILES; i++)GV.varNumsLst.append(0);
 
+    QStringList optLst={"/dtXY","/dtQtF","/dtQtI","/dtQtP","/sff","/uml","/set"};
+    GV.PO.drawType=0;  // filtraggio grafici XY
     QString opt;
     for(i=1; i<QCoreApplication::arguments().count(); i++){
-        opt=QCoreApplication::arguments().at(i).toLower();
+        opt=QCoreApplication::arguments().at(i);
         if(opt[0]!='/')break;
-        if(opt=="/sff")
+        if(optLst.indexOf(opt)<0){
+          QMessageBox msgBox;
+          msgBox.setText("the following command-line option is unrecognised: \n"+opt);
+          msgBox.exec();
+       }
+        if(opt=="/dtQtF")   //filtraggio Qt con precisione float
+            GV.PO.drawType=1;
+        if(opt=="/dtQtI") //filtraggio Qt con precisione integer
+            GV.PO.drawType=2;
+        if(opt=="/dtQtP") //filtraggio Qt con polinomio
+            GV.PO.drawType=3;
+        if(opt=="/sff") //Show Full File List
             GV.PO.showFullFilelist=true;
-        if(opt=="/uml")
+        if(opt=="/uml"){
             GV.PO.useMatLib=true;
-        else
+        }else{
             GV.PO.useMatLib=false;
-        if(opt=="/set")
+        }
+        if(opt=="/set")  //ShowElapsedTime
             GV.PO.showElapsTime=true;
         else
             GV.PO.showElapsTime=false;
     }
-    // I nomi dei files vengono dopo le opzioni, quindi devo memorizzare l'ultima opzione trovata:
+    // The file names come after the options, so I have to memorize the last option found:
     GV.PO.firstFileIndex=i;
 
-    // Al momento (7/9/2014) le GV.PO sono accedute direttamente da DataSelWin, e passate con il meccanismo signal/slot a CPlotWin e CFourWin. Gli slot di queste due classi distribuiscono poi le opzioni alle classi sottostanti che ne necessitano (senza ulteriori signal/slot).
-    //La prima esecuzione del signal è comandata in fondo a CDataSelWin::CdataSeWin, dopo che sono stati fatti i connect relativi.
+    // At the moment (7/9/2014) the GV.PO are accessed directly by DataSelWin, and passed with the signal/slot mechanism to CPlotWin and CFourWin.
+    // The slots of these two classes then distribute the options to the underlying classes that need them (without additional signal / slot).
+    // The first execution of the signal is commanded at the bottom of CDataSelWin :: CdataSeWin, after the relative connect has been made.
 
     qApp->setStyleSheet("QTabWidget { font-size: 12px }");
     qApp->setStyleSheet("QTableWidget { font-size: 12px }");
     qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+
+    // The following line is essential for compiling under Ubuntu. Otherwise
+    // the numbers are coded using the comma as decimal separator, which would cause big troubles to all the I/O software from text files .
+    // Basically "The std :: scanf family of functions are locale aware". Evidently the default locale in Ubuntu is not the standard C.
+     setlocale(LC_NUMERIC,"C");
 
     CDataSelWin w;
     w.show();

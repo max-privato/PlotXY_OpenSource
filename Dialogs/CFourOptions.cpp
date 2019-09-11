@@ -29,13 +29,14 @@ CFourOptions::CFourOptions(QWidget *parent) :
 void CFourOptions::getData(SFourData data_){
     QString msg;
     data=data_;
-    msg.setNum(data_.opt.initialTime);
-    ui->startTimeEdit->setText(msg);
-    msg.setNum(data_.opt.finalTime);
-    ui->endTimeEdit->setText(msg);
+      msg.setNum(data_.opt.initialTime);
+      ui->startTimeEdit->setText(msg);
+      msg.setNum(data_.opt.finalTime);
+      ui->endTimeEdit->setText(msg);
+
     switch(data_.opt.amplUnit){
-      case   peak: ui->  peakBtn->setChecked(true); break;
-      case    rms: ui->   rmsBtn->setChecked(true); break;
+      case  peak: ui->  peakBtn->setChecked(true); break;
+      case   rms: ui->   rmsBtn->setChecked(true); break;
       case puOf0: ui->rmsTo0Btn->setChecked(true); break;
       case puOf1: ui->rmsTo1Btn->setChecked(true); break;
     }
@@ -72,6 +73,8 @@ SFourOptions CFourOptions::giveData(void){
     if(ui->size100Btn->isChecked()) opt.amplSize=hundred;
     opt.harm1= ui->harm1Edit->text().toInt();
     opt.harm2= ui->harm2Edit->text().toInt();
+    opt.initialTime = ui->startTimeEdit->text().toFloat();
+    opt.finalTime  = ui->endTimeEdit->text().toFloat();
     return opt;
 }
 

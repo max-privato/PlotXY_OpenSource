@@ -21,19 +21,53 @@
 #include <QDebug>
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 
+// La seguente funzione statica, usata qui e in CVarTable, è identica a quella dentro CSimOut. /denominata giveAutoUnits()) Ad un certo punto antrà soppressa fuori di CSimOut in quanto le unità vengono lì associate direttamente alle variabili lette e non c'è nessun bisogno di valutarle nuovamente.
 
-CLineCalc::CLineCalc(){
+QString giveUnits(QChar c){
+    int ic=c.toLatin1();
+    switch (ic){
+    case 't': return "s";
+    case 'f': return "s";
+    case 'v': return "V";
+    case 'c': return "A";
+    case 'i': return "A";
+    case 'p': return "W";
+    case 'e': return "J";
+  }
+  return "";
+}
+
+
+CLineCalc::CLineCalc(bool allowMathFunctions_){
+    allowMathFunctions=allowMathFunctions_;
     xyNaming=true;
     gotExplicitNames=false;
     lineReceived=false;
     pointersPrepared=false;
     unitCharLstFilled=false;
     varListsReceived=false;
-    fun[0]=power;
-    fun[1]=prod;
-    fun[2]=div;
-    fun[3]=sum;
-    fun[4]=subtr;
+    funStr[0]="sin";   fun1[0]=sinf;
+    funStr[1]="cos";   fun1[1]=cosf;
+    funStr[2]="tan";   fun1[2]=tanf;
+    funStr[3]="sinh";  fun1[3]=sinhf;
+    funStr[4]="cosh";  fun1[4]=coshf;
+    funStr[5]="tanh";  fun1[5]=tanhf;
+    funStr[6]="exp";   fun1[6]=expf;
+    funStr[7]="sqrt";  fun1[7]=sqrtf;  //unica funzione accettata in PlotXY che necessita verifica di dominio
+    funStr[8]="asin";  fun1[8]=asinf;
+    funStr[9]="acos";  fun1[9]=acosf;
+    funStr[10]="atan"; fun1[10]=atanf;
+    funStr[11]="log";  fun1[11]=logf;
+    funStr[12]="abs";  fun1[12]=fabsf;
+
+    // In PlotXY ammetto solo alcune funzioni:
+    allowedFunIndexes<<0<<1<<6<<7<<12;
+
+    fun2[0]=power;
+    fun2[1]=prod;
+    fun2[2]=div;
+    fun2[3]=sum;
+    fun2[4]=subtr;
     rxAlphabet=QRegExp("[0-9a-zA-Z .-+*/()]");
     rxDatumPtr=QRegExp("[#@]");
     rxLetter=QRegExp("[a-zA-Z]"); //initial character of a variable
@@ -44,10 +78,15 @@ CLineCalc::CLineCalc(){
     rxNumSepar=QRegExp("[-+*/() ]"); //carattere ammissibile fra un numero ed il successivo
     rxOper=QRegExp("[-+*/]"); //operator
     rxNotLetterDigit=QRegExp("[^a-zA-Z0-9]");
+    rxNotLetterDigitBracket=QRegExp("[^a-zA-Z0-9)]");
     defaultFileNum=-1;
-    pConst=0;
-    pUnaryMinus=0;
-    pVar=0;
+    pConst=nullptr;
+    pUnaryMinus=nullptr;
+    pFun=nullptr;
+    pVar=nullptr;
+    pUnit=nullptr;
+    unitOfMeasure="";
+
 }
 
 
@@ -58,62 +97,6 @@ QString CLineCalc::checkLine(){
     return "";
 }
 
-QString CLineCalc::computeUnits(){
-  /* Questa funzione dovrà calcolare l'unità di misura dell'intera stringa.
-   * Per ora faccio un'implementazione semplificata in cui la calcola solo nel caso di
-   * somma algebrica di variabili e di prodotto di due grandezze: quest'ultimo caso
-   * condente di per replicare quello che c'era nel vecchio plotXWin per il quale VxI dava W
-*/
-    int i;
-    extern QString giveUnits(QChar c); //definita in CVarTableComp
-    QString unit="";
-
-    // In questa versione semplificata la stringa deve contenere solo un alfabeto semplificato:
-    QRegExp rxSimpleAlphabet=QRegExp("[ @#+-*()]");
-    //1) verifica che tutti i caratteri appartengono all'alfabeto previsto.
-    for(int i=0; i<line.length(); i++){
-        if(rxSimpleAlphabet.indexIn(line,i)<0){
-          return "";
-      }
-    }
-    // 2) verifico se ho un singolo prodotto e nel caso eseguo la valutazione dell'unità
-    i=line.indexOf('*');
-    // Se ho un secondo prodotto esco con unità indefinita:
-    if(i>=0 && i<line.count()-1)
-      if(line.indexOf('*',i+1)>0)
-        return "";
-    if(i>=0){
-      // Ho un singolo prodotto e eseguo il calcolo dell'unità:
-      int l,r; //left e right indexes)
-      l=line.lastIndexOf('@',i);
-      if (l<0) return "";
-      r=line.indexOf('@',i);
-      if (r<0) return "";
-      QString ul=giveUnits(lineFirstChar[l]), ur=giveUnits(lineFirstChar[r]);
-      if((ul=="A" && ur=="V") || (ur=="A" && ul=="V") )
-        unit="W";
-      else
-        unit="";
-      return unit;
-    }
-
-
-    // A questo punto, in questa versione semplificata, mi basta verificare che tutte le unità presenti coincidano
-    // Deve essere presente almeno una variabile, della quale prendo l'unità; poi verifico che tutte le atre siano uguali
-    i=line.indexOf('@');
-    if (i<0)
-      return "";
-    unit=giveUnits(lineFirstChar[i]);
-    //Ora devo verificare che tutte le unità coincidano con unit
-    for(i=0; i<line.length(); i++){
-      if(line[i]=='@')
-        if(giveUnits(lineFirstChar[i])!=unit){
-          unit="";
-          break;
-      }
-    }
-    return unit;
-}
 
 float CLineCalc::compute(int iVal){
     /* Quando questa funzione è chiamata line contiene già puntatori a costanti e variabili.
@@ -124,8 +107,9 @@ float CLineCalc::compute(int iVal){
    int d1, d2, //indici dei dati  1 e 2
            o, // indice dell'operatore
            j;  //indice generico
-   float x1, x2, y;
+   float x1, x2, y=0;
    divisionByZero=false;
+   domainError=false;
 
 /* Questa funzione altera "intLine" durante il calcolo. Può essere chiamata più volte dall'esterno con diversi valori di iVal, e può essere anche chiamata ricorsivamente da se stessa durante l'elaborazione delle espressioni fra parentesi.
 La variabile contenente la stringa da analizzare, che rimane stabile da una chiamata dall'esterno all'altra di compute() è line.
@@ -150,6 +134,13 @@ Ogni volta che compute() è chiamata dall'esterno ricopio line in intLine, mentr
        //elimino le parentesi in quanto nel resto della funzione ne tratto il contenuto riconducendolo ad un unico '#' all'interno di spazi
        intLine[start]=' ';
        intLine[end]  =' ';
+   }
+
+   // Prima valuto le chiamate a funzione
+   ret=computeFun1(start, iVal); //funzioni con ()
+   if(ret.length()>0){
+     domainError=true;
+     return 0;
    }
 
    //Prima applico gli operatori prioritari da sinistra verso destra:
@@ -265,18 +256,64 @@ Ogni volta che compute() è chiamata dall'esterno ricopio line in intLine, mentr
    return result;
 }
 
+QString CLineCalc::computeFun1(int start, int iVal){
+ /* Percorre sequenzialmente la stringa line, fra gli indici start ed end, ed esegue da sinistra a destra tutte le chiamate a funzioni specificate dai puntatori pFun.
+*/
+  int i=0,j;
+  float y=0;
+  QString ret="";
+  while(true){
+    i=intLine.indexOf('&',start);
+    if(i==-1)return "";
+    j=i+1;
+    while(intLine[j]==' ')j++;
+    //A questo punto l'argomento della funzione può essere una costante (carattere '#') o una variabile (carattere '@')
+    if(intLine[j]=='#'){
+//      if(pFun[i]==sqrt && pConst[j]<0)
+        if(pFun[i]==fun1[7] && pConst[j]<0)
+          ret="Domain error when evaluating sqrt()";
+      y=pFun[i](pConst[j]);
+    }
+    if(intLine[j]=='@'){
+//      if(pFun[i]==sqrt && pVar[j][iVal]<0)
+        if(pFun[i]==fun1[7] && pVar[j][iVal]<0)
+        ret="Domain error when evaluating sqrt()";
+      y=pFun[i](pVar[j][iVal]);
+    }
+    intLine[i]='#';
+    intLine[j]=' ';
+    pConst[i]=float(y);
+    return ret;
+  }
+}
+
 
 SXYNameData CLineCalc::checkAndFindNames(){
-/* CLineCalc accetta come nomi di variabili generici nomi che comincino con una lettera e contengano lettere e numeri.
-   Però quando xyNaming=true essa è usata all'interno di XY e si hanno ulteriori restrizioni sui nomi. In tal caso, infatti, i nomi sono del tipo f#v# o v#.
-In questa routine si fanno delle elaborazioni su "line", (è già stata generata a partire da lineUser, con soppressione di "int", spazi in eccesso e conversione di virgole in punti) per trovare gli identificatori dei nomi
-Nel caso in cui sia xyNaming=true:
-  - si verifica che gli identificatori dei nomi rispettino lo standard f#v# / v#
-  - per ogni variabile si identificano i valori numerici contenuti all'interno del nome (carattere '#')
-  - si analizza il risultato per vedere se le variabili appartengono tutte al medesimo file ovvero a quale set di files appartengono.
-  - si crea la stringa (per il solo uso di visualizzione all'utente) SXYNameData.lineFullNames
-
-Questa analisi verrà utilizzata dal programma chiamante per preparare i dati per "get and prepare" e, nel caso di files multipli, quindi con diversi valori delle grandezze sull'asse x, anche per preparare i vettori da passare a compute().
+/* Routine che verifica la validità dei nomi presenti nella stringa "line", e li inserisce
+ * con le necessarie informazioni di corredo nella struttura nameData.
+ * La stringa  "line" darà già stata generata a partire da lineUser, con soppressione di
+ * "int", spazi in eccesso e conversione di virgole in punti)
+ *
+ * CLineCalc accetta come nomi di variabili generici nomi che comincino con una lettera
+ * e contengano lettere e numeri.
+ * Però quando xyNaming=true essa è usata all'interno di XY e si hanno ulteriori restrizioni
+ * sui nomi. In tal caso, infatti, i nomi sono del tipo f#v# o v#.
+ *
+ * In questa routine si fanno delle elaborazioni su "line", (è già stata generata a
+ * partire da lineUser, con soppressione di "int", spazi in eccesso e conversione di
+ * virgole in punti) per trovare gli identificatori dei nomi
+ * Nel caso in cui sia xyNaming=true:
+ *   - si verifica che gli identificatori dei nomi rispettino lo standard f#v# / v#
+ *   - per ogni variabile si identificano i valori numerici contenuti all'interno del nome
+ *     (carattere '#')
+ *   - si analizza il risultato per vedere se le variabili appartengono tutte al medesimo
+ *     file ovvero a quale set di files appartengono.
+ *   - si crea la stringa (per il solo uso di visualizzazione all'utente) SXYNameData.
+ * lineFullNames
+ *
+ * Questa analisi verrà utilizzata dal programma chiamante per preparare i dati per
+ * "getNamesAndMatrix()" e, nel caso di files multipli, quindi con diversi valori delle
+ * grandezze sull'asse x, anche per preparare i vettori da passare a compute().
 
 struct SVarNums{
     int fileNum, varNum;
@@ -301,18 +338,30 @@ struct SXYNameData{
     QString varStr;
 
     if(!constantsAreSharps)
-      constantsToPointers(); //scrive i '#' in "line"
+      substConstsWithPointers(); //scrive i '#' in "line"
 
     i=0;
     //Ora procedo con l'analisi considerando la ricerca di nomi validi
     while(!eol){
        i=rxLetter.indexIn(line,i); //l'inizio della variabile dev'essere una lettera
        if(i<0){ eol=true;  break; }
-       j=rxNotLetterDigit.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit
+       if(allowMathFunctions)
+         j=rxNotLetterDigitBracket.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit né parentesi chiusa (è parentesi ad es. nel caso di 'abs(v9)')
+       else
+         j=rxNotLetterDigit.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit
        if(j>=0)
          varStr=line.mid(i,j-i);
-       else
-         varStr=line.mid(i,line.length());
+       else{
+         // In questo caso posso avere una o più parentesi chiuse. Devo scegliere il primo carattere a sinistra della prima parentes chiusa.
+         if(line[line.length()-1]==')'){
+            j=rxNotLetterDigit.indexIn(line,i+1);
+            varStr=line.mid(i,j-i);
+         }else{
+            varStr=line.mid(i,line.length());
+         }
+       }
+       if(allowMathFunctions && varStr[varStr.length()-1]==')')
+           varStr.chop(1);
        //ora varStr contiene la stringa di variabile (comincia con lettera e contiene lettere e digits).
        if(!xyNaming){
          if(!nameData.varNames.contains(varStr))
@@ -320,12 +369,31 @@ struct SXYNameData{
          i+=varStr.length();
          continue;
        }
+       //Verifico se si tratta di un nome di funzione, altrimenti procedo con la lettura della variabile:
+       if(allowMathFunctions){
+         bool isFunction=false;
+         foreach (int i,allowedFunIndexes){
+           if(varStr==funStr[i]){
+             isFunction=true;
+             break;
+          }
+         }
+         if(isFunction){
+           i+=varStr.length();
+           continue;
+         }
+       }
        // Lettura dei numeri # in v# o f#v#:
        varXYNums=readVarXYNums(varStr);
        //Se varNum=-1 c'è stato un errore di lettura
        if(varXYNums.varNum==-1){
+         if(allowMathFunctions)
            nameData.ret=
-             "The following incorrect variable name was read in the input string: \""   +varStr+"\"";
+             "The following incorrect function or variable name "
+             "was read in the input string: \"" +varStr+"\"" ;
+         else
+           nameData.ret=
+             "The following incorrect variable name was read in the input string: \"" +varStr+"\"";
            return nameData;
        }
        // Ora qui devo verificare se i numeri di file e gli indici di variabile sono validi
@@ -368,7 +436,7 @@ errorReturn:
   return nameData;
 }
 
-QString CLineCalc::constantsToPointers(){
+QString CLineCalc::substConstsWithPointers(){
     /* In questa funzione si sostituiscono le costanti con il carattere '#', ed in corrispondenza della sua posizione, il relativo valore viene messo nel corrispondente puntatore a float pConst[i].
 Per prima cosa si tratta l'eventuale unario che si trova a inizio stringa, e poi si procede con numeri tutti positivi */
    bool eol=false, unary=false, unaryMinus=false, ok;
@@ -421,9 +489,13 @@ Per prima cosa si tratta l'eventuale unario che si trova a inizio stringa, e poi
       for(int k=i+1;k<j;k++)
           line[k]=' ';
    }
+   constantsConverted=true;
    return"";
 }
 
+QString CLineCalc::unitOfMeasuref(){
+  return unitOfMeasure;
+}
 
 QString fillNames(QString inpStr, int defaultFileNum){
     /* Questa routine scrive eventuali nomi di forma compatta in forma completa. Es. v1+v2 diviene, se defaultFileNum è 2, f2v1+f2v2. Questo serve quando l'utente cambia il valore del file di default (cioè del defaultFileNum). In questo caso sarebbe assurdo cambiare il significato dei nomi originariamente introdotti, ma va chiarito il senso dei nomi con l'integrazione del nome del file a cui essi si riferivano.
@@ -449,8 +521,19 @@ QString fillNames(QString inpStr, int defaultFileNum){
 }
 
 
-QString CLineCalc::getNamesAndMatrix(QList <QString> nameList, float ** y_, QList <QString *> namesFullList, int selectedFileIdx){
-  /*Questa funzione overloaded oltre all'usuale calcolo di getAndPrepare, compila anche la riga "lineFullNames", in cui ai nomi codificati delle variabili (tipo "f1v2") sono sostituiti nomi espliciti (tipo "busVoltage1").
+void CLineCalc::getFileInfo(QList <int> fileNumsLst_, QList <QString> fileNamesLst_, QList <int> varMaxNumsLst_){
+ /* Questa funzione serve per consentire il check sintattico sulle stringhe introdotte dall'utente, e quindi fornisce la lista dei numeri di files sono utilizzabili nelle funzioni di variabili.
+I nomi dei files vengono invece usati per creare la stringa corretta di tooltip per le variabili funzione (non attualmente, nov. 2016) che si usa "f1:", "f2:" ecc.)*/
+  fileNumsLst=fileNumsLst_;
+  fileNamesLst=fileNamesLst_;
+  varMaxNumsLst=varMaxNumsLst_;
+}
+
+
+QString CLineCalc::getNamesAndMatrix(QList <QString> nameList, QList <QString> unitList, float ** y_, QList <QString *> namesFullList, int selectedFileIdx){
+  /* Questa funzione overloaded oltre all'usuale calcolo di getNamesAndMatrix, compila anche
+   *  la riga "lineFullNames", in cui ai nomi codificati delle variabili (tipo "f1v2")
+   *  sono sostituiti nomi espliciti (tipo "busVoltage1").
 -  nameList: lista dei nomi codificati delle variabili (tipo "f1v2")
 -  y_ matrice dei dati su cui calcolare la funzione
 -  namesFullList: ogni elemento della lista è un puntatore ad un vettore di stringhe
@@ -470,8 +553,10 @@ La costruzione di lineFullNames segue la seguente logica:
     //   QUI CORREGGERE METTENDO L'USO DI fileIdxToLists !!!
 
   QString ret;
-  unitCharLst.clear();
   funText="*";
+
+  myUnitList=unitList;
+
 
 //Se tutti gli elementi provengono da un unico file nella finestra di visualizzazione dei dati mostro quel nome, altrimenti comparirà "*". Per fare la verifica guardo che i nomi che comprendono f# siano seguiti tutti dal medesimo numero il quale, se sono presenti nomi v# deve coincidere con il numero del file selezionato
   bool allNamesFromOneFile=true; // vera se tutte le variabili di una funzione di variabili provengono dal medesimo file
@@ -538,40 +623,45 @@ La costruzione di lineFullNames segue la seguente logica:
   if(ret!="")
     return ret;
 
+  unitOfMeasure=computeUnits();
+
   gotExplicitNames=true;
   return "";
 }
 
 
-void CLineCalc::getFileInfo(QList <int> fileNumsLst_, QList <QString> fileNamesLst_, QList <int> varNumsLst_){
- /* Questa funzione serve per consentire il check sintattico sulle stringhe introdotte dall'utente, e quindi fornisce la lista dei numeri di files sono utilizzabili nelle funzioni di variabili.
-I nomi dei files vengono invece usati per creare la stringa corretta di tooltip per le variabili funzione (non attualmente, nov. 2016) che si usa "f1:", "f2:" ecc.)*/
-  fileNumsLst=fileNumsLst_;
-  fileNamesLst=fileNamesLst_;
-  varMaxNumsLst=varNumsLst_;
-}
-
-
 QString CLineCalc::getNamesAndMatrix( QList <QString> nameList, float ** y_){
   /*Questa routine fa quanto segue:
-   -  effettua l'associazione delle costanti esplicite al rispettivo puntatore pConst[i] mediante la chiamata a constantsToPointers()
-   -  effettua l'associazione dei nomi di variabili-funzione al rispettivo puntatore pVar[i] mediante la chiamata a variablesToPointers()
-Essa va chiamata dopo getLine() e prima di compute()
-Il primo parametro contiene una lista di nomi.
-Il secondo una matrice, realizzata con la mia funzione "CreateFmatrix", quindi attraverso puntatore ad un vettore di puntatori alle righe.
-Ogni riga contiene i dati numerici di una delle funzioni, con corrispondenza ordinata ad i nomi riportati in nameList.
-I valori di y devono essere allocati e disponibili esternamente all'oggetto CLineCalc.
+   * -  effettua l'associazione delle costanti esplicite al rispettivo puntatore pConst[i]
+   *    mediante la chiamata a constantsToPointers()
+   * -  effettua l'associazione dei nomi di variabili-funzione al rispettivo puntatore
+   *    pVar[i] mediante la chiamata a variablesToPointers()
+   *
+   * Essa va chiamata dopo getLine() e prima di compute()
+   * Il primo parametro contiene una lista di nomi. Il secondo una matrice, realizzata
+   * con la mia funzione "CreateFmatrix", quindi attraverso puntatore ad un vettore di
+   * puntatori alle righe.
+   * Ogni riga contiene i dati numerici di una delle funzioni, con corrispondenza ordinata
+   * ai nomi riportati in nameList.
+   * I valori di y devono essere allocati e disponibili esternamente all'oggetto CLineCalc.
 
 Successivamente valuterò se, per ragioni di efficienza e occupazione di memoria, aggiungere anche una funzione che non necessiti di ricevere una lunga lista di valori, ma solo il puntatore alla matrice con tutti i valori di tutti i files, generando i nomi internamente, secondo una convenzione univoca, ad es. f#v#, indicando quindi il numero del file e il numero di variabile all'interno del file.
 Dopo che ha ricevuto i valori la funzione si prepara al successivo calcolo iterativo con la sostituzione di costanti e variabili con puntatori
 */
 
-  if(!lineReceived)return "INTERNAL ERROR:\nNo Line received before \"getAndPrepare()\".";
+  if(!lineReceived)
+      return "INTERNAL ERROR:\nNo Line received before \"getAndPrepare()\".";
   myNameList=nameList;
   yReceived=true;
-  ret=constantsToPointers();  //sostituisco tutte le costanti con 'puntatori' a float
-    // A questo punto devono essere presenti solo variabili, operatori e parentesi. Fa eccezione il carattere '.' il quale è considerato accettabile nell'alfabeto, in quanto può far parte dei numeri, ma non è al momento un operatore valido, né un carattere che può appartenere ad un nome di variabile. Pertanto devo intercettare questo caso.
-  if(ret==0 and line.contains('.')){
+  ret=substConstsWithPointers();  //sostituisco tutte le costanti con 'puntatori' a float
+
+   if(allowMathFunctions){
+     ret=substFunsWithPointers();
+     if(ret!="") return ret;
+   }
+
+  // A questo punto devono essere presenti solo variabili, operatori e parentesi. Fa eccezione il carattere '.' il quale è considerato accettabile nell'alfabeto, in quanto può far parte dei numeri, ma non è al momento un operatore valido, né un carattere che può appartenere ad un nome di variabile. Pertanto devo intercettare questo caso.
+  if(ret=="" && line.contains('.')){
     int index=line.indexOf('.');
     QString dotStr;
    dotStr.setNum(index+1);
@@ -581,14 +671,14 @@ Dopo che ha ricevuto i valori la funzione si prepara al successivo calcolo itera
     ret="the input string contains a dot (character '.') not belonging to a numerical constant. This is invalid.\n"
         "The offending dot is in the " +dotStr+ ordinalStr+ " position in the string.";
   }
-  //Fra una costante e la successiva o fra una costante e una variabile. oltre al più degli spazi, ci deve essere un operatore. Non deve quindi esistere alcuna sottosctringa che contenga solo '#', 'à'@', e ' '.
+  //Fra una costante e la successiva o fra una costante e una variabile. oltre al più degli spazi, ci deve essere un operatore. Non deve quindi esistere alcuna sottostringa che contenga solo '#', 'à'@', e ' '.
   QRegExp rxInvalid=QRegExp("# *#");
   if(rxInvalid.indexIn(line)>-1){
     ret="Two consecutive constants without operators between have been detected.\nThis is invalid";
   }
 
   if(ret.length()==0)
-    ret=variablesToPointers(y_); //sostituisco tutte le variabili con 'puntatori' a float
+    ret=substVarsWithPointers(y_); //sostituisco tutte le variabili con 'puntatori' a float
   if(ret!="")
       return ret;
   rxInvalid=QRegExp("@ *@");
@@ -603,16 +693,17 @@ Dopo che ha ricevuto i valori la funzione si prepara al successivo calcolo itera
   if(rxInvalid.indexIn(line)>-1){
       ret="A variable is followed by a constant without operators in-between.\nThis is invalid";
   }
-  rxInvalid=QRegExp(" *\\* *@"); //spaces, operator '*, spaces, '@'
-  int index=rxInvalid.indexIn(line);
-  if(index>-1){
-    if(index==0)
-       ret="A non-unary operator is followed by a variable,\nbut not preceded by any variable or operator.\nThis is invalid";
-    else{
-      if(line[index-1]!='@' && line[index-1]!='#')
-      ret="A non-unary operator is followed by a variable,\nbut not preceded by any variable or constant.\nThis is invalid";
+  int index;
+    rxInvalid=QRegExp(" *\\* *@"); //zero or more spaces, operator '*', zero or more spaces, '@'
+    index=rxInvalid.indexIn(line);
+    if(index>-1){
+      if(index==0) //se ho trovato il pattern all'inizio prima non ci sono operatori
+        ret="A non-unary operator is followed by a variable,\nbut not preceded by any variable or operator.\nThis is invalid";
+      else{ //se il pattern trovato non era all'inizio vado a guardare cosa c'era prima
+        if(line[index-1]!='@' && line[index-1]!='#' && line[index-1]!=')')
+        ret="A non-unary operator is followed by a variable,\nbut not preceded by any variable or constant.\nThis is invalid";
+      }
     }
-  }
 
     //Dopo ogni operatore vi deve essere una costante o una variabile. Siccome gli operatori consecutivi sono stati già filtrati, mi rimane solo da verificare che non vi sia un operatore a fine riga.
   rxInvalid=QRegExp("[^ ]");  //cercando da fondo cerco l'ultimo carattere che non è spazio
@@ -644,10 +735,11 @@ Riceve la stringa, compila le versioni semplificate fa un po' di diagnostica e a
 Le stringhe da compilare sono le seguenti (cfr CLineCalcDevel.docx)
 lineUser      è la stringa introdotta dall’utente
 lineNoInt     è a stringa ottenuta da lineUser mediante soppressione (Se esistenti) di “int(“ e “)”
-lineSimple    è la stringa ottenuta da lineNoint mediente semplificazione dei nomi delle variabili. Ad es. “f1v2” è trasformato in “v2” se il file predefinito è 1
+lineSimple    è la stringa ottenuta da lineNoInt mediante semplificazione dei nomi delle variabili. Ad es. “f1v2” è trasformato in “v2” se il file predefinito è 1
 
 */
    int j, k;
+   constantsConverted=false;
    constantsAreSharps=false;
    defaultFileNum=defaultfileNum_;
    gotExplicitNames=false;
@@ -655,13 +747,14 @@ lineSimple    è la stringa ottenuta da lineNoint mediente semplificazione dei n
    lineIsSimplified=false;
    lineReceived=true;
    pointersPrepared=false;
-   variablesAreSimplified=false;
    varListsReceived=false;
    variablesAreSimplified=false;
    yReceived=false;
    delete[] pConst;
    delete[] pUnaryMinus;
+   delete[] pFun;
    delete[] pVar;
+   delete[] pUnit;
 
    if(line_.length()<1)return "null strings are not accepted";
    lineUser=line_;
@@ -678,15 +771,18 @@ lineSimple    è la stringa ottenuta da lineNoint mediente semplificazione dei n
    lineNoInt.replace(',','.');
 
    line=lineNoInt;
-   lineFirstChar=line;
-   for(int i=0; i<line.count(); i++)
-       lineFirstChar[i]=' ';
-   //per semplicità alloco spazio per un numero reale costante ed uno booleano per ogni carattere della stringa "noInt".
+//   lineFirstChar=line;
+//   for(int i=0; i<line.count(); i++)
+//       lineFirstChar[i]=' ';
+   //per semplicità alloco spazi per ogni carattere della stringa "noInt".
    pConst=new float[line.length()];
+   typedef float (*FuncPtr)(float);
+   pFun = new FuncPtr[line.length()];
    pUnaryMinus=new bool[line.length()];
    for (int i=0; i<line.length(); i++)
        pUnaryMinus[i]=false;
    pVar=new float*[line.length()];
+   pUnit=new QString[line.length()];
 
    // **** ora una semplice diagnostica.
    //1) verifica che tutti i caratteri appartengono all'alfabeto previsto.
@@ -716,19 +812,12 @@ lineSimple    è la stringa ottenuta da lineNoint mediente semplificazione dei n
    if(par!=0) return "The string contains unbalanced brackets";
 
    checkAndFindNames();
-
    lineInt=lineNoInt;
    if(integralRequest)
      lineInt="int("+lineNoInt+")";
-
    return "";
 }
 
-
-
-void CLineCalc::getVarNumVect(QVector <int> list){
-  varNumVect=list;
-}
 
 QString CLineCalc::giveLine(QString str){
    if(str=="funText")return funText;
@@ -739,6 +828,67 @@ QString CLineCalc::giveLine(QString str){
    if(str=="lineFullNames")return lineFullNames;
    return "";
 }
+
+
+QString CLineCalc::computeUnits(){
+
+    int i;
+    QString unit="";
+
+    // In questa versione semplificata la stringa deve contenere solo un alfabeto semplificato:
+    QRegExp rxSimpleAlphabet=QRegExp("[ @#+-*()]");
+    //1) verifica che tutti i caratteri appartengono all'alfabeto previsto.
+    for(int i=0; i<line.length(); i++){
+        if(rxSimpleAlphabet.indexIn(line,i)<0){
+          return "";
+      }
+    }
+    // 2) verifico se ho un singolo prodotto e nel caso eseguo la valutazione dell'unità
+    i=line.indexOf('*');
+    // Se ho un secondo prodotto esco con unità indefinita:
+    if(i>=0 && i<line.count()-1)
+      if(line.indexOf('*',i+1)>0)
+        return "";
+    if(i>=0){
+      // Ho un singolo prodotto e eseguo il calcolo dell'unità:
+      int l,r; //left e right indexes)
+      l=line.lastIndexOf('@',i);
+      if (l<0) return "";
+      r=line.indexOf('@',i);
+      if (r<0) return "";
+
+
+      QString ul=pUnit[l],   ur=pUnit[r];
+
+      if((ul=="A" && ur=="V") || (ur=="A" && ul=="V") )
+        unit="W";
+      else
+        unit="";
+      return unit;
+    }
+
+
+    // A questo punto, in questa versione semplificata, mi basta verificare che tutte le unità presenti coincidano
+    // Deve essere presente almeno una variabile, della quale prendo l'unità; poi verifico che tutte le atre siano uguali
+    i=line.indexOf('@');
+    if (i<0)
+      return "";
+    unit=pUnit[i];
+    //Ora devo verificare che tutte le unità coincidano con unit
+    for(i=0; i<line.length(); i++){
+      if(line[i]=='@'){
+        QString storedUnit=pUnit[i];
+
+        if(storedUnit!=unit){
+          unit="";
+          break;
+        }
+      }
+    }
+    return unit;
+
+}
+
 
 SVarNums CLineCalc::readVarXYNums(QString varStr){
     /* semplice routine privata che interpreta il nome di una variabile contenuta in varStr secondo lo standard XY. Il nome può quindi essere f#v# o v#.
@@ -754,7 +904,7 @@ Se il nome è di tipo v# il filenum è defaultFileNum*/
         fileNum=varStr.mid(1,j-1).toInt(&ok);
         if(ok==false) goto errorReturn;
         if(varStr[j]!='v') goto errorReturn;
-      case 'v':
+      [[clang::fallthrough]]; case 'v':
 //        if(varStr[0]=='v') j=0;
         k=rxNotDigit.indexIn(varStr,j+2); //k dovrebbe contenere il primo carattere dopo il numero dopo v. Siccome tale carattere non deve esistere, mi attendo k=-1
         if(k>=0) goto errorReturn;
@@ -774,7 +924,76 @@ errorReturn:
     return varNums;
 }
 
-QString CLineCalc::variablesToPointers(float ** y_){
+QString CLineCalc::substFunsWithPointers(){
+    /* In questa funzione si sostituiscono le chiamate a funzione con il carattere
+     *  '&', ed in corrispondenza della sua posizione il relativo valore viene messo
+     * nel corrispondente puntatore a float.
+     * QUESTA FUNZIONE  dà per scontato che sia stata già eseguita
+     * substConstsToPointers().
+     * Possono invece essere presenti variabili, ma tutte con nomi diversi dai nomi
+     * di funzione ammessi.
+    */
+
+    int  i,j; //indici generici
+
+   //check che questa routine sia stata chiamata a valle di substPointersToConsts():
+   if (!constantsConverted)
+     return "functionsToPointers() called ahead of substConstsWithPointers()";
+
+   //Percorro line, individuo i nomi di funzioni e sostituisco con i rispettivi puntatori.
+
+   foreach(i,allowedFunIndexes){
+       int index=-1;
+       while (1){
+         index=line.indexOf(funStr[i],++index);
+         if(index>-1){
+           //Qui non sono ancora certo di aver trovato una stringa funzione, in quanto potrebbe essere la prima parte di un nome di variabile lungo, ad es. sinModified (contiene sin)
+           if(line[index+funStr[i].count()]!='(')
+               continue;
+/* Ora devo verificare che non ho trovato una stringa funzione illecita per avere a SX del testo, ad es. "xsin"  invece di "sin". Devo quindi escludere lettere e digits
+*/
+            if(index>0){
+                QChar c=QChar(line[index-1]);
+                if(c.isDigit() || c.isLetter()){
+                  QString str;
+                  str=line.mid(index-1,1)+funStr[i];
+                  return "string \""+ str +
+                  "\" appears to be the name of a non-allowed function.\n";
+              }
+            }
+           //Ho trovato una stringa funzione, deve essere seguita da '('
+           //Trovo il carattere dopo la stringa:
+           j=rxNotLetterDigit.indexIn(line,index);
+           if(j<1 || line[j]!='('){
+             QString str;
+             if(j<1)
+               str=line.mid(index,line.count()-index);
+             else
+               str=line.mid(index,j-index+1);
+             return "string "+ str +
+             "appears to be the name of a built-in function\n"
+             "but it is not followed by the character '(',\n"
+              "that is against rules.";
+           }else{
+             line[index]='&';
+             pFun[index]=fun1[i];
+             for (j=1; j<funStr[i].count(); j++)
+               line[index+j]=' ';
+             //do' la possibilità ad altre istanze della medesima funzione di essere presee in considerazione:
+//             break;
+             continue;
+           }
+         } else
+         goto nextFunction;
+       }
+       nextFunction:
+       continue;
+    }
+   return "";
+}
+
+
+QString CLineCalc::substVarsWithPointers(float ** y_){
     /* In questa funzione si sostituiscono le variabili con il carattere '@', ed in corrispondenza della sua posizione, il relativo valore viene messo nel corrispondente puntatore a float.
     Il puntatore viene ritrovato all'interno della lista di puntatori in precedenza tramessi myPointerList, sulla base della corrispondente lista di nomi, contestualemente trasmessa, nameList.
     La funzione viene chiamata a valle di constantsToPointers, quindi si sa che non sono presenti numeri espliciti.
@@ -820,8 +1039,11 @@ QString CLineCalc::variablesToPointers(float ** y_){
  Nell'uso di CLineCalc in associazione con CVarTableComp la funzione "getAndPrepare" è chiamata anche con una variabile y fittizia "yLine" solo per fare un approfondito check sintattico della stringa.
 */
       pVar[i]=y_[index];
-      if(unitCharLstFilled)
-        lineFirstChar[i]=unitCharLst[index];
+
+      if(unitCharLstFilled){
+//        lineFirstChar[i]=unitCharLst[index];
+        pUnit[i]=myUnitList[index];
+      }
       pUnaryMinus[i]=unaryMinus;
       if(j<0)j=line.length();
       //Devo mettere a blank i caratteri del nome della varabile dopo '@':
@@ -846,7 +1068,7 @@ QString CLineCalc::subtr(float x1, float x2, float & y){
 }
 
 QString CLineCalc::power(float x1, float x2, float & y){
-   y=pow(x1,x2);
+   y=powf(x1,x2);
    return "";
 }
 

@@ -23,7 +23,7 @@
 #define FILENUMCOL 1
 #define FILENAMECOL 2
 #define TSHIFTCOL 6
-#define FRACTIONOOFSCREEN 0.95
+#define FRACTIONOOFSCREEN 0.95f
 
 
 #include <qcolor.h>
@@ -33,14 +33,15 @@
 #include <QString>
 #include <QTableWidget>
 #include "Globals.h"
-#include "suppFunctions.h"
 #include "CFourWin.h"
-#include "dialogs/CUnitsDlg.h"
-#include "dialogs/CHelpDlg.h"
-#include "dialogs/CProgOptions.h"
+#include "CParamView.h"
 #include "CSimOut.h"
 #include "CVarTableComp.h"
 #include "CPlotWin.h"
+#include "SuppFunctions.h"
+#include "Dialogs/CUnitsDlg.h"
+#include "Dialogs/CHelpDlg.h"
+#include "Dialogs/CProgOptions.h"
 
 namespace Ui {
 class CDataSelWin;
@@ -50,15 +51,15 @@ class CDataSelWin : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit CDataSelWin(QWidget *parent = 0);
+    explicit CDataSelWin(QWidget *parent = nullptr);
     void closeEvent(QCloseEvent *) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
-    void enterEvent(QEvent *);
+    void enterEvent(QEvent *) override;
     QDataStream giveState();
     void resizeEvent(QResizeEvent *) override;
     void showEvent(QShowEvent *) override;
-    ~CDataSelWin();
+    ~CDataSelWin() override;
     void checkCalcData(SXYNameData calcData, QString & ret);  //funzione attualmente non usata!
     void updateSheet(int);
 public slots: //Deve rimanere slot anche in Qt5 perché usato in QTimer
@@ -66,12 +67,13 @@ public slots: //Deve rimanere slot anche in Qt5 perché usato in QTimer
     void giveFileInfo(QList <int> &fileNums, QList<QString> &fileNames, QList <int> &varNums);
 
 private:
-    void adaptToDPI(int currentDPI_, int maxHeight_);
+    bool paramWinTableBuilt;
+    void adaptToDPI(qreal currentDPI_, int maxHeight_);
     void fillVarMenuTable(int fileIndex);
     void groupSelected(int beginRow, int endRow);
     void varMenuTable_cellClicked(int row, int column, bool rightBtn);
-    void mousePressEvent(QMouseEvent *) override;
-    void moveEvent(QMoveEvent *);
+    void moveEvent(QMoveEvent *) override;
+    void setActualPlotWins(int wins);
     void varTableChanged ();
 
 private slots:  //devono rimanere slot in quanto connessi sulla base del nome e non attraverso connect specifici
@@ -95,13 +97,19 @@ private slots:  //devono rimanere slot in quanto connessi sulla base del nome e 
     void on_saveStateTBtn_clicked();
     void on_sortTBtn_clicked();
 
+    void on_showParTBtn_clicked(bool checked);
+    void on_tool468_clicked();
+
 private:
   bool fileLoaded, doubleClicking, updatingPlot, refreshUpdate,
        goneToSingleFile;  //Se almeno una volta sono andato in singleFile nella presente sessione è true;
+  bool firstFourPerSession; //True slo se si sta facendo il primfo Fourier nella sessioen corrente
   enum ESortType{noSort, descending, ascending} sortType;
-  int currentDPI; //current value of DPI: can change in a single run in case of multiple screens
+  qreal currentDPI; //current value of DPI: can change in a single run in case of multiple screens
+  int currentTableIndex; //indice attuale del tabWidget; serve solo per debug
   int fourTableIndex; //Contiene l'indice di varTable quando si  fatto fourier. va salvato nei settings al salvataggio stato per rifare al recupero stato l'analisi di fourier sulla tabella plot corretta.
   int numOfLoadedFiles; // numero di files presenti nella fileTable;
+  int actualPlotWins; //Numero effettivo di finestre di plot (Jan 18: 4 o 8)
   int originalMaxWidth;
   int originalMinWidth;
   int originalWidth;
@@ -121,7 +129,7 @@ private:
   QSet <int> freeFileIndex; //contiene gli indici dei files NON caricati (liberi).
 
   /*  Le seguenti tre liste vengono in realtà gestite più come vettori che come liste: hanno sempre MAXFILES elementi, e condentono i dati dei file con num da 1 a 8 (come memorizzato in file NumLst.
-   * In passato le gestivo come liste inserendo e toglilendo files NMaMa questo non funziona bene in quanto PlotXY è organizzato in modo che può esistere ad es. un unico file di Num pari a 2 (idx pari a 1) e in quel caso le liste avevano quell'ultnico filem, accedibvbile con indice 0 invece di 1. Allora occorrerebbe dtenere sempre traccia di come gli indici di files sono mappati nella lista il che è complicato. Invece se ho un elemento della lista per ogni potenziale file caricato, il problema si risolve. Dove non c'è un file il corrispondente Num è posto pari a 0.
+   * In passato le gestivo come liste inserendo e togliendo files. Questo non funzionava bene in quanto PlotXY è organizzato in modo che può esistere ad es. un unico file di Num pari a 2 (idx pari a 1) e in quel caso le liste avevano quell'ulnico file, accedibile con indice 0 invece di 1. Allora occorrerebbe tenere sempre traccia di come gli indici di files sono mappati nella lista il che è complicato. Invece se ho un elemento della lista per ogni potenziale file caricato, il problema si risolve. Dove non c'è un file il corrispondente Num è posto pari a 0.
 */
   QList <QString> fileNamesLst; //List dei nomi di files correntemente visualizzati nella fileTable
   QList <int> fileNumsLst;  //List dei numeri di files correntemente visualizzati nella fileTable
@@ -132,12 +140,12 @@ private:
 
 //  EPlotType plotType;
 
-
   CSimOut* mySO[MAXFILES];
-  CPlotWin *plotWin1, *plotWin2, *plotWin3, *plotWin4, *myPlotWin;
+  CPlotWin *plotWin[MAXPLOTWINS], *myPlotWin;
   CFourWin *myFourWin;
+  CParamView *myParamWin;
   CProgOptions *myProgOptions;
-  CVarTableComp *myVarTable;
+  CVarTableComp *varTable[MAXPLOTWINS], *myVarTable;
 
   QString computeCommonX(void);
   QString loadFile(int fileIndex, QString fileName, bool refresh=false, bool refreshUpdate=false, QString tShift="0");

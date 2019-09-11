@@ -33,10 +33,10 @@ class CValuesWin : public QDialog
     Q_OBJECT
 
 public:
-    explicit CValuesWin(QWidget *parent = 0, Qt::WindowFlags f=0);
+    explicit CValuesWin(QWidget *parent = nullptr);
     void setUp(int nFiles, const QVector<int> &nVars, const QList<SCurveParam> &curveParam_, QList<SFileInfo> filesInfo), //Va richiamata alla visualizzazione della finestra con i dati che non cambiano con il movimento del cursore dati
     updateVarValues(float *x, float **y, bool diff, bool highPrecision); //Questa funzione va richiamata ad ogni movimento del cursore dati.
-    ~CValuesWin();
+    ~CValuesWin() override;
 signals:
     void interpolationChanged(bool checked);
 

@@ -23,7 +23,7 @@
 //#include <QDesktopWidget>
 #include <QScreen>
 #include "CPlotWin.h"
-#include "suppFunctions.h"
+#include "SuppFunctions.h"
 #include "ui_CPlotWin.h"
 #include "CDataSelWin.h"  //def. di sFileInfo
 #include "CVarTableComp.h" //def di SCurveParam
@@ -39,33 +39,33 @@ CPlotWin::CPlotWin(QWidget *parent) :
     setWindowFlags(windowFlags() | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
     QScreen *screen=QGuiApplication::primaryScreen();
     exactMatch=false;
-    myDPI=screen->logicalDotsPerInch();
+    myDPI=int(screen->logicalDotsPerInch());
 
     /*rendo il minimumSize DPI-aware, e contemporaneamente aggiusto il size default (cioè in assenza di salvataggio da parte dell'utente delle dimensioni.
      Occorre osservare che la logica che ho scelto è quella di fissare il minimumsize di lineChart, non ti PlotWin; la gestione dei layout farà tutto il resto per nostro conto (cf.r CPlotWin.ui)
     */
      QSize minSize=ui->lineChart->minimumSize();
-     labelFontBasePoints=ui->interpolateBox->font().pointSize();
+     labelFontBasePoints=ui->interpolateBox->font().pointSize();    
      if(myDPI>100){
-       float factor=qMin(myDPI/96.0,1.5);
-       ui->lineChart->setMinimumHeight(factor*minSize.height());
-       ui->lineChart->setMinimumWidth(factor*minSize.width());
+       float factor=qMin(myDPI/96.0f,1.5f);
+       ui->lineChart->setMinimumHeight(int(factor*minSize.height()));
+       ui->lineChart->setMinimumWidth(int(factor*minSize.width()));
        minSize=ui->lineChart->minimumSize();
        // Qui sono nella fase della costruzione, quindi prima del caricamento del registry. Pertanto le modifiche al size che faccio qui non hanno influenza su quello che poi è salvato dall'utente. Mi posso quindi permettere la seguente riga:
-       resize(factor*geometry().width(),factor*geometry().height());
+       resize(int(factor*geometry().width()),int(factor*geometry().height()));
      }
 
     //rendo il maximumSize dei bottoni in basso DPI-aware
     if(myDPI>100){
-      ui->titleBtn->setMaximumHeight(1.5*ui->titleBtn->maximumHeight());
-      ui->optionsBtn->setMaximumHeight(1.5*ui->optionsBtn->maximumHeight());
-      ui->scaleTBtn->setMaximumHeight(1.5*ui->scaleTBtn->maximumHeight());
-      ui->dataTBtn->setMaximumHeight(1.5*ui->dataTBtn->maximumHeight());
-      ui->diffTBtn->setMaximumHeight(1.5*ui->diffTBtn->maximumHeight());
-      ui->markBtn->setMaximumHeight(1.5*ui->markBtn->maximumHeight());
-      ui->copyBtn->setMaximumHeight(1.5*ui->copyBtn->maximumHeight());
-      ui->SVGBtn->setMaximumHeight(1.5*ui->SVGBtn->maximumHeight());
-      ui->printTBtn->setMaximumHeight(1.5*ui->printTBtn->maximumHeight());
+      ui->titleBtn->setMaximumHeight(int(1.5*ui->titleBtn->maximumHeight()));
+      ui->optionsBtn->setMaximumHeight(int(1.5*ui->optionsBtn->maximumHeight()));
+      ui->scaleTBtn->setMaximumHeight(int(1.5*ui->scaleTBtn->maximumHeight()));
+      ui->dataTBtn->setMaximumHeight(int(1.5*ui->dataTBtn->maximumHeight()));
+      ui->diffTBtn->setMaximumHeight(int(1.5*ui->diffTBtn->maximumHeight()));
+      ui->markBtn->setMaximumHeight(int(1.5*ui->markBtn->maximumHeight()));
+      ui->copyBtn->setMaximumHeight(int(1.5*ui->copyBtn->maximumHeight()));
+      ui->SVGBtn->setMaximumHeight(int(1.5*ui->SVGBtn->maximumHeight()));
+      ui->printTBtn->setMaximumHeight(int(1.5*ui->printTBtn->maximumHeight()));
 
     }
 
@@ -88,23 +88,26 @@ CPlotWin::CPlotWin(QWidget *parent) :
 
     plotOpsWin = new CPlotOptions(this);
     printWOptsDlg = new CPrintWOptions(this);
-    valuesWin = new CValuesWin(this,Qt::Dialog);
+    valuesWin = new CValuesWin(this);
     //Il titolo di valuesWin verrà aggiustato nell'evento showEvent. Infatti al momento della costruzione di CPlotWin non è ancora noto il digit finale, che sarà noto immediatamente dopo la sua costruzione.
     connect(ui->lineChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(chartValuesChanged(SXYValues,bool,bool)));
+    connect(ui->lineChart,SIGNAL(chartResizeStopped()),this,
+                            SLOT(XYchartResizeStopped()));
     ui->xValueLbl->setVisible(false);
     ui->yValueLbl->setVisible(false);
     ui->interpolateBox->setVisible(false);
     ui->lineChart->linearInterpolate=ui->interpolateBox->checkState();
-//    updateChartOptions(GV.PO);
+
     dataTBtnChecked=false;
     wasResizing=false;
     numOfTotPlotFiles=0;
+    baseTitle="";
     numOfPlots.clear();
-    numOfPoints=NULL;
+    numOfPoints=nullptr;
     ui->lineChart->plotType=ptLine;
-    variableStep=NULL;
-    x=NULL;
-    y=NULL;
+    variableStep=nullptr;
+    x=nullptr;
+    y=nullptr;
     //Il titolo della finestra per le varie istanze è assegnato in CDataSelWin::CDataSelWin. Purtroppo in questa sede non vedo ancora la modifica, mentre vedo soltanto il titolo generico privo del numero di istanza.
     //Assegno alla finestra delle opzioni i valori predefiniti, funzione delle opzioni lette dal programma nel registro di sistema (o in registrazioni analoghe per i sistemi operativi non Windows.
     EPlotPenWidth defaultPenWidth=pwAuto;
@@ -137,7 +140,7 @@ void CPlotWin::chartValuesChanged(SXYValues values, bool hDifference, bool vDiff
     // L'idea è si scrivere sia con E e poi trattare io i digit pe rla rappresentazione
     // a numero di cifre significative giusto ('g' ha lo stesso problema del 'g' di setNum)
     //però dovrei provare l'algoritmo in un programmino a sé stante.
-    sprintf(buffer,"%+12.5e",values.X[0]);
+    sprintf(buffer,"%+12.5e",double(values.X[0]));
 
 
     if(hDifference)
@@ -171,7 +174,7 @@ void CPlotWin::getData(float **x1, float*** y1, SCurveParam &x1Info, QList <SCur
 Di tutti i dati passati devo creare una copia locale. Infatti CDataSelWin gestisce diverse finestre di grafico e passa i dati a tutte usando i medesimi vettori. Se non si fanno le copie locali, si genera un'interazione indesiderata fra le varie finestre di plot.
 Con l'occasione della creazione di queste copie locali, converto il formato dei dati che proviene da CDataSelWin, orientato alle liste (più elegante), a quello utilizzato in CLinechart, orientato ai vettori (più compatibile con la versione BCB).
 
-Per quanto riguarda x1 e y1 potrei copiare soltanto i puntatori ai vettori, visto che i dati  sono allocati all'interno di mySO[]. Però questo non andrebbe bene per i grafici che sono ottenuti per elaborazione di dati di input attraverso funzioni.
+Per quanto riguarda x1 e y1 potrei copiare soltanto i puntatori ai vettori, visto che i dati sono allocati all'interno di mySO[]. Però questo non andrebbe bene per i grafici che sono ottenuti per elaborazione di dati di input attraverso funzioni.
 (Ultima parte a destra di y1: vedere Developer.odt per dettagli).
 
 Pertanto, in analogia con quanto fatto con l'analoga funzione di BCB, preferisco allocare memoria per le complete matrici x e y, e copiare tutti i dati, con ciò effettuando una certa ridondanza di operazioni e allocazioni.
@@ -186,14 +189,15 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
 
 */
 
-    int i, j, iVarTot, nVarTot, size;
+    int i, j, iVarTot, nVarTot;
+    int size;
     struct SXVarParam xParam;
 
     delete[] variableStep;
 //    delete[] numOfPlots;
     numOfPlots.clear();
     //Cancello la matrice x. Questa matrice contiene valori locali in CPlotWin dei valori sull'asse x. Viene allocata più sotto non con CreateFMatrix(), ma direttamente allocando array individuali per le singole righe, che pertanto possono non essere adiacenti. La sua cancellazione deve seguire lo stesso criterio.
-    if (x!=NULL){
+    if (x!=nullptr){
         for (i=0;i<numOfTotPlotFiles; i++)
            delete x[i];
         delete[] x;
@@ -206,7 +210,7 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
         ui->dataTBtn->setEnabled(false);
     //A questo punto numOfPlotFiles contiene il valore della precedente esecuzione di
     //getData o, se l'esecuzione è la prima, il valore 0. Dopo aver cancellato le vecchie matrici definisco il nuovo valore di numOfFiles e numOfFuns:
-    for(i=0; i<numOfTotPlotFiles; i++) if(y[i]!=NULL)
+    for(i=0; i<numOfTotPlotFiles; i++) if(y[i]!=nullptr)
         DeleteFMatrix(y[i]);
     delete [] y ;
     numOfTotPlotFiles=filesInfo.count();
@@ -227,16 +231,16 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
       y[i]=CreateFMatrix(y1Info[i].count(),filesInfo[i].numOfPoints);
       numOfPlots.append(y1Info[i].count());
       numOfPoints[i]=filesInfo[i].numOfPoints;
-      size=sizeof(float)*numOfPoints[i];
+      size=int(sizeof(float))*numOfPoints[i];
       for (j=0; j<y1Info[i].count(); j++){
         lCurveParam.append(y1Info[i][j]);
         iVarTot++;
    //void * memcpy (void *destination, const void *source, size_t num);
-        memcpy(y[i][j],y1[i][j], size);
+        memcpy(y[i][j],y1[i][j], size_t(size));
       }
       x[i]=new float[numOfPoints[i]];
-      size=sizeof(float)*numOfPoints[i];
-      memcpy(x[i],x1[i],size);
+      size=int(sizeof(float))*numOfPoints[i];
+      memcpy(x[i],x1[i],size_t(size));
       for(int j=0; j<numOfPoints[i]; j++)
         x[i][j]+=filesInfo[i].timeShift;
     }
@@ -276,12 +280,12 @@ struct SFourData CPlotWin::giveFourData(){
     data.variableStep=variableStep;
     data.numOfPoints=numOfPoints[0];
     timeRight=x[0][numOfPoints[0]-1];
-    timeLeft=timeRight-1.0/programOptions.defaultFreq;
+    timeLeft=timeRight-1.0f/float(programOptions.defaultFreq);
     data.opt.initialTime=timeLeft;
     data.opt.finalTime=timeRight;
     stepsPerSecond=(numOfPoints[0]-1) / (x[0][numOfPoints[0]-1]-x[0][0]);
-    indexLeft= (timeLeft-x[0][0])*stepsPerSecond +1;
-    indexRight= (timeRight-x[0][0])*stepsPerSecond;
+    indexLeft= int((timeLeft-x[0][0])*stepsPerSecond +1);
+    indexRight= int((timeRight-x[0][0])*stepsPerSecond);
     if(timeLeft<x[0][0] || timeRight>x[0][numOfPoints[0]-1] || timeLeft>=timeRight
 || indexRight < indexLeft){
         data.opt.initialTime=x[0][0];
@@ -294,7 +298,6 @@ struct SFourData CPlotWin::giveFourData(){
 
 
 void CPlotWin::plot(bool update){
-    QString str;
     ui->lineChart->resetMarkData();
 
     ui->lineChart->useSmartUnits=myScaleDlg->useSmartUnits;
@@ -302,9 +305,24 @@ void CPlotWin::plot(bool update){
       ui->lineChart->useUserUnits=false;
     //Nella seguente chiamata devo passare autoScale, che sarà true <=> update è false
     ui->lineChart->plot(!update);
-    str=str.setNum(ui->lineChart->drawTimeUs/1000.0,'g',4)+ " ms";
-    if(programOptions.showElapsTime)
-        setWindowTitle(baseTitle+"; t="+str);
+    //La seguente chiamata se del caso aggiorna le informazioni sul tnmpo di esecuzione e sul numero dipunti tracciati sulla barra del titolo:
+    XYchartResizeStopped();
+}
+
+
+void CPlotWin::XYchartResizeStopped(void){
+  if (!programOptions.showElapsTime)
+    return;
+  //Questa funzione viene chiamata anche prima che CPlotWin::show() sia andato in esecuzione. In questo caso basetitle = "" e non deve fare nulla.
+  if(baseTitle=="")
+      return;
+  QString str;
+  str=str.setNum(ui->lineChart->drawTimeUs/1000.0,'g',4)+ " ms";
+  QString ptsStr;
+  ptsStr.setNum(ui->lineChart->pointsDrawn);
+  str+=" points: "+ptsStr;
+  if(programOptions.showElapsTime)
+      setWindowTitle(baseTitle+"; t="+str);
 }
 
 CPlotWin::~CPlotWin()
@@ -406,8 +424,8 @@ In mac non si riescono a sopprimere i bottoni di sistema, che sprecano spazio, e
     valuesWinTitle="plot 1";
 #endif
     //Il baseTitle è un titolo a cui poi posso aggiungere l'indicazione del tempo di esecuzione. Lo devo assegnare qui in quanto nella funzione CPlotWin::CPlotWin non contiene ancora il numero di istanza che è aggiunto in CDataSelWin::CDataSelWin.
-    //Però devo evitare che a ogni riapertura della finestra le stringhe contenenti i tempi si accumulino. In precedenza usavo unflag con una variabile statica "baseTitleSet". E' stato però visto che la variabile statica (evitentemente come tutte le variabli statiche, ma non lo sapevo) mantiene il suo valore da un'istanza all'altra. Pertanto in quel caso dalla seconda finestra plot in poi avevo una visualizzazione scorretta.
-    // Pertanto sono passato ad individuare la necessitià di scrivere basetitle sulla base della lunghezza del medesimo titolo della finestra.
+    //Però devo evitare che a ogni riapertura della finestra le stringhe contenenti i tempi si accumulino. In precedenza usavo un flag con una variabile statica "baseTitleSet". E' stato però visto che la variabile statica (evitentemente come tutte le variabli statiche, ma non lo sapevo) mantiene il suo valore da un'istanza all'altra. Pertanto in quel caso dalla seconda finestra plot in poi avevo una visualizzazione scorretta.
+    // Pertanto sono passato ad individuare la necessità di scrivere basetitle sulla base della lunghezza del medesimo titolo della finestra.
     if(windowTitle().count()<7){
         baseTitle=windowTitle();
     }
@@ -418,12 +436,14 @@ In mac non si riescono a sopprimere i bottoni di sistema, che sprecano spazio, e
     valuesWinTitle[valuesWinTitle.count()-1] = windowTitle()[windowTitle().count()-1];
     valuesWin->setWindowTitle(valuesWinTitle);
     valuesWin->move(pos().x()+frameGeometry().width()+1,  pos().y());
+    //DrawType è passata a questa classe subito dopo la costruzione. Non lo posso quindi passare a lineChart nel costruttore, ma posso qui, dopo la costruzione e prima della visualizzazione.
+    ui->lineChart->drawType=EDrawType(drawType);
+
 }
 
 void CPlotWin::updateChartOptions(SOptions opts_){
   programOptions=opts_;
   EPlotPenWidth eppw;
-  qDebug()<<"Updated Line chart options";
   if(programOptions.plotPenWidth==0)
     eppw=pwThin;
   if(programOptions.plotPenWidth==1)
@@ -570,7 +590,8 @@ void CPlotWin::on_scaleTBtn_clicked()
       int result=myScaleDlg->exec();
       if (result==QDialog::Rejected)return;
       ret=myScaleDlg->validDispRect();
-      if(ret!="")  QMessageBox::warning(this," ",ret);
+      if(ret!="")
+        QMessageBox::warning(this," ",ret);
     }while (ret!="");
     ui->lineChart->setDispRect(myScaleDlg->giveDispRect());
 
@@ -631,6 +652,9 @@ void CPlotWin::on_printTBtn_clicked()
       QMessageBox::information(this,"CPlotWin","Diagram printed on the system printer");
     }
   }
+}
+void CPlotWin::setDrawType(int drawType_){
+    drawType=drawType_;
 }
 
 

@@ -25,6 +25,9 @@
 #include <QVector>
 #include <QRegExp>
 #include <math.h>
+#define MAXBINARYOPS 5 //massimo numero di operatori binari
+#define MAXFUNCTIONS 13 //massimo numero di funzioni matematiche
+
 
 /* questa classe realizza un calcolatore di linea che interpreta la sintassi ed effettua calcoli.
   La stringa da interpretare può contenere i segni delle quattro operazioni, le parentesi, il segno unario davanti ad un numero (ad inizio stringa o inizio contenuto di coppia di parentesi).
@@ -43,7 +46,7 @@ CLineCalc in questo caso si accorge che è richiesto un successivo integrale del
 *****************
  UTILIZZO:
  1) si passa la stringa (QString) da analizzare attraverso "getLine(QString line)" (in PlotXY quando inserisco la stringa)
- 2) si passa l'elenco dei nomi di variabili possibili e nameList e della matrice y_ a cui corrispondono i valori, attraverso la funzione getAndPrepare(QList <QString> nameList, float ** y_) (in PlotXY quando comando il plot()). Non è necessario che tutti i nomi di "nameList" siano presenti in "line", ma deve sussistere corrispondenza ordinata fra i nomi di nameList e le righe di y_
+ 2) si passa l'elenco dei nomi di variabili possibili nameList e della matrice y_ a cui corrispondono i valori, attraverso la funzione getAndPrepare(QList <QString> nameList, float ** y_) (in PlotXY quando comando il plot()). Non è necessario che tutti i nomi di "nameList" siano presenti in "line", ma deve sussistere corrispondenza ordinata fra i nomi di nameList e le righe di y_
  3) OPZIONALE Se non voglio allocare inutilmente righe in y per variabili che poi non sono presenti in "line", posso farmi dare le informazioni necessarie su tali variabili mediante la funzione SXYNameData CLineCalc::giveXYNameData(). Se prima di richiamarla si fa xyNaming=true, verranno accettati solo nomi conformi alla  codifica XY (f#v# e v#); altrimenti i nomi basta che comincino per lettera e contengano lettere o numeri.
  Durante tale chiamata viene anche creata la versione "line1" che rispetto a "line0" non ha le parti dei nomi "f#" se il numero di file è quello di default
  4) OPZIONALE Nel caso di utilizzo all'interno di XY sono separate la fase di accettazione del QString (quando lo si mette nella XVarTable) da quella di calcolo (Quando si effettua il comando plot(). Di conseguenza è stata aggiunta la funzione checkLine()che simula un calcolo per verificare la congruenza sintattica del QString.
@@ -79,6 +82,9 @@ struct SVarNums{
     bool operator== (const SVarNums & x);
 };
 
+//Predisposizione per il passaggio all'uso del nuovo CLineCalc (v. CLinecalc\developer.docx):
+struct SInputData {QList <QByteArray> nameList; float ** y_;};
+
 struct SXYNameData{
     bool allLegalNames; //true se tutte le variabili contengono un nome legale Se allLegalNames=false il contenuto delle altre variabili della struttura è indeterminato in quanto alla prima variabile non valida l'analisi della stringa di input è interrotta
     bool rightScale;  //dice se la variabile va plottata verso l'asse verticale destro o no.
@@ -98,25 +104,28 @@ QString fillNames(QString inpStr, int defaultFileNum);
 
 class CLineCalc{
   public:
+    bool allowMathFunctions; // se accetta funzioni tipo sin(), cos(), abs(),ecc.
     bool xyNaming; //se true accetta solo nomi di variabili f#v# o v#
     bool divisionByZero; //se c'è stata una divisione per 0 diviene true
+    bool domainError; //domain error in sqrt
     bool integralRequest; //Per la spiegazione vedere il commento introduttivo all'inizio della descrizione della classe
     QString ret;
-    CLineCalc();
+    CLineCalc(bool allowMathFunctions_=true);
+    SXYNameData checkAndFindNames();
     QString checkBSharp(QList<QString> varNames);
     QString checkLine();
     float compute(int iVal);
-    QString computeUnits();
     void getExplicitNames(QList<QList <QString> >  names_);
-    void getFileInfo(QList <int> fileNumsLst_, QList<QString> fileNamesLst_, QList <int> varNumsLst_);
+    void getFileInfo(QList <int> fileNumsLst_, QList<QString> fileNamesLst_, QList <int> varMaxNumsLst_);
     QString getLine(QString line_, int defaultfileNum_);
-    void getVarNumVect(QVector<int> list);
     QString getNamesAndMatrix(QList <QString> nameList, float ** y_);
-    QString getNamesAndMatrix(QList <QString> nameList, float ** y_, QList<QString *> namesFullList, int selectedFileIdx);
+    QString getNamesAndMatrix(QList <QString> nameList, QList<QString> unitsList, float ** y_, QList<QString *> namesFullList, int selectedFileIdx);
     QString giveLine(QString);
-    SXYNameData checkAndFindNames();
+    QString unitOfMeasuref();
+
   private:
     bool constantsAreSharps; //=ture quando le costanti sono state sostituite con '#'
+    bool constantsConverted; //true se questa routine sia stata chiamata a valle di substPointersToConsts():
     bool gotExplicitNames; //se true, sono stati passati i nomi espliciti delle variabili di tutti i files, e quindi si può compilare il campo "fullName. Se essa è true,  quando giveXYVarNames viene mandato in esecuzione, nel valore di ritorno il campo "fullName" è compilato; altrimenti resta indeterminato.
     bool lineIsSimplified; //=true quando è stata eseguita simplifyAndFindNames()
     bool lineReceived; // true se una line è stata già ricevuta attraverso "getLine"
@@ -133,14 +142,19 @@ class CLineCalc{
     QString line; //lineNoInt con i nomi delle variabili semplificati, privati dei f# superflui, con applicazione di simplified(), e sostituzione di ',' con '.'
     QString lineInt; //come Line, ma contenente, se presente in lineUser,  "int(.)"
     QString intLine;// Stringa interna, continuamente alterata durante l’elaborazione di compute(). Non è locale di compute() perché deve consentire un’esecuzione ricorsiva.
-    QString lineFirstChar; //Copia della line in cui tutti i caratteri sono sostituiti con ' ' e poi dove c'è un '@' è messo il primo carattere del nome della variabile corrispondente, per facilitare la successiva individuazione dell'unità di misura
     QString lineFullNames;//su richiesta nella funzione ### è preparata questa stringa speciale, che contiene invece dei nomi convenzionali i nomi completi delle variabili originali, ma privi dei nomi dei files. Serviranno per visualizzare meglio i nomi delle variabili nelle finestre di plot
 
 
     QList <QString> myNameList; //Lista dei nomi delle variabili
+    QList <QString> myUnitList; //Lista delle unità di misura delle variabili. Questa lista è ordinata come myNameList
     QList <QChar> unitCharLst; //Lista dei primi caratteri dei nomi reali (servono per le unità di misura. Questa lista è ordinata come myNameList
+    QString unitOfMeasure; //contiene l'unità di misura risultante dall'elaborazione delle unità presenti nella formula
+    QList <int> allowedFunIndexes; //
     QList <int> fileNumsLst;  //Lista dei numeri di files correntemente visualizzati nella fileTable
     QList <QString> fileNamesLst;  //Lista dei nomi di files correntemente visualizzati nella fileTable (senza path)
+    QString computeUnits();
+
+    //pure function tetermins uunit of measure from partial units
     QList <int> varMaxNumsLst; //Lista dei numeri di variabili dei files correntemente visualizzati nella fileTable
     //La sintassi  di CLineCalc prevede solo rxn e rxnn:
     QVector <int> varNumVect; //contiene l'elenco del numero di variabili per i MAXFILES files; serve per il check sintattico per le funzioni di variabile.
@@ -155,22 +169,29 @@ class CLineCalc{
          rxLetter, //a letter: a variable name must begin with a letter
          rxLetterDigit, //a letter or a digit: a non-first variable name character must be a letter or a digit
          rxNotLetterDigit, //the first character after a variable name must be such
+         rxNotLetterDigitBracket,
          rxDatumPtr, //il carattere '#' o '@'. Entrambi puntano ad un dato il primo di costante, il secondo di variabile.
          rxAlphabet; //l'intero alfabeto, unione delle seguenti due stringhe
 
     bool * pUnaryMinus; //mi dice se una variabie deve essere peceduta da un '-' unario
     float * pConst; //vettore di puntatori alle costanti in line
+    float (*(*pFun))(float x); //vettore di puntatori alle funzioni
     float ** pVar; //vettore di puntatori ai primi valori di ogni variabile-funzione
+    QString *pUnit; //vettore dei puntatori a unità di misura, contenuti nella stringlist mUnits
     SXYNameData nameData;
     //puntatori alle funzioni-operatore:
-    QString (*fun[5])(float x1, float x2,  float  &y); //successivamente rimuoverò l'allocazione statica.s
+    QString funStr[MAXFUNCTIONS];
+    float (*fun1[MAXFUNCTIONS])(float x1); // Il nome fun1 fa riferimento al fatto che sono funzioni a un argomento (come sin, cos, ecc.)
+    QString (*fun2[MAXBINARYOPS])(float x1, float x2,  float  &y); // Il nome fun2 fa riferimento al fatto che sono funzioni a due argomenti (come somma, prodotto, ecc.)
     static QString  sum(float x1, float x2, float & y), subtr(float x1, float x2, float & y),
                prod(float x1, float x2, float & y),   div(float x1, float x2, float & y),
                power(float x1, float x2, float & y);
 //    void computeXYNameData();
-    QString constantsToPointers();
+    QString computeFun1(int start, int iVal);
+    QString substConstsWithPointers();
+    QString substFunsWithPointers();
     SVarNums readVarXYNums(QString varStr);
-    QString variablesToPointers(float **y_);
+    QString substVarsWithPointers(float **y_);
 
 };
 

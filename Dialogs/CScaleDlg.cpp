@@ -35,14 +35,14 @@ CScaleDlg::CScaleDlg(QWidget *parent) :
 void CScaleDlg::getInfo(SFloatRect2 dispRect_, bool twinScale){
     dispRect=dispRect_;
     isTwinScale=twinScale;
-    ui->xMinEdit->setText(QString::number(dispRect.Left));
-    ui->xMaxEdit->setText(QString::number(dispRect.Right));
-    ui->yMinEdit->setText(QString::number(dispRect.LBottom));
-    ui->yMaxEdit->setText(QString::number(dispRect.LTop));
+    ui->xMinEdit->setText(QString::number(double(dispRect.Left)));
+    ui->xMaxEdit->setText(QString::number(double(dispRect.Right)));
+    ui->yMinEdit->setText(QString::number(double(dispRect.LBottom)));
+    ui->yMaxEdit->setText(QString::number(double(dispRect.LTop)));
     if(twinScale){
       ui->ryGroupBox->setEnabled(true);
-      ui->ryMinEdit->setText(QString::number(dispRect.RBottom));
-      ui->ryMaxEdit->setText(QString::number(dispRect.RTop));
+      ui->ryMinEdit->setText(QString::number(double(dispRect.RBottom)));
+      ui->ryMaxEdit->setText(QString::number(double(dispRect.RTop)));
     }else
         ui->ryGroupBox->setEnabled(false);
 }
@@ -143,13 +143,13 @@ CScaleDlg::~CScaleDlg(){
 
 
 void CScaleDlg::on_flRadioBtn_clicked(){
-  ui->xMinEdit->setText(QString::number(fullLimits.Left));
-  ui->xMaxEdit->setText(QString::number(fullLimits.Right));
-  ui->yMinEdit->setText(QString::number(fullLimits.LBottom));
-  ui->yMaxEdit->setText(QString::number(fullLimits.LTop));
+  ui->xMinEdit->setText(QString::number(double(fullLimits.Left)));
+  ui->xMaxEdit->setText(QString::number(double(fullLimits.Right)));
+  ui->yMinEdit->setText(QString::number(double(fullLimits.LBottom)));
+  ui->yMaxEdit->setText(QString::number(double(fullLimits.LTop)));
   if(isTwinScale){
-    ui->ryMinEdit->setText(QString::number(fullLimits.RBottom));
-    ui->ryMaxEdit->setText(QString::number(fullLimits.RTop));
+    ui->ryMinEdit->setText(QString::number(double(fullLimits.RBottom)));
+    ui->ryMaxEdit->setText(QString::number(double(fullLimits.RTop)));
   }
 
   ui->xMinEdit->setEnabled(false);
@@ -159,18 +159,18 @@ void CScaleDlg::on_flRadioBtn_clicked(){
 }
 
 void CScaleDlg::on_manRadioBtn_clicked(){
-  ui->xMinEdit->setText(QString::number(dispRect.Left));
-  ui->xMaxEdit->setText(QString::number(dispRect.Right));
-  ui->yMinEdit->setText(QString::number(dispRect.LBottom));
-  ui->yMaxEdit->setText(QString::number(dispRect.LTop));
+  ui->xMinEdit->setText(QString::number(double(dispRect.Left)));
+  ui->xMaxEdit->setText(QString::number(double(dispRect.Right)));
+  ui->yMinEdit->setText(QString::number(double(dispRect.LBottom)));
+  ui->yMaxEdit->setText(QString::number(double(dispRect.LTop)));
 
   ui->xMinEdit->setEnabled(true);
   ui->xMaxEdit->setEnabled(true);
   ui->yGroupBox->setEnabled(true);
   if(isTwinScale){
     ui->ryGroupBox->setEnabled(true);
-    ui->ryMinEdit->setText(QString::number(dispRect.RBottom));
-    ui->ryMaxEdit->setText(QString::number(dispRect.RTop));
+    ui->ryMinEdit->setText(QString::number(double(dispRect.RBottom)));
+    ui->ryMaxEdit->setText(QString::number(double(dispRect.RTop)));
   }
 }
 

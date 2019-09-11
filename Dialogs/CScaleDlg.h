@@ -48,7 +48,7 @@ public:
          useUserUnits;  //Request for CLineChart to use user defined Units of measure
     bool useBrackets;
     QString xUnit, yUnit, ryUnit;  //Units of measure of the three axes
-    explicit CScaleDlg(QWidget *parent = 0);
+    explicit CScaleDlg(QWidget *parent = nullptr);
     void getAllUnits(QString xUnit, QString yUnit, QString ryUnit);
     void getInfo(SFloatRect2 dispRect, bool twinScale);
     void getFullLimits(SFloatRect2 fullLimits_, bool manageFullLimits);

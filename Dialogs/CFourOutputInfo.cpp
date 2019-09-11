@@ -40,10 +40,8 @@ void CFourOutputInfo::showEvent(QShowEvent *){
 void CFourOutputInfo::setType(EOutType type){
   if(type==otCopy){
     ui->pdfCBox->setVisible(false);
-    ui->bwCBox->setVisible(false);
   }else{ //type=otPrint
       ui->pdfCBox->setVisible(true);
-      ui->bwCBox->setVisible(true);
   }
 }
 

@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>CDataSelWin</class>
  <widget class="QMainWindow" name="CDataSelWin">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -41,10 +44,7 @@
      <height>16777215</height>
     </size>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_8">
-    <property name="spacing">
-     <number>2</number>
-    </property>
+   <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
      <number>2</number>
     </property>
@@ -57,7 +57,10 @@
     <property name="bottomMargin">
      <number>2</number>
     </property>
-    <item>
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <item row="0" column="0" colspan="2">
      <layout class="QHBoxLayout" name="topToolbLay">
       <property name="spacing">
        <number>2</number>
@@ -76,6 +79,12 @@
         <property name="enabled">
          <bool>true</bool>
         </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <pointsize>9</pointsize>
@@ -90,6 +99,12 @@
        <widget class="QToolButton" name="refrTBtn">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="font">
          <font>
@@ -107,7 +122,7 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -120,7 +135,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/refreshUpdate.ico</normaloff>:/buttons/images/refreshUpdate.ico</iconset>
+          <normaloff>:/buttons/Images/refreshUpdate.ico</normaloff>:/buttons/Images/refreshUpdate.ico</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -164,7 +179,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/arrowDown.ico</normaloff>:/buttons/images/arrowDown.ico</iconset>
+          <normaloff>:/buttons/Images/arrowDown.ico</normaloff>:/buttons/Images/arrowDown.ico</iconset>
         </property>
        </widget>
       </item>
@@ -187,7 +202,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/arrowUp.ico</normaloff>:/buttons/images/arrowUp.ico</iconset>
+          <normaloff>:/buttons/Images/arrowUp.ico</normaloff>:/buttons/Images/arrowUp.ico</iconset>
         </property>
        </widget>
       </item>
@@ -210,7 +225,7 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -223,7 +238,7 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/check.ico</normaloff>:/buttons/images/check.ico</iconset>
+          <normaloff>:/buttons/Images/check.ico</normaloff>:/buttons/Images/check.ico</iconset>
         </property>
         <property name="autoRaise">
          <bool>true</bool>
@@ -236,7 +251,7 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -246,7 +261,9 @@
         </property>
         <property name="icon">
          <iconset resource="Images.qrc">
-          <normaloff>:/buttons/images/dockStack.ico</normaloff>:/buttons/images/dockStack.ico</iconset>
+          <normaloff>:/buttons/Images/docSingle.ico</normaloff>
+          <normalon>:/buttons/Images/dockStack.ico</normalon>
+          <disabledoff>:/buttons/Images/docSingle.ico</disabledoff>:/buttons/Images/docSingle.ico</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -265,7 +282,7 @@
          <bool>true</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -280,7 +297,7 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="1" column="0" colspan="2">
      <widget class="QTableWidget" name="fileTable">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -365,16 +382,23 @@
       <column/>
      </widget>
     </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,5">
-      <property name="spacing">
-       <number>3</number>
-      </property>
+    <item row="2" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_8">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_9">
-        <property name="spacing">
-         <number>1</number>
-        </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QToolButton" name="showParTBtn">
+          <property name="toolTip">
+           <string>Show parameters</string>
+          </property>
+          <property name="text">
+           <string>&lt;-</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
         <item>
          <widget class="QToolButton" name="sortTBtn">
           <property name="sizePolicy">
@@ -391,7 +415,7 @@
           </property>
           <property name="font">
            <font>
-            <pointsize>8</pointsize>
+            <pointsize>9</pointsize>
            </font>
           </property>
           <property name="toolTip">
@@ -402,711 +426,559 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="CVarMenu" name="varMenuTable">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QAbstractScrollArea::AdjustToContents</enum>
-          </property>
-          <property name="autoScroll">
-           <bool>false</bool>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>false</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::NoSelection</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="showGrid">
-           <bool>false</bool>
-          </property>
-          <property name="gridStyle">
-           <enum>Qt::DashLine</enum>
-          </property>
-          <property name="wordWrap">
-           <bool>false</bool>
-          </property>
-          <property name="cornerButtonEnabled">
-           <bool>false</bool>
-          </property>
-          <property name="rowCount">
-           <number>10</number>
-          </property>
-          <property name="columnCount">
-           <number>2</number>
-          </property>
-          <attribute name="horizontalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <attribute name="horizontalHeaderMinimumSectionSize">
-           <number>20</number>
-          </attribute>
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <row/>
-          <column/>
-          <column/>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <widget class="QTabWidget" name="tabWidget">
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
-          <property name="tabShape">
-           <enum>QTabWidget::Triangular</enum>
-          </property>
-          <property name="currentIndex">
+       <widget class="CVarMenu" name="varMenuTable">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
+        </property>
+        <property name="autoScroll">
+         <bool>false</bool>
+        </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::NoSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="showGrid">
+         <bool>false</bool>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::DashLine</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
+        <property name="cornerButtonEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="rowCount">
+         <number>10</number>
+        </property>
+        <property name="columnCount">
+         <number>2</number>
+        </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>20</number>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <row/>
+        <column/>
+        <column/>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Triangular</enum>
+        </property>
+        <property name="currentIndex">
+         <number>3</number>
+        </property>
+        <property name="usesScrollButtons">
+         <bool>false</bool>
+        </property>
+        <widget class="QWidget" name="plot1">
+         <attribute name="title">
+          <string>plot1</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
            <number>0</number>
           </property>
-          <property name="usesScrollButtons">
-           <bool>false</bool>
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-          <widget class="QWidget" name="plot1">
-           <attribute name="title">
-            <string>plot1</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="CVarTableComp" name="varTable1">
-              <property name="font">
-               <font>
-                <family>MS Shell Dlg 2</family>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="autoScroll">
-               <bool>false</bool>
-              </property>
-              <property name="rowCount">
-               <number>17</number>
-              </property>
-              <property name="columnCount">
-               <number>5</number>
-              </property>
-              <attribute name="horizontalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="horizontalHeaderDefaultSectionSize">
-               <number>50</number>
-              </attribute>
-              <attribute name="horizontalHeaderHighlightSections">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="horizontalHeaderMinimumSectionSize">
-               <number>17</number>
-              </attribute>
-              <attribute name="verticalHeaderHighlightSections">
-               <bool>false</bool>
-              </attribute>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="plot2">
-           <attribute name="title">
-            <string>plot2</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_3">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="CVarTableComp" name="varTable2">
-              <property name="rowCount">
-               <number>17</number>
-              </property>
-              <property name="columnCount">
-               <number>5</number>
-              </property>
-              <attribute name="horizontalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="horizontalHeaderDefaultSectionSize">
-               <number>50</number>
-              </attribute>
-              <attribute name="horizontalHeaderMinimumSectionSize">
-               <number>17</number>
-              </attribute>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="plot3">
-           <attribute name="title">
-            <string>plot3</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="CVarTableComp" name="varTable3">
-              <property name="rowCount">
-               <number>17</number>
-              </property>
-              <property name="columnCount">
-               <number>5</number>
-              </property>
-              <attribute name="horizontalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="horizontalHeaderDefaultSectionSize">
-               <number>50</number>
-              </attribute>
-              <attribute name="horizontalHeaderMinimumSectionSize">
-               <number>17</number>
-              </attribute>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="plot4">
-           <attribute name="title">
-            <string>plot4</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="CVarTableComp" name="varTable4">
-              <property name="verticalScrollBarPolicy">
-               <enum>Qt::ScrollBarAlwaysOff</enum>
-              </property>
-              <property name="editTriggers">
-               <set>QAbstractItemView::NoEditTriggers</set>
-              </property>
-              <property name="wordWrap">
-               <bool>false</bool>
-              </property>
-              <property name="rowCount">
-               <number>17</number>
-              </property>
-              <property name="columnCount">
-               <number>5</number>
-              </property>
-              <attribute name="horizontalHeaderVisible">
-               <bool>false</bool>
-              </attribute>
-              <attribute name="horizontalHeaderDefaultSectionSize">
-               <number>50</number>
-              </attribute>
-              <attribute name="horizontalHeaderMinimumSectionSize">
-               <number>17</number>
-              </attribute>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <row/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-              <column/>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </widget>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="plot2">
+         <attribute name="title">
+          <string>plot2</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="spacing">
-           <number>2</number>
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="plot3">
+         <attribute name="title">
+          <string>plot3</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="plot4">
+         <attribute name="title">
+          <string>plot4</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>3</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QToolButton" name="fourTBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Fourier</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="updateTBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>Keep scale ranges while plotting</string>
-              </property>
-              <property name="text">
-               <string>Update</string>
-              </property>
-              <property name="icon">
-               <iconset resource="Images.qrc">
-                <normaloff>:/buttons/images/refreshUpdate.ico</normaloff>:/buttons/images/refreshUpdate.ico</iconset>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="plotTBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>  Plot  </string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="Line" name="line">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <widget class="QLabel" name="moreLbl">
+            <property name="toolTip">
+             <string>More variables than those visible selected!</string>
+            </property>
+            <property name="text">
+             <string>more...</string>
             </property>
            </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <spacer name="horizontalSpacer_5">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QToolButton" name="saveVarsBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Save vars</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="resetTBtn">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>48</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Reset</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+           <widget class="QToolButton" name="tool468">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>4-6-8</string>
+            </property>
+           </widget>
           </item>
           <item>
-           <widget class="Line" name="line_2">
+           <spacer name="horizontalSpacer_2">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="fourTBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Fourier</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="plotTBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>  Plot  </string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="updateTBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Keep scale ranges while plotting</string>
+            </property>
+            <property name="text">
+             <string>Update</string>
+            </property>
+            <property name="icon">
+             <iconset resource="Images.qrc">
+              <normaloff>:/buttons/Images/refreshUpdate.ico</normaloff>:/buttons/Images/refreshUpdate.ico</iconset>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QGroupBox" name="EqualiseBox">
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="title">
-           <string>Equalise plot window sizes</string>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="saveVarsBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Save vars</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="resetTBtn">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Reset</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="EqualiseBox">
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="title">
+         <string>Equalise plot window sizes</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="plotWinSizeLay">
            <property name="spacing">
             <number>2</number>
            </property>
-           <property name="leftMargin">
-            <number>2</number>
-           </property>
-           <property name="topMargin">
-            <number>2</number>
-           </property>
-           <property name="rightMargin">
-            <number>2</number>
-           </property>
-           <property name="bottomMargin">
-            <number>2</number>
-           </property>
            <item>
-            <layout class="QVBoxLayout" name="plotWinSizeLay">
+            <widget class="QRadioButton" name="toWin1Btn">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>to Plot win 1</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="allToWinLay">
              <property name="spacing">
               <number>2</number>
              </property>
              <item>
-              <widget class="QRadioButton" name="toWin1Btn">
+              <widget class="QRadioButton" name="allToBtn">
                <property name="font">
                 <font>
                  <pointsize>8</pointsize>
                 </font>
                </property>
                <property name="text">
-                <string>to Plot win 1</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
+                <string>to:</string>
                </property>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="allToWinLay">
-               <property name="spacing">
-                <number>2</number>
+              <widget class="QLineEdit" name="winWEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>18</height>
+                </size>
                </property>
-               <item>
-                <widget class="QRadioButton" name="allToBtn">
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                  </font>
-                 </property>
-                 <property name="text">
-                  <string>to:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="winWEdit">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>18</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>40</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                  </font>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="winHEdit">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>18</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>40</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="font">
-                  <font>
-                   <pointsize>8</pointsize>
-                  </font>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
-             <item>
-              <widget class="QToolButton" name="eqTBtn">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
                </property>
                <property name="font">
                 <font>
                  <pointsize>8</pointsize>
                 </font>
-               </property>
-               <property name="text">
-                <string>Equate</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QToolButton" name="arrTBtn">
+              <widget class="QLineEdit" name="winHEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>18</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>8</pointsize>
                 </font>
-               </property>
-               <property name="text">
-                <string>Arrange</string>
                </property>
               </widget>
              </item>
             </layout>
            </item>
           </layout>
-         </widget>
-        </item>
-       </layout>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <widget class="QToolButton" name="eqTBtn">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Equate</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="arrTBtn">
+             <property name="font">
+              <font>
+               <pointsize>8</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Arrange</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </item>
@@ -1115,11 +987,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
-  <customwidget>
-   <class>CVarTableComp</class>
-   <extends>QTableWidget</extends>
-   <header location="global">CVarTableComp.h</header>
-  </customwidget>
   <customwidget>
    <class>CVarMenu</class>
    <extends>QTableWidget</extends>

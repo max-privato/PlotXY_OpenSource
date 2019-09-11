@@ -27,10 +27,10 @@ CHelpDlg::CHelpDlg(QWidget *parent) :
 {
     ui->setupUi(this);
     QScreen *screen=QGuiApplication::primaryScreen();
-    int myDPI=screen->logicalDotsPerInch();
+    int myDPI=int(screen->logicalDotsPerInch());
     //Se sono su schermi 4k aumento la dimensione della finestra rispetto a quanto progettato in Designer, ma non la raddoppio; In futuro metterò un'opzione che consentirà all'utente di scegliere fra finestre medie, piccole o grandi. Quella che faccio qui è piccola
     if(myDPI>100){
-      resize(myDPI/96.0*geometry().width(),myDPI/96.0*geometry().height());
+      resize(myDPI/96.0f*geometry().width(),myDPI/96.0f*geometry().height());
     }
 
 }

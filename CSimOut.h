@@ -27,6 +27,34 @@ enum ERunType {rtTimeRun, rtFreqScan, rtHFreqScan, rtUndefined};
 enum EModHFS {mhMagnitude, mhPolar, mhRealIm, mhPolRealIm};
 struct SReturn{int code; QString msg;}; //valore di ritorno per talune funzioni, quale ad es. loadFromPl4File: contiene un codice di severità: 0 warning, 1 errore che non fa uscire dal programma, 2 errore che fa uscire dal programma
 
+//La seguente struttura potrà essere usata forse in futuro per tutti i formati di files, con conseguente eliminazione dell'array di stringhe varNames (sostituendolo con un array di SVar). Per ora, per evitare di fare una modifica drammatica tutta insieme con conseguenze potenzialmente drammatiche, la introduco solo per i files di Modelica, che ne fanno un uso pieno.
+struct SVar{
+    QString name; //nome della variabile
+    QString description; //descrizione della variabile in alcun formati (es.Modelica)
+    QString unit; //unità di misura in alcuni formati (ad es. Modelica)
+    int infoIndex; //indice di dataInfo che caratterizza la variabile nel file di input
+};
+
+struct DataFromModelicaFile{
+  //Struttura compilata da inputMaatModelicaFile
+  QStringList descriptionLst;
+  QStringList namesLst;
+  QStringList unitLst;
+  QString retString;
+  int dataInfoRows;
+  int numOfData2Rows, numOfData2Cols;  //Numero di righe e colonne di data_2
+  int numOfAllVars;  //Numero di tutte le variabili incluso le alias (esclusi i parametri)
+  int **dataInfo;
+  float ** data_1;
+  float ** data_2;
+};
+
+struct ParamInfo{
+    //Struttura contenente tutte le informazioni necessarie per visualizzare i parametri (e le altre variabili che non variano durante la simulazione). Essa è disponibile solo se il file in questione è un file MatModelica, e in particolare esso è letto con l'opzione allVars=false. E' compilata all'interno di loadFromModelicaMatFile(File **, bool).
+    QStringList names, description, units;
+    QList <float> values;
+    QList <int> code; //1 se ho messo un valore nelle liste; 2 se ho messo anche *** ALIASES ***
+};
 
 class CSimOut{
     /* Classe definente gli oggetti di tipo SimOut, contenenti i dati di output di una
@@ -97,19 +125,14 @@ universale) considerata.
     struct Fmatrix {
       long type,nRows,nCols,imagf,namlen;
     } header;
-    /*
-   struct {
-      long ChunkSize;
-      short wFormatTag;
-      unsigned short wChannels;
-      unsigned long dwSamplesPerSec;
-      unsigned long dwAvgBytesPerSec;
-      unsigned short wBlockAlign;
-      unsigned short wBitsPerSample;
-    } FormatChunk;
-*/
+    ParamInfo paramInfo;
+
     void addPrefix(QString &VarName, QString Unit, QString CCBM, int Var);
-  public:
+    struct DataFromModelicaFile  inputMatModelicaData(FILE * pFile);
+    QString giveAutoUnits(QChar c);
+
+
+public:
     bool ObjectNames,
          allowsPl4Out, // true solo se l'input è un run-time di ATP in file PL4
          commasAreSeparators, //accetta virgole come separatori nei files ADF
@@ -132,10 +155,14 @@ universale) considerata.
     float **y; //Conterrà la matrice dei dati (per righe)
     QWidget * parent;
     QString Date, Time;
-    QString  *varNames;  //vettore dei numOfVariables nomi delle variabili
+    QString  *varNames;  //array dei numOfVariables nomi delle variabili
+    SVar *sVars; //array di strutture SVar
     QFileInfo fileInfo;  //nome, data, attributi, ecc. del file
     CSimOut(QWidget *);
     ~CSimOut();
+
+    struct ParamInfo  giveParamInfo();
+
     QString loadFromAdfFile(QString fullName, bool csv=false);
     /* Function per la lettura delle informazioni da un file avente la semplice struttura
     che ho definito per l'estensione ADF (Ascii Data File):
@@ -148,11 +175,12 @@ universale) considerata.
     */
     QString loadFromComtradeFile(QString cfgFileName);
     QString loadFromLvmFile(QString FileName);
-    QString loadFromMatFile(QString fileName);
-    QString loadFromMatFile4(QString fileName);
+    QString loadFromMatFile(QString fileName, bool allVars_, bool addAlias_);
+    QString loadFromMatFile4(QString fileName, bool allVars_, bool addAlias_);
     QString loadFromMatFile5(QString fileName);
     QString loadFromMatFileLib(QString fileName);
     QString loadFromModelicaMatFile(FILE * pFile);
+    QString loadFromModelicaMatFile(FILE * pFile, bool addAlias_);
     SReturn loadFromPl4File(QString fileName);
     QString loadFromPl4Type1(FILE * fpIn);
     QString loadFromPl4Type2(FILE * fpIn);
@@ -160,7 +188,7 @@ universale) considerata.
     /* Questa routine converte i nomi delle variabili originariamente lette da un file ADF allo standard Matlab.
        Le modalità di conversione sono chiarite nel documento Conversion.doc
     */
-    QString namesComtradeToAM(bool mat);
+    QString namesComtradeToMat(bool mat);
     /* Questa routine converte i nomi delle variabili originariamente lette da un file
         COMTRADE dallo standard Simout, che è quello utilizzato in PlotXY allo standard Matlab, che è quello utilizzato in Pl42mat.
         Le modalità di conversione sono chiarite nel documento Conversion.doc

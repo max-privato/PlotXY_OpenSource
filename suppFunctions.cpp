@@ -17,7 +17,7 @@
  *
  */
 
-#include <suppFunctions.h>
+#include "suppFunctions.h"
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
@@ -31,7 +31,8 @@ int **CreateIMatrix(long numRows, long numCols){
     int  **Matrix;
     //Allocaz. vettore puntatori alle righe:
     Matrix=new int *[numRows];
-    if(Matrix==0) return 0;
+    if(Matrix==nullptr)
+        return nullptr;
   //Allocaz. matrice:
     Matrix[0]=new int[numRows*numCols];
     for(i=1; i<numRows; i++)
@@ -40,7 +41,7 @@ int **CreateIMatrix(long numRows, long numCols){
 }
 
 void DeleteIMatrix(int  **Matrix){
-    if(Matrix==NULL) return;
+    if(Matrix==nullptr) return;
     delete[] Matrix[0];
     delete[] Matrix;
 }
@@ -52,11 +53,14 @@ Quindi si deve allocare anche spazio per i puntatori alle righe.*/
     float **matrix;
     //Allocaz. vettore puntatori alle righe:
     matrix=new float*[numOfRows];
-    if(matrix==NULL)return NULL;
-    if(matrix==0) return 0;
+    if(matrix==nullptr)
+      return nullptr;
+    if(matrix==nullptr)
+      return nullptr;
     //Allocaz. matrice:
     matrix[0]=new float[numOfRows*numOfCols];
-    if(matrix[0]==NULL)return NULL;
+    if(matrix[0]==nullptr)
+      return nullptr;
     for(i=1; i<numOfRows; i++)
         matrix[i]=matrix[0]+i*numOfCols;
     return matrix;
@@ -64,7 +68,8 @@ Quindi si deve allocare anche spazio per i puntatori alle righe.*/
 
 
 int DeleteFMatrix(float **matrix){
-    if(matrix==NULL) return 1;
+    if(matrix==nullptr)
+      return 1;
     delete[] matrix[0];
     delete[] matrix;
     return 0;
@@ -78,11 +83,12 @@ float* **CreateFPMatrix(int NumRows, int NumCols){
     float* **Matrix;
     //Allocaz. vettore puntatori alle righe:
     Matrix=new float* *[NumRows];
-    if(Matrix==NULL)return NULL;
-    if(Matrix==0) return 0;
+    if(Matrix==nullptr)
+        return nullptr;
   //Allocaz. matrice:
     Matrix[0]=new float*[NumRows*NumCols];
-    if(Matrix[0]==NULL)return NULL;
+    if(Matrix[0]==nullptr)
+        return nullptr;
     for(i=1; i<NumRows; i++)
         Matrix[i]=Matrix[0]+i*NumCols;
     return Matrix;
@@ -91,7 +97,8 @@ float* **CreateFPMatrix(int NumRows, int NumCols){
 
 int DeleteFPMatrix(float* **Matrix){
     //Versione per matrici di puntatori a float
-    if(Matrix==NULL) return 1;
+    if(Matrix==nullptr)
+        return 1;
     delete[] Matrix[0];
     delete[] Matrix;
     return 0;
@@ -103,7 +110,8 @@ char **CreateCMatrix(long NumRows, long NumCols){
     char **Matrix;
     //Allocaz. vettore puntatori alle righe:
     Matrix=new char*[NumRows];
-    if(Matrix==0) return 0;
+    if(Matrix==nullptr)
+        return nullptr;
   //Allocaz. matrice:
     Matrix[0]=new char[NumRows*NumCols];
     for(i=1; i<NumRows; i++)
@@ -112,7 +120,8 @@ char **CreateCMatrix(long NumRows, long NumCols){
 }
 
 void DeleteCMatrix(char **Matrix){
-    if(Matrix==NULL) return;
+    if(Matrix==nullptr)
+        return;
     delete[] Matrix[0];
     delete[] Matrix;
 }
@@ -130,12 +139,9 @@ QString smartSetNum(float num, int prec){
     */
     QChar sep;
     QString out, prepS;
-    //Prima di tutto scrivo il numero nella stringa da ritornare in formato esponeziale, e
-    //successivamente verifico se esiste la possibilità si una scrittura più compatta
-    // che metto nuovamente in out. Se non esisterà questa possibilità, la stringa di
-    // uscita sarà out così come derivante dalla seguente riga:
+    //Prima di tutto scrivo il numero nella stringa da ritornare in formato esponenziale, e successivamente verifico se esiste la possibilità di una scrittura più compatta che metto nuovamente in out. Se non esisterà questa possibilità, la stringa di uscita sarà out così come derivante dalla seguente riga:
     out.setNum(num,'e',prec-1);
-    //Prima di tutto devo capire quante cifre ho dopo l'esponente, se 1 o 2 I due casi, testati rispettivamente con Qt 5.2 (Mac-air) e Qt 5.7 (Fisso Home) sono e+## (qualunque sia l'esponente e formato differenziato a seconda se sia sufficiente un esponente a un dicit (nel qual caso ho E+#) o servano due digit nel qual caso ho E+##). In sostanza mi basta calcolare expSize e vedere sse è di 3 carattteri (E+#) o di 4 (E+##)
+    //Prima di tutto devo capire quante cifre ho dopo l'esponente, se 1 o 2 I due casi, testati rispettivamente con Qt 5.2 (Mac-air) e Qt 5.7 (Fisso Home) sono e+## (qualunque sia l'esponente e formato differenziato a seconda se sia sufficiente un esponente a un dicit (nel qual caso ho E+#) o servano due digit nel qual caso ho E+##). In sostanza mi basta calcolare expSize e vedere sse è di 3 caratteri (E+#) o di 4 (E+##)
     int expSize=out.size()-out.indexOf('e');
     //Se l'esponente è 0 intanto mi riparmio le ultime 4 cifre:
     int exp;
@@ -146,20 +152,19 @@ QString smartSetNum(float num, int prec){
       return out;
     }
 
-    //nelle seguenti analisi devo maneggiare il separatore decimale sep, che può essere punto
-    // o virgola. Faccio un codice che sia robusto in tal senso:
+    //nelle seguenti analisi devo maneggiare il separatore decimale sep, che può essere punto o virgola. Faccio un codice che sia robusto in tal senso:
     if(out.contains('.'))
         sep='.';
     else
         sep=',';
-    // la seguente prepS è la stringa da "prependere" se il numero è in modulo minore di 1 ovviamente nel caso in cui sia possibile rinunciare alla ntoezione esponenziale
+    // la seguente prepS è la stringa da "prependere" se il numero è in modulo minore di 1 ovviamente nel caso in cui sia possibile rinunciare alla notazione esponenziale
     prepS="0"+QString(sep);
     //Il seguente loop è valido solo per esponenti positivi, e compatibili con il livello di precisione richiesto. Se il numero è troppo grande per essere rappresentato in utte le sue cifre in formato floating point non verrà processato e resterà attiva la notazione esponenziale precedentemente usata per la scrittura in out
     for (int i=1; i<prec; i++)
       if(exp==i &&prec>i){
         out.remove(sep);
         out.chop(expSize);
-        //Adesso inserisco il puntino nella posizione giusta. Però poi lo ritolgo se diviene l'ltimo carattere.
+        //Adesso inserisco il puntino nella posizione giusta. Però poi lo ritolgo se diviene l'ultimo carattere.
         if(out[0]=='-')
           out.insert(i+1+1,sep);
         else

@@ -17,26 +17,6 @@
  *
  */
 
-
-/*
- * This file is part of MC's PlotXY.
- *
- * PlotXY was created during 1998, continuously maintained and upgraded up to current year
- * by Massimo Ceraolo from the University of Pisa.
- *
- * The Linux distribution has been built using Ceraolo's source code in 2018 by Perry
- * Clements from Canada.
- *
- * This program is free software: you can redistribute it under the terms of GNU Public
- * License version 3 as published by the Free Software Foundation.
- *
- * PLOTXY AND ALL THE RELATED MATERIAL INCLUDED IN THE DISTRIBUTION PLOTXY.ZIP FILE OR
- * AVAILABLE FROM GITHUB IS SUPPLIED "AS-IS" THE AUTHOR OFFERS NO WARRANTY OF ITS FITNESS
- * FOR ANY PURPOSE WHATSOEVER, AND ACCEPTS NO LIABILITY WHATSOEVER FOR ANY LOSS OR
- * DAMAGE INCURRED BY ITS USE.
- *
- */
- 
 #include <QDateTime>
 #include <qdebug.h>
 #include <QLibrary>
@@ -53,10 +33,12 @@
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define MAXDATACHAR 1000
 
+
 CSimOut::CSimOut(QWidget *){
-    varNames=NULL;
-    factorUnit=NULL;
-    y=NULL;
+    sVars=nullptr;
+    varNames=nullptr;
+    factorUnit=nullptr;
+    y=nullptr;
     /* La seguente variabile è stata modificata il 4-12-99 da false a true. Questo significa che in assenza di modificazioni si assume che il passo di campionamento sia variabile.
     Questo implica in particolare che i files PL4 siano considerati a passo variabile, il che in generale è giusto in quanto il passo può essere modificato durante la simulazione tramite il comando  CHANGE PLOT FREQUENCY, come chiarito da WSM e illustrato con un esempio da Dan Wolff, che ha fornito il file di test dal nome CHG_PLT.pl4
     */
@@ -71,7 +53,10 @@ CSimOut::CSimOut(QWidget *){
 
 //----------------------------------------------------------------------
 void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
-/* questa funzione crea la prima parte del nome di variable XY a partire dalle informazioni presenti nella riga corrispondente del file cfg COMTRADE. In particolare dal parametro unit ricava eventuali fattori moltiplicativi che sono usati per trasformare le rispettive grandezze in unità SI e informazioni riguardo l'unit di misura.
+/* questa funzione crea la prima parte del nome di variable XY a partire dalle informazioni
+ *  presenti nella riga corrispondente del file cfg COMTRADE. In particolare dal parametro
+ *  unit ricava eventuali fattori moltiplicativi che sono usati per trasformare le
+ * rispettive grandezze in unità SI e informazioni riguardo l'unit di misura.
 */
   QChar CCBM_1;
   if(CCBM.length()>0)
@@ -100,7 +85,6 @@ void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
   else if (unit[0]=='W')   VarName="p:"+VarName;
   else if (unit[0]=='J')   VarName="e:"+VarName;
   else if (unit.left(3)=="DEG") VarName="a:"+VarName;
-
   else if (CCBM_1.isLetter())  VarName=CCBM.left(1)+":"+VarName;
   else{
     factorUnit[Var]=1;
@@ -108,13 +92,309 @@ void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
   }
 }
 
+QString CSimOut::giveAutoUnits(QChar c){
+    int ic=c.toLatin1();
+    switch (ic){
+    case 't': return "s";
+    case 'f': return "s";
+    case 'v': return "V";
+    case 'c': return "A";
+    case 'i': return "A";
+    case 'p': return "W";
+    case 'e': return "J";
+  }
+  return "";
+}
+
+
+struct ParamInfo  CSimOut::giveParamInfo(){
+    return paramInfo;
+}
+
+
+struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
+  /* Questa funzione porta dentro i dati letti da un file matlab modelica per successive
+   * elaborazioni.
+   * Essi potranno essere tutti trasferiti direttamente in array mySO senza on con
+   * eliminazione degli alias
+   * Questa ruoutine è pensata per essere richiamtat ssolo da loadfromModelicaMatFile.
+   *
+   * Se elimino le variabili alias, poi posso avere un hint che dia solo la variabile
+   * mantenuta o anche la lista degli alias eliminati, a seconda del secondo parametro
+   * passato in loadfromModelicaFile()
+   * **** Nota importante. E' stato visto che in tutte le matrici su file c'è scambio
+   *      righe/colonne rispeto al file txt. Però per mia chierezza voglio che gli array
+   *      abbiano come righe e come colonne quelle che vedo nel file txt.
+   *      di conseguenza nella definizione dell'header SCAMBIO LA POSIZIONE DI "nRows"
+   *      CON QUELLA DI "nCols"
+*/
+
+    struct DataFromModelicaFile fileData;
+    fileData.retString="";
+    /* Le matrici dataInfo, data_1 e data_2 di fileData vengono allocate nella presente funzione e disallocate, dopo che verranno utilizzate, in loadFromModelicaMatFile(). Notare che una delle due versioni di quest'ultima è sempre chiamata a valle della presente funzione. Quindi c'è empre e comunque una coppia allocatore/disallocatore.*/
+    char * pVarName=nullptr;
+
+
+    //*** fase 1 leggo Aclass e passo avanti.
+    struct Header {
+//        int type,nRows,nCols,imagf,namlen;  Commentta per via di quanto spiegato nel commento di inizio function
+      int type,nCols,nRows,imagf,namlen;
+    } header;
+
+
+    // lettura intestazione: Aclass
+    if(fread(&header,sizeof(header),1,pFile)!=1){
+        fileData.retString= "Error reading \"Aclass\" in loadFromModelicaMatFile";
+        return fileData;
+    }
+    // lettura nome Aclass:
+    pVarName=new char[header.namlen];
+    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(strcmp(pVarName,"Aclass")!=0){
+        delete[] pVarName;
+        fileData.retString="Error reading AClass";
+        return fileData;
+    }
+    // lettura Aclass:
+    // Faccio staticamente su 44 caratteri in quanto dovrebbe essere sempre una matrice 4x11. caso mai cambio dopo. Così il debug è molto facilitato
+    char  aClassData[44];
+    fread(aClassData,44,1,pFile);
+
+
+    //*** fase 2 leggo "name" e passo avanti.
+    // lettura intestazione:
+    if(fread(&header,sizeof(header),1,pFile)!=1){
+        fileData.retString="Error reading \"name\" in loadFromModelicaMatFile";
+        return fileData;
+    }
+    // lettura nome (quindi "name"):
+    delete [] pVarName;
+    pVarName=new char[header.namlen];
+    fread(pVarName,size_t(header.namlen),1,pFile);
+
+    if(strcmp(pVarName,"name")!=0){
+        delete[] pVarName;
+        fileData.retString="Error reading \"name\"";
+        return fileData;
+    }
+    // lettura dati:
+    char *dummyStr;
+    dummyStr=new char[header.nCols+1]; //il +1 per via del carattere nullo di fine stringa
+//    QString *allNames=new QString[header.nRows];
+    for (int i=0; i<header.nRows; i++){
+      fread(dummyStr,size_t(header.nCols),1,pFile);
+      dummyStr[header.nCols]=0;
+//      allNames[i]=QString(nameData);
+      fileData.namesLst.append(QString(dummyStr).trimmed());
+    }
+    delete[] dummyStr;
+
+
+    //*** fase 3 leggo "description" e passo avanti.
+    // lettura intestazione:
+    if(fread(&header,sizeof(header),1,pFile)!=1){
+        fileData.retString= "Error reading \"description\" in loadFromModelicaMatFile";
+        return fileData;
+    }
+    // lettura nome (quindi "description"):
+    delete [] pVarName;
+    pVarName=new char[header.namlen];
+    fread(pVarName,size_t(header.namlen),1,pFile);
+
+    if(strcmp(pVarName,"description")!=0){
+        delete[] pVarName;
+        fileData.retString="Error reading \"description\"";
+        return fileData;
+    }
+    // lettura dati:
+    dummyStr = new char[header.nCols+1];
+    for(int i=0; i<header.nRows; i++){
+      fread(dummyStr,size_t(header.nCols),1,pFile);
+      dummyStr[header.nCols]=0;
+      fileData.descriptionLst.append(QString(dummyStr).trimmed());
+    }
+    delete[] dummyStr;
+
+    for(int i=0; i<fileData.descriptionLst.count(); i++){
+      int start, end;
+      if(fileData.descriptionLst[i].count()==0){
+        fileData.unitLst.append("");
+        continue;
+      }
+      /* Dymola aggiunge l'unità di misura in parentesi quadre alle descritpio. In tal
+       *  modo essa è facilmente individuata. Il seguente codice tiene conto del fatto
+       * che le  voci di descriptionLst sono già state trimmed()
+       *
+       */
+       start=fileData.descriptionLst[i].lastIndexOf('[');
+       end=fileData.descriptionLst[i].lastIndexOf(']');
+       if(start<0||end<0){
+         fileData.unitLst.append("");
+         continue;
+       }
+
+      /* Il seguente codice tenta di comprendere l'unità di misura nelle description senza
+       * presupporre che essa sia fra parentesi quadre, ma lasciando che possa essere anche
+       * fra tonde.
+       * Non va male ma per ora lo disabilito in quanto sembra che Dymola e Modelica)
+       * siano rigorose nel mettere le unità sempre in fondo alle descriptions fra
+       * parentesi quadre.
+      */
+      /*
+        QChar last=fileData.descriptionLst[i][fileData.descriptionLst[i].count()-1];
+        if(last ==')')
+          start=fileData.descriptionLst[i].lastIndexOf('(');
+        else if(last ==']')
+          start=fileData.descriptionLst[i].lastIndexOf('[');
+        else{
+          fileData.unitLst.append("");
+          continue;
+        }
+       if(start==-1){
+         fileData.unitLst.append("");
+         continue;
+       }
+       */
+
+       QString str=fileData.descriptionLst[i];
+       str.chop(1);
+       str=str.remove(0,start+1);
+       // In alcune descriptions fra parentesi trovo contenuto inaccettabile. Scarto i casi a me noti:
+       if(str.lastIndexOf('#')>-1 || str.lastIndexOf('=')>-1 ||
+               str.contains("flange") || str.contains("abs") || str.contains(",")    )  {
+         fileData.unitLst.append("");
+         continue;
+       }
+       //Solo nel caso degli ohm faccio la correzione con carattere unicode. Questo ha una
+       //legittimazione specifica dagli standard MSL (tichet su trac.modelica.org #2142,
+       // comment 7)
+       if(str=="Ohm"||str=="ohm")
+           str=QString(0x03A9); //unicode per omega maiuscolo
+
+       fileData.unitLst.append(str);
+    }
+
+
+    //*** fase 4 leggo "dataInfo" e passo avanti.
+    // lettura intestazione:
+    if(fread(&header,sizeof(header),1,pFile)!=1){
+        fileData.retString= "Error reading dataInfo header in loadFromModelicaMatFile";
+        return fileData;
+    }
+    // lettura nome (quindi "dataInfo"):
+    delete [] pVarName;
+    pVarName=new char[header.namlen];
+    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(strcmp(pVarName,"dataInfo")!=0){
+      fileData.retString= "Error reading \"dataInfo\" in loadFromModelicaMatFile";
+      return fileData;
+    }
+
+    //Leggo dataInfo.
+//    int dataInfoDBG[100][4];
+
+    fileData.dataInfo=CreateIMatrix(header.nRows,header.nCols);
+    // lettura dati:
+    fileData.numOfAllVars=1;
+    for (int i=0; i<header.nRows; i++){
+      for (int j=0; j<header.nCols; j++){
+        int di;
+        fread(&di,4,1,pFile);
+        fileData.dataInfo[i][j]=di;
+//        if(i<100)
+//         dataInfoDBG[i][j]=di;
+      }
+//      qDebug()<<fileData.dataInfo[i][0]<<fileData.dataInfo[i][1]
+//              <<fileData.dataInfo[i][2]<<fileData.dataInfo[i][3];
+
+      if(fileData.dataInfo[i][0]==2)
+         fileData.numOfAllVars++;
+     }
+    fileData.dataInfoRows=header.nRows;
+
+
+    //*** fase 5 leggo "data_1" e passo avanti.
+    // lettura intestazione:
+    if(fread(&header,sizeof(header),1,pFile)!=1){
+        fileData.retString= "Error reading \"data_1\" in loadFromModelicaMatFile";
+        return fileData;
+    }
+
+    //lettura nome (quindi "data_1"):
+    delete [] pVarName;
+    pVarName=new char[header.namlen];
+    fread(pVarName,size_t(header.namlen),1,pFile);
+
+    if(strcmp(pVarName,"data_1")!=0){
+        delete[] pVarName;
+        fileData.retString="Error reading \"data_1\"";
+        return fileData;
+    }
+
+    //Leggo data_1.
+    fileData.data_1=CreateFMatrix(header.nRows,header.nCols);
+    //lettura dati:
+    for (int i=0; i<header.nRows; i++){
+      for (int j=0; j<header.nCols; j++){
+        float fn;
+        double dn;
+        if(header.type==10){
+           fread(&fn,sizeof(float),1,pFile);
+           fileData.data_1[i][j]=fn;
+         }else{
+           fread(&dn,sizeof(double),1,pFile);
+           fileData.data_1[i][j]=float(dn);
+        }
+      }
+   }
+
+
+    //*** fase 6 leggo "data_2" e passo avanti.
+    // lettura intestazione:
+    if(fread(&header,sizeof(header),1,pFile)!=1){
+        fileData.retString= "Error reading \"data_2\" in loadFromModelicaMatFile";
+        return fileData;
+    }
+    //lettura nome (quindi "data_2"):
+    delete [] pVarName;
+    pVarName=new char[header.namlen];
+    fread(pVarName,size_t(header.namlen),1,pFile);
+
+    if(strcmp(pVarName,"data_2")!=0){
+        delete[] pVarName;
+        fileData.retString="Error reading \"data_2\"";
+        return fileData;
+     }
+
+    //Leggo data_2.
+    fileData.data_2=CreateFMatrix(header.nRows,header.nCols);
+    // lettura dati:
+    for (int i=0; i<header.nRows; i++){
+      for (int j=0; j<header.nCols; j++){
+        float fn;
+        double dn;
+        if(header.type==10){
+           fread(&fn,sizeof(float),1,pFile);
+           fileData.data_2[i][j]=fn;
+         }else{
+           fread(&dn,sizeof(double),1,pFile);
+           fileData.data_2[i][j]=float(dn);
+        }
+      }
+   }
+    fileData.numOfData2Rows=header.nRows;
+    fileData.numOfData2Cols=header.nCols;
+
+   delete [] pVarName;
+   return fileData;
+}
 
 QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
 /* Function per la lettura delle informazioni da un file avente la semplice struttura
 che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione completa è nel file "Input formats and naming conventions".
 
 */
-    char  *str=0, //Stringa per contenere le prime due righe del file.
+    char  *str=nullptr, //Stringa per contenere le prime due righe del file.
           *str1, *pStr, *pBuffer,
         *fStr,  //Stringa che stabilisce il formato di lettura dei numeri
         *tStr; //Stringa per la ricerca dei token
@@ -122,7 +402,7 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
     bool acceptsCommas=false;
     int i, iRow, c, i1, iName,
                 rowLength[3]; //Numero di Bytes delle prime tre righe
-    float autoStepValue;
+    float autoStepValue=0; //inizializzazione solo per evitare un warning
     QString retStr="", XVarName;
     long iL;
     FILE * fpIn;
@@ -132,7 +412,7 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
     runType=rtUndefined;
     allowsPl4Out=false;
     fpIn=fopen(qPrintable(fullName),"r");
-    if(fpIn==NULL){
+    if(fpIn==nullptr){
         return "Unable to open file "+fullName+ "\n(does it exist?)";
     }
     fileInfo=fi;
@@ -256,37 +536,40 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
       pStr[strlen(pStr)-1]=0;
 
   pBuffer=strtok(pStr,tStr);
-  if(pBuffer==NULL){
+  if(pBuffer==nullptr){
     retStr="Invalid file structure (invalid row of variable names)";
     goto Return;
   }
   /*** Occorre notare che in Mac a fine riga leggo "\r\n" invece di "\n".
    pertanto (Sept 2012) modifico il codice in modo da considerare questa eventualità.  */
   for(iName=1; 1; iName++){
-    pBuffer=strtok(NULL,tStr);
-    if(pBuffer==NULL)break;
+    pBuffer=strtok(nullptr,tStr);
+    if(pBuffer==nullptr)break;
     if(*pBuffer=='\r'){
       *pBuffer=0;
       break;
     }
   }
   numOfVariables=iName+autoStep;
+
   delete[] varNames;
   varNames=new QString[numOfVariables];
+  delete [] sVars;
+  sVars=new SVar[numOfVariables];
 
   //Elimino il carattere '\n' in fondo all'ultima variabile
   pStr=str1;
   pStr[strlen(pStr)-1]=0;
   pBuffer=strtok(pStr,tStr);
-  if(pBuffer==NULL){
+  if(pBuffer==nullptr){
     retStr="Invalid file structure (invalid row of variable names)";
     goto Return;
   }
   if(autoStep) varNames[0]=XVarName;
   varNames[autoStep]=QString(pBuffer);
   for(iName=autoStep+1; 1; iName++){
-    pBuffer=strtok(NULL,tStr);
-    if(pBuffer==NULL)break;
+    pBuffer=strtok(nullptr,tStr);
+    if(pBuffer==nullptr)break;
     if(*pBuffer=='\r'){
       *pBuffer=0;
       break;
@@ -321,17 +604,18 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
       }
   }
   //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
-  if(y!=NULL)DeleteFMatrix(y);
+  if(y!=nullptr)
+      DeleteFMatrix(y);
   y=CreateFMatrix(numOfVariables,numOfPoints);
-  if(y==NULL){
+  if(y==nullptr){
     retStr="Unable to allocate memory for variables";
     goto Return;
   }
-  //Eventuale assegnamento valori alla variabile X (auto):
+  //Eventuale assegnazione valori alla variabile X (auto):
   if(autoStep){
-   y[0][0]=0;
-   for(iL=1; iL<numOfPoints; iL++)
-   y[0][iL]=y[0][iL-1]+autoStepValue;
+    y[0][0]=0;
+    for(iL=1; iL<numOfPoints; iL++)
+      y[0][iL]=y[0][iL-1]+autoStepValue;
   }
   //Soltanto la prima riga di valori la leggo con conteggio del numero di dati presenti. Questo mi consente di intercettare l'errore più frequente nei files ADF, ovvero numero di variabili specificate nella seconda riga incongruente con il numero di dati per riga presenti.
   delete str;
@@ -351,8 +635,8 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
       goto Return;
   }
   for(i1=autoStep+1; 1; i1++){
-    pBuffer=strtok(NULL,tStr);
-    if(pBuffer==NULL || *pBuffer=='\n' || *pBuffer=='\r')break;
+    pBuffer=strtok(nullptr,tStr);
+    if(pBuffer==nullptr || *pBuffer=='\n' || *pBuffer=='\r')break;
     try{
       i+=sscanf(pBuffer,fStr,&y[i1][0]);
     }catch(...) {
@@ -396,7 +680,11 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
       }
     }
   }
-
+  delete [] sVars;
+  sVars=new SVar[numOfVariables];
+  for(i1=autoStep; i1<numOfVariables; i1++){
+      sVars[i1].unit=giveAutoUnits(varNames[i1][0]);
+  }
 Return:
   fileType=ADF;
   variableStep=!autoStep;
@@ -457,7 +745,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   /* Fase 1: Preparazione e scrittura file di estensione cfg*/
   //Apertura file:
   pFile=fopen(qPrintable(cfgFileName),"r");
-  if(pFile==NULL)return "Unable to open CFG file (does it exist?)";
+  if(pFile==nullptr)return "Unable to open CFG file (does it exist?)";
   //Prima passata; leggo la lunghezza massima di riga:
   maxLen=0;
   i=0;
@@ -465,7 +753,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         c=fgetc(pFile);
     i++;
     if(c=='\n'){
-      maxLen=max((int)i,maxLen);
+      maxLen=max(int(i),maxLen);
       i=0;
     }
     }while(c!=EOF);
@@ -480,7 +768,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   StrTok.giveTok();
   //A questo punto è stato letto  il "recording device indicator", parametro non critico
   pToken=StrTok.giveTok();
-  if(pToken==NULL)
+  if(pToken==nullptr)
     version="1991";
   else{
     version=QString(pToken);
@@ -506,7 +794,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   fgets(row,maxLen+1,pFile);  rowNum++;
     strtok(row,",");
   sscanf(row,"%d",&totSignals);
-    pToken=strtok(NULL,",");
+    pToken=strtok(nullptr,",");
   auxStr=QString(pToken);
   len=auxStr.size();
   auxStr=auxStr.mid(0,len-1);
@@ -517,6 +805,9 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   //il tempo, che invece in Simout è conteggiato come una variabile
   numOfVariables=totSignals+1;
   delete[] varNames;
+  delete [] sVars;
+  sVars=new SVar[numOfVariables];
+
   varNames=new QString[numOfVariables];
   factor=new float[numOfVariables];
   delete[] factorUnit;
@@ -534,62 +825,77 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il numero d'ordine, parametro critico.
     //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)goto _return;
     //(Non uso in alcun modo il numero d'ordine)
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il nome (identifier), parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==NULL)goto _return;
+    if(pToken==nullptr)goto _return;
     varNames[var]=QString(pToken);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene la "fase", parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==NULL)goto _return;
+    if(pToken==nullptr)goto _return;
     //(Non uso in alcun modo la fase)
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il "ccbm", parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==NULL) goto _return;
+    if(pToken==nullptr) goto _return;
     CCBM=QString(pToken);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene l'unità di misura, parametro critico
-    //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
-    unit=QString(pToken);
-    /* Può accadere nei file di versione 1997 (vedere ad es. il med.cfg di Hevia) che Unit
-    sia vuoto. La seguente riga vuole evitare un errore di "access violation" alla successiva chiamata a AddPrefix se unit è vuoto.
+
+    /* In Febbraio 2018 Perry Clements ha fornito il file FieldOverCurrent.cfg
+     * che non conteneva
+     * l'unità di misura, generato da Voltage regulator  Basler DECS-250.
+     * Sebbene secondo lo standard del 1999 il pu sia un parametro critico,
+     * non crea problemi accettare l'assenza di unità di misura. E' molto
+     * probabile che in una versione dello standard successiva al 1999 questo
+     * parametro sia stato convertito in non critico.
+     * Pertanto in assenza di unità invece di emettere un messaggio di errore
+     * ora  metto una unità vuota.
+     * */
+//    if(pToken==NULL || *pToken==0)  goto _return;
+    if(pToken==nullptr)
+      unit="";
+    else
+      unit=QString(pToken);
+    /*La seguente riga vuole evitare un errore di "access violation" alla successiva chiamata a addPrefix se unit è vuoto.
     */
-    if(unit=="")unit="X";
+    if(unit=="")
+      unit="X";
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il fattore (multiplier), parametro critico
     //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)goto _return;
     sscanf(pToken,"%f",&factor[var]);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il l'offset (adder), parametro critico
     //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)goto _return;
     sscanf(pToken,"%f",&offset[var]);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene lo "skew", parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==NULL) goto _return;
+    if(pToken==nullptr) goto _return;
     sscanf(pToken,"%f",&skew);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il "min", parametro critico
     //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)goto _return;
     sscanf(pToken,"%d",&min[var]);
      pToken=StrTok.giveTok();
     //A questo punto pToken contiene il "max", parametro critico
     //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)goto _return;
     iErr=sscanf(pToken,"%d",&max[var]);
     if(iErr!=1)goto _return;
 
     //L'ultima parte della riga, specifica del formato 1999 non la leggo; pertanto
     //il presente loop di for è valido sia per il formato 1991 che per il 1999.
     addPrefix(varNames[var],unit,CCBM, var);
+    sVars[var].unit=unit.simplified();
+//    int iii=0;
   }
   for (var=analogSigs+1; var<numOfVariables; var++){
     fgets(row,maxLen+1,pFile); rowNum++;
@@ -597,17 +903,17 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il numero d'ordine, parametro critico.
     //Verifica di errori per parametri critici:
-    if(pToken==NULL || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)goto _return;
     //(Non uso in alcun modo il numero d'ordine)
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il nome (identifier), parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==NULL)goto _return;
+    if(pToken==nullptr)goto _return;
     varNames[var]=QString(pToken);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene la "fase", parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==NULL)goto _return;
+    if(pToken==nullptr)goto _return;
     //(Non uso in alcun modo la fase)
 
     addPrefix(varNames[var]," ","d", var);
@@ -644,14 +950,14 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   pToken=StrTok.giveTok();
   //A questo punto pToken contiene samp (sampleRate), critico, reale
   //Verifica di errori per parametri critici:
-  if(pToken==NULL || *pToken==0)goto _return;
+  if(pToken==nullptr || *pToken==0)goto _return;
   sscanf(pToken,"%f",&sampleRate);
 //  StrTok.getStr(row);
   pToken=StrTok.giveTok();
   sscanf(pToken,"%d",&numOfPoints);
   //A questo punto pToken contiene il nome (identifier), parametro non critico
   //Verifica di errori per parametri non critici:
-  if(pToken==NULL)goto _return;
+  if(pToken==nullptr)goto _return;
 
   //Dalle due righe della data prendo solo i numeri finali per determinare l'istante iniziale nel caso di nSamples>0 se vi è un pretrigger.
   fgets(row,maxLen,pFile); rowNum++;
@@ -684,9 +990,9 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     sscanf(row,"%f",&factor[0]);
     // I dati sono registrati in microsecondi. Pertanto un factor di 1 significa un fattore effettivo di 1e-6.
     // Correzione 03/03/2016:
-    factor[0]*=1.0e-6;
+    factor[0]*=1.0e-6f;
   }else
-    factor[0]=1.0e-6;
+    factor[0]=1.0e-6f;
   offset[0]=0;
 
   fclose(pFile);
@@ -700,12 +1006,13 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     pFile=fopen(qPrintable(datFileName),"r");
   else
     pFile=fopen(qPrintable(datFileName),"rb");
-  if(pFile==NULL)return "Unable to open DAT file (does it exist?)";
+  if(pFile==nullptr)
+    return "Unable to open DAT file (does it exist?)";
   do{
         c=fgetc(pFile);
     i++;
     if(c=='\n'){
-      maxLen=max((int)i,maxLen);
+      maxLen=max(int(i),maxLen);
       i=0;
     }
     }while(c!=EOF);
@@ -715,9 +1022,9 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   row=new char[maxLen+1];
 
     //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
-    if(y!=NULL)DeleteFMatrix(y);
+    if(y!=nullptr)DeleteFMatrix(y);
     y=CreateFMatrix(numOfVariables,numOfPoints);
-  if(y==NULL){
+  if(y==nullptr){
         retStr="Unable to allocate memory for variables";
         goto _return;
     }
@@ -728,7 +1035,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         //pToken=strtok(Row,",");
         strtok(row,",");
       for(var=0; var<numOfVariables; var++){
-        pToken=strtok(NULL,",");
+        pToken=strtok(nullptr,",");
         sscanf(pToken,"%d",&i);
         y[var][point]=factor[var]*i+offset[var];
       }
@@ -743,7 +1050,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
       if(numOfRates>0){
           //Al tempo andrebbe aggiunto initialTime per avere una rappresentazione completa di quello che c'è sul file. Però PlotXY è concepito per far partire i segnali da 0 e quindi non faccio la traslazione (il decremento perché il primo campione è 1, ma il relativo istante 0):
 //          y[0][point]=(float)--u/sampleRate;
-          y[0][point]=(float)point/sampleRate;
+          y[0][point]=float(point)/sampleRate;
       }
       else
          y[0][point]=factor[0]*u1;
@@ -756,7 +1063,8 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
       for(var=analogSigs; var<analogSigs+16*digiCombs; var+=16){
         fread (&si, 2, 1, pFile);
         for(i=0;i<16;i++){
-          y[var+i][point]=si&(short int)(2^i);
+//          y[var+i][point]=si&(short int)(2^i);
+          y[var+i][point]=si&short(2^i);
         }
       }
       // 5) lettura variabili digitali a canale combinato parzialmente vuoto:
@@ -764,20 +1072,26 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         var=analogSigs+16*digiCombs;
         fread (&si, sizeof(short int), 1, pFile);
         for(i=0;i<extraDigiSigs;i++){
-          y[var+i][point]=si&(short int)(2^i);
+//          y[var+i][point]=si&(short int)(2^i);
+          y[var+i][point]=si&short(2^i);
         }
       }
     }
   }
   //Processo FactorUnit:
   for(var=1; var<numOfVariables; var++){
-    if(factorUnit[var]!=1.)
+    if(factorUnit[var]!=1.0f)
       for(point=0; point<numOfPoints; point++)
         y[var][point]*=factorUnit[var];
   }
   fclose(pFile);
   rowNum=0;
 _return:
+
+  for(int i1=0; i1<numOfVariables; i1++){
+      sVars[i1].unit=giveAutoUnits(varNames[i1][0]);
+  }
+
   QString str;
   if(rowNum==0)
     retStr="";
@@ -830,7 +1144,7 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
   tokStr[1]='\0';
   FILE * fpIn;
   fpIn=fopen(qPrintable(fileName),"r");
-  if(fpIn==NULL){
+  if(fpIn==nullptr){
         return "Unable to open file (does it exist?)";
   }
   fileInfo=fi;
@@ -892,7 +1206,7 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
         numRead=sscanf(headerRow+18,"%c",&decimalSeparator);
     //The variable numRead is needed only for debugging purposes.
     //The following row has the only purpose of avoiding a "Wunused-but-set-variable warning (here is not necessary):
-    numRead++;
+//    numRead++;
 
     //XColumns
     if(strncmp("X_Columns",headerRow,9)==0){
@@ -928,22 +1242,22 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
   if(pStr[strlen(pStr)-1]=='\r')
       pStr[strlen(pStr)-1]=0;
   pBuffer=strtok(pStr,tStr);
-  if(pBuffer==NULL){
+  if(pBuffer==nullptr){
     retStr="Invalid file structure (invalid row of variable names)";
     goto Return;
   }
   if(autoStep) varNames[0]=xVarName;
   varNames[autoStep]=QString(pBuffer);
   for(iName=autoStep+1; iName<numOfVariables; iName++){
-    pBuffer=strtok(NULL,tStr);
-    if(pBuffer==NULL)break;
+    pBuffer=strtok(nullptr,tStr);
+    if(pBuffer==nullptr)break;
     varNames[iName]=QString(pBuffer);
   }
 
   //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
-  if(y!=NULL)DeleteFMatrix(y);
+  if(y!=nullptr)DeleteFMatrix(y);
   y=CreateFMatrix(numOfVariables,numOfPoints);
-  if(y==NULL){
+  if(y==nullptr){
     retStr="Unable to allocate memory for variables";
     goto Return;
   }
@@ -958,7 +1272,7 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
   while(1){
     pDataRow=fgets(pDataRow,MAXDATACHAR,fpIn);
     //Faccio una logica robusta che accetta in fondo al file anche una riga vuota (in Win un carattere '\n', in Mac i caratter '\r\n'):
-    if(pDataRow==NULL)   goto Return;
+    if(pDataRow==nullptr)   goto Return;
     if(pDataRow[0]=='\n' || pDataRow[0]=='\r') goto Return;
     if(dataRow[MAXDATACHAR-1]!='\0'){
        retStr="Data Error 1 when reading numerical values";
@@ -974,13 +1288,13 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
     }
     iL++;
     pStr=strtok(dataRow,separator);
-    if(pStr==NULL){
+    if(pStr==nullptr){
       retStr="Data Error 2 when reading numerical values";
       goto Return;
     }
     i=sscanf(pStr,"%f",&y[0][iL]);
     for(i1=1; i1<numOfVariables; i1++){
-      pStr=strtok(NULL,separator);
+      pStr=strtok(nullptr,separator);
       i=sscanf(pStr,"%f",&y[i1][iL]);
       if(i!=1){
         numOfPoints=iL;
@@ -999,12 +1313,18 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
 //  numOfPoints=iL+1;
   fileType=LVM;
   variableStep=!autoStep;
+  delete [] sVars;
+  sVars=new SVar[numOfVariables];
+  for(int i1=0; i1<numOfVariables; i1++){
+      sVars[i1].unit=giveAutoUnits(varNames[i1][0]);
+  }
+
   //chiusura file e uscita:
   fclose (fpIn);
   return retStr;
 }
 
-QString CSimOut::loadFromMatFile(QString fileName) {
+QString CSimOut::loadFromMatFile(QString fileName, bool allVars_, bool addAlias_) {
     /* Questa routine guarda il file mat e seleziona la routine di gestione.
     */
     char bytes[4];
@@ -1018,7 +1338,7 @@ QString CSimOut::loadFromMatFile(QString fileName) {
     //Apertura file:
     pFile=fopen(qPrintable(fileName),"rb");
 //    fread(&type,1,1,pFile);
-    if(pFile==NULL)
+    if(pFile==nullptr)
         return "Unable to open file in \"loadFromMatFile\"";
     if(fread(bytes,4,1,pFile)!=1){
         fclose (pFile);
@@ -1028,7 +1348,7 @@ QString CSimOut::loadFromMatFile(QString fileName) {
     fclose (pFile);
     if(bytes[0]==0 || bytes[1]==0 || bytes[2]==0 || bytes[3]==0){
      // si individua il formato 4 secondo quando scritto nel testo evidenziato in fondo a pag 1-6 del file "matfile_format.pdf"
-        ret=loadFromMatFile4(fileName);
+        ret=loadFromMatFile4(fileName,allVars_, addAlias_);
        if(fileType!=MAT_Modelica)
           fileType=MAT_V4;
     }else{
@@ -1038,12 +1358,20 @@ QString CSimOut::loadFromMatFile(QString fileName) {
       else
         ret=loadFromMatFile5(fileName);
     }
+
+    if(fileType!=MAT_Modelica){
+      delete [] sVars;
+      sVars=new SVar[numOfVariables];
+      for(int i1=0; i1<numOfVariables; i1++){
+        sVars[i1].unit=giveAutoUnits(varNames[i1][0]);
+      }
+    }
   return ret;
 }
 
 
 
-QString CSimOut::loadFromMatFile4(QString fileName) {
+QString CSimOut::loadFromMatFile4(QString fileName, bool allVars_,bool addAlias_) {
   /*  Routine per leggere i files formato matlab 4.
 Il file contiene sequenzialmente coppie header-matrice.
   * Ogni header ha dimensione 20 bytes.
@@ -1060,7 +1388,7 @@ Il file contiene sequenzialmente coppie header-matrice.
   * le variabili subito, ma dopo una prima passata in cui si fa l'analisi del file.
   */
 
-  char * pVarName=NULL;
+  char * pVarName=nullptr;
   bool isDouble=true;
   int matrixIndex, var, point, iCol, tVarIndex=-1, varIndex;
   float aux;
@@ -1072,7 +1400,8 @@ Il file contiene sequenzialmente coppie header-matrice.
   QString ret="";
   //Apertura file:
   pFile=fopen(qPrintable(fileName),"rb");
-  if(pFile==NULL)return "Unable to open file";
+  if(pFile==nullptr)
+    return "Unable to open file";
   //Faccio una prima passata per diagnostica e per leggere il numero di variabili:
   matrixIndex=0;
   numOfPoints=-1;
@@ -1082,7 +1411,7 @@ Il file contiene sequenzialmente coppie header-matrice.
     if(fread(&header,sizeof(header),1,pFile)!=1)
         break;
     if(header.imagf!=0){
-      ret= "file format appears to contain complex numbers, that is not allowed";
+      ret= "file format appears to contain complex numbers, which is not allowed";
       goto Return;
     }
 
@@ -1101,13 +1430,18 @@ Il file contiene sequenzialmente coppie header-matrice.
 
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
+    fread(pVarName,size_t(header.namlen),1,pFile);
 
     //Se la prima variabile ha come nome "Aclass" si ipotizza che si tratti di un file creato con Modelica (Dymola e OM sano formati quasi identici e entrambi mettonon una prima variabile con questo nome a inizio file). Di conseguenza rimando l'interpretazione alla specifica routine.
 
     if(strcmp(pVarName,"Aclass")==0){
+        fileType=MAT_Modelica;
         rewind(pFile);
-        ret=loadFromModelicaMatFile(pFile);
+        if(allVars_)
+          ret=loadFromModelicaMatFile(pFile);
+        else
+          ret=loadFromModelicaMatFile(pFile,addAlias_);
+        fclose (pFile);
         return ret;
     }
 
@@ -1139,9 +1473,10 @@ Il file contiene sequenzialmente coppie header-matrice.
     //Ora alloco spazio per le matrici dei dati ed effettuo la lettura effettiva:
     delete[] varNames;
     varNames=new QString[numOfVariables];
-    if(y!=NULL)DeleteFMatrix(y);
+    if(y!=nullptr)
+        DeleteFMatrix(y);
     y=CreateFMatrix(numOfVariables,numOfPoints);
-    if(y==NULL)
+    if(y==nullptr)
         return "Unable to allocate space for data storage";
 
     rewind(pFile);
@@ -1164,7 +1499,7 @@ Il file contiene sequenzialmente coppie header-matrice.
             fread(&header,sizeof(header),1,pFile);
             delete[]pVarName;
             pVarName=new char[header.namlen];
-            fread(pVarName,(size_t)header.namlen,1,pFile);
+            fread(pVarName,size_t(header.namlen),1,pFile);
             varNames[varIndex]=QString(pVarName);
         }
         if(header.nCols>1) {
@@ -1175,7 +1510,7 @@ Il file contiene sequenzialmente coppie header-matrice.
         if(isDouble){
             for(point=0; point<numOfPoints; point++){
                 fread(&dAux,sizeof(double),1,pFile);
-                y[varIndex][point]=(float)dAux;
+                y[varIndex][point]=float(dAux);
             }
         }else{
             for(point=0; point<numOfPoints; point++)
@@ -1189,12 +1524,21 @@ Il file contiene sequenzialmente coppie header-matrice.
 }
 
 QString CSimOut::loadFromMatFile5(QString fileName) {
-    /* Questa funzione è pensata per la lettura in Matlab di files aventi struttura successiva al formato V4.
-La struttura dei files Matlab nelle versioni più recenti è molto complessa e al momento ne sono state implementate solo alcune funzioni.
-In particolare manca del tutto la decompressione dei dati, mentre nelle versioni Matlab a partire dalla 7, la compressione è effettuarata per default.
-Al momento quindi questa funzione non è da attivarsi come default di PlotXY.
-Come default si attiva la funzione LoadFromMatFileLib() che consente, nei sistemi in cui è presente Matlab, la lettura da qualsiasi formato; nei sistemi che non hanno matlab, la lettura di files mat è meno rilevante, e comunque può sempre essere fatta con l'opzione -V4.
-Quando sarà implementata anche la compressione risulterà possibile liberarsi completamente dalle librerie Matlab per la lettura delle variabii.*/
+  /* Questa funzione è pensata per la lettura in Matlab di files aventi struttura successiva
+   * al formato V4.
+   * La struttura dei files Matlab nelle versioni più recenti è molto complessa e al
+   * momento ne sono state implementate solo alcune funzioni.
+   * In particolare manca del tutto la decompressione dei dati, mentre nelle versioni
+   * Matlab a partire dalla 7, la compressione è effettuarata per default.
+   * Al momento quindi questa funzione non è da attivarsi come default di PlotXY.
+   * Come default si attiva la funzione LoadFromMatFileLib() che consente, nei sistemi
+   * in cui è presente Matlab, la lettura da qualsiasi formato; nei sistemi che non hanno
+   * matlab, la lettura di files mat è meno rilevante, e comunque può sempre essere fatta
+   * con l'opzione -V4.
+   * Quando sarà implementata anche la compressione risulterà possibile liberarsi
+   * completamente dalle librerie Matlab per la lettura delle variabii.
+
+*/
     bool smallData;
     char c, fileHeader[129];
     char arrayFlags[4], currVarName[17];
@@ -1209,7 +1553,8 @@ Quando sarà implementata anche la compressione risulterà possibile liberarsi c
     //Apertura file:
 
     pFile=fopen(qPrintable(fileName),"rb");
-    if(pFile==NULL)return "Unable to open file";
+    if(pFile==nullptr)
+        return "Unable to open file";
     fileHeader[127]=0;
     fread(fileHeader,128,1,pFile);
     // Non faccio la verifica big-endian / little-endian perché con i processori Intel, di mio interesse,
@@ -1222,7 +1567,7 @@ Quando sarà implementata anche la compressione risulterà possibile liberarsi c
             break;  // tipo dell'intero segmento
         fread(&numberOfBytes,4,1,pFile);  //bytes dell'intero segmento
         numOfVariables++;
-        fseek(pFile, (long)numberOfBytes,SEEK_CUR);
+        fseek(pFile, long(numberOfBytes),SEEK_CUR);
     }
     rewind(pFile);
     fread(fileHeader,128,1,pFile);
@@ -1323,9 +1668,10 @@ Quando sarà implementata anche la compressione risulterà possibile liberarsi c
         //L'allocazione della matrice si fa in occasione della lettura delle prima variabile:
         //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
         if(iVar==0){
-            if(y!=NULL)DeleteFMatrix(y);
+            if(y!=nullptr)
+                DeleteFMatrix(y);
             y=CreateFMatrix(numOfVariables,numOfPoints);
-            if(y==NULL){
+            if(y==nullptr){
                 retStr="Unable to allocate space for data storage";
                 goto Return;
             }
@@ -1335,13 +1681,13 @@ Quando sarà implementata anche la compressione risulterà possibile liberarsi c
             for(int i=0; i<numOfPoints; i++){
                 fread(&s,1,1,pFile);
 //                float f=(float)s;
-                y[iVar][i]=(float)s;
+                y[iVar][i]=float(s);
             }
         }else  if(type==doubleFloat){
             double D;
             for(int i=0; i<numOfPoints; i++){
                 fread(&D,8,1,pFile);
-                y[iVar][i]=(float)D;
+                y[iVar][i]=float(D);
             }
         }else{
             for(int i=0; i<numOfPoints; i++)
@@ -1356,7 +1702,7 @@ Quando sarà implementata anche la compressione risulterà possibile liberarsi c
 //----------------------------------------------------------------------
 QString CSimOut::loadFromMatFileLib(QString fileName) {
     /* Routine per effettuare la lettura di matrici MATLAB.
-   Questa versione demanda l'effettiva lettura a dunzioni di libreria fornite da
+   Questa versione demanda l'effettiva lettura a funzioni di libreria fornite da
    MATLAB, che garantiscono un'ottima compatibilità con versioni del file fino a
    quella associata alla libreria utilizzata.
    La libreria qui utilizzata è quella fornita con Matlab 7.0.
@@ -1383,7 +1729,7 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
   float * fFileVar;
   double * dFileVar;
   MATFile *mfp;
-  mxArray *mxVar = NULL;
+  mxArray *mxVar = nullptr;
   typedef char ** (*prMatIntTOChar)(MATFile *, int *);
   typedef int (*prMatTOInt)(MATFile *);
   typedef MATFile *(*prChChTOMat)(const char *, const char *);
@@ -1416,32 +1762,33 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
 
 
  //Carico le procedure:
-  matGetDir=(prMatIntTOChar)libMat.resolve("matGetDir");
-  matClose=(prMatTOInt)libMat.resolve("matClose");
-  matOpen =(prChChTOMat)libMat.resolve("matOpen");
-  matGetNextVariable=(prMatChTOMxArr)libMat.resolve("matGetNextVariable");
-  mxGetDimensions=(prMxArrTOInt)libMx.resolve("mxGetDimensions");
-  mxGetNumberOfDimensions=(prMxArrTOInt1)libMx.resolve("mxGetNumberOfDimensions");
-  mxGetClassID=(prMxArrTOMxId)libMx.resolve("mxGetClassID");
-  mxGetPr     =(prMxArrTODouble)libMx.resolve("mxGetPr");
-  mxFree      =(prVoidTOVoid)libMx.resolve("mxFree");
+  matGetDir=prMatIntTOChar(libMat.resolve("matGetDir"));
+  matClose=prMatTOInt(libMat.resolve("matClose"));
+  matOpen =prChChTOMat(libMat.resolve("matOpen"));
+  matGetNextVariable=prMatChTOMxArr(libMat.resolve("matGetNextVariable"));
+  mxGetDimensions=prMxArrTOInt(libMx.resolve("mxGetDimensions"));
+  mxGetNumberOfDimensions=prMxArrTOInt1(libMx.resolve("mxGetNumberOfDimensions"));
+  mxGetClassID=prMxArrTOMxId(libMx.resolve("mxGetClassID"));
+  mxGetPr     =prMxArrTODouble(libMx.resolve("mxGetPr"));
+  mxFree      =prVoidTOVoid(libMx.resolve("mxFree"));
 
-  if(matGetDir==NULL || matClose==NULL || matOpen==NULL      ||
-     matGetNextVariable==NULL      || mxGetDimensions==NULL  ||
-     mxGetNumberOfDimensions==NULL ||  mxGetClassID==NULL    ||
-     mxGetPr==NULL                 ||  mxFree==NULL                   )
+  if(matGetDir==nullptr || matClose==nullptr || matOpen==nullptr      ||
+     matGetNextVariable==nullptr      || mxGetDimensions==nullptr  ||
+     mxGetNumberOfDimensions==nullptr ||  mxGetClassID==nullptr    ||
+     mxGetPr==nullptr                 ||  mxFree==nullptr                   )
       return "Error loading functions in \"libmat.dll\" or \"libMx.dll\".\n"
      "Please save  \".mat\" file using the \"-v4\" option:\n"
      "this will not require any external library.";
 
   //Apertura file:
   mfp=matOpen(qPrintable(fileName),"r");
-  if(mfp==NULL)return "Unable to open file";
+  if(mfp==nullptr)
+      return "Unable to open file";
 
   /*Determinazione numero e dimensione variabili e allocazione spazio: */
   matGetDir(mfp,&numOfMatVars);
   /* Essendo possibile importare in PlotXY anche files contenenti matrici a più colonne,
-  evidentemente il NumOfVariables di PlotXY potrà essere superiore a NumOfMatVars.
+  evidentemente il numOfVariables di PlotXY potrà essere superiore a numOfMatVars.
   Ne effettuo quindi il calcolo:
   */
   matClose(mfp);
@@ -1449,7 +1796,8 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
   numOfVariables=0;
   for(iVar=0; iVar<numOfMatVars; iVar++){
     mxVar = matGetNextVariable(mfp, &name);
-    if(mxVar==NULL)return "Unexpected error 1 while reading mat file variable";
+    if(mxVar==nullptr)
+        return "Unexpected error 1 while reading mat file variable";
     maxNumbersPerDim=mxGetDimensions(mxVar);
     numOfVariables+=maxNumbersPerDim[1];
     // The following assignment should better be placed immediately below the for loop. It is kept here to avoid a warning message "maxNumbersPerDim may be used unitialized"
@@ -1458,9 +1806,10 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
   }
   delete[] varNames;
   varNames=new QString[numOfVariables];
-  if(y!=NULL)DeleteFMatrix(y);
+  if(y!=nullptr)
+      DeleteFMatrix(y);
   y=CreateFMatrix(numOfVariables,numOfPoints);
-  if(y==NULL)
+  if(y==nullptr)
       return "Unable to allocate space for data storage";
   /*Ora, nel seguente loop effettuo l'acquisizione completa: */
   matClose(mfp);
@@ -1468,7 +1817,8 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
   iVar=-1;
   for(iMatVar=0;iMatVar<numOfMatVars;iMatVar++) {
     mxVar = matGetNextVariable(mfp, &name);
-    if(mxVar==NULL)return "Unexpected error 2 reading mat file variable";
+    if(mxVar==nullptr)
+        return "Unexpected error 2 reading mat file variable";
     numOfDims=mxGetNumberOfDimensions(mxVar);
     if(numOfDims!=2)
       return "Invalid array in matlab file\n All arrays must be bi-dimensional!";
@@ -1481,22 +1831,24 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
          "All arrays must share the same number of points";
     }
     if(mxGetClassID(mxVar)==mxDOUBLE_CLASS){
-      dFileVar=(double *)mxGetPr(mxVar);
+      dFileVar=reinterpret_cast<double *>(mxGetPr(mxVar));
+//      dFileVar=(double *)mxGetPr(mxVar);
       for (iCol=0; iCol<maxNumbersPerDim[1]; iCol++){
         iVar++;
         varNames[iVar]=QString(name);
         if(maxNumbersPerDim[1]>1)varNames[iVar]=varNames[iVar]+"("+QString::number(iCol+1)+")";
           for (iPoint=0; iPoint<numOfPoints; iPoint++)
-              y[iVar][iPoint]=(float)dFileVar[iPoint+iCol*numOfPoints];
+              y[iVar][iPoint]=float(dFileVar[iPoint+iCol*numOfPoints]);
       }
     }else if(mxGetClassID(mxVar)==mxSINGLE_CLASS){
-      fFileVar=(float *)mxGetPr(mxVar);
+      fFileVar=reinterpret_cast<float *>(mxGetPr(mxVar));
+//      fFileVar=(float *)mxGetPr(mxVar);
       for (iCol=0; iCol<maxNumbersPerDim[1]; iCol++){
         iVar++;
         varNames[iVar]=QString(name);
         if(maxNumbersPerDim[1]>1)varNames[iVar]=varNames[iVar]+"("+QString::number(iCol+1)+")";
         for (iPoint=0; iPoint<numOfPoints; iPoint++)
-          y[iVar][iPoint]=(float)fFileVar[iPoint+iCol*numOfPoints];
+          y[iVar][iPoint]=float(fFileVar[iPoint+iCol*numOfPoints]);
       }
     }else{
         return "Invalid array in matlab file;\n";
@@ -1514,247 +1866,268 @@ QString CSimOut::loadFromMatFileLib(QString fileName) {
 }
 
 
+
 QString CSimOut::loadFromModelicaMatFile(FILE * pFile){
   /* Questa è una funzione specializzata per la lettura dei files matlab creati da
-   * Dymola e OM. Essi sono quasi identici, e dovrei riuscire a gestirli da un'unica
+   * Dymola e OM. Essi hanno la stessa struttura, riesco a gestirli da un'unica
    * funzione.
-   * Al momento faccio un'implementazione specifica per files Dymola, poi faccio gli
-   * aggiustamenti per OM. Se risulterà opportuno spezzerò in due la routine.
+   * Per comprendere come funziona questa funzione la cosa più semplice è guardare il file
+   * RL_DYM.TXT,, associandolo, durante la lettura a RL_DYM.mat.
+   * Infatti la descrizione del file TXT di Dymola è molto completa e coincide con la
+   * logica usata per scrivere la presente funzione.
+   *
+   * DIFFERENTI VERSIONI DELLA FUNZIONE
+   * v. commento in loadFromModelicaMatFile(FILE * pFile, bool addAlias_
+   *
+*/
+    QString ret;
+    struct DataFromModelicaFile fd;
+    QList <SVar> sVarsLst;
+
+    //demando a una routine specializzata la lettura delle prime parti del file:
+    fd=inputMatModelicaData(pFile);
+
+   numOfVariables=fd.numOfAllVars;
+   numOfPoints=fd.numOfData2Rows;
+   if(y!=nullptr)
+       DeleteFMatrix(y);
+   y=CreateFMatrix(numOfVariables,numOfPoints);
+   if(y==nullptr){
+       ret= "unable to allocate y matrix";
+       return "unable to allocate y matrix";
+   }
+   delete[] varNames;
+   varNames=new QString[numOfVariables];
+   delete [] sVars;
+   sVars=new SVar[numOfVariables];
+
+   int varIndex=0;
+   paramInfo.names.clear();
+   paramInfo.description.clear();
+   paramInfo.units.clear();
+   paramInfo.values.clear();
+   paramInfo.code.clear();
+   for (int i=0; i<fd.dataInfoRows; i++){
+   /* Il numero di dataInfoRows è più grande di varIndex, in quanto il primo contiene
+    * anche righe per i parametri
+   */
+     if (fd.dataInfo[i][0]==1){
+       paramInfo.names.append(fd.namesLst[i]);
+       paramInfo.description.append(fd.descriptionLst[i]);
+       paramInfo.units.append(fd.unitLst[i]);
+//       int dataInfoIdx=fd.dataInfo[i][1]-1;
+       if(fd.dataInfo[i][1]>0)
+          paramInfo.values.append(fd.data_1[0][fd.dataInfo[i][1]-1]);
+       else
+          paramInfo.values.append(-fd.data_1[0][-fd.dataInfo[i][1]-1]);
+       continue;
+     }else if (fd.dataInfo[i][1]>0){
+       for (int j=0; j<numOfPoints; j++)
+         y[varIndex][j]=fd.data_2[j][fd.dataInfo[i][1]-1];
+      }else{
+        for (int j=0; j<numOfPoints; j++)
+          y[varIndex][j]=-fd.data_2[j][-fd.dataInfo[i][1]-1];
+     }
+
+     // Per favorire l'identificazione corretta dell'unità di misura sull'asse x, l'iniziale del tempo la metto minuscola:
+     if(varNames[0]=="Time")
+         varNames[0]="time";
+     SVar sVar;
+     sVar.name=fd.namesLst[i];
+     sVar.infoIndex=i;
+     sVar.description=fd.descriptionLst[i];
+     sVar.unit=fd.unitLst[i];
+     sVars[varIndex]=sVar;
+     sVarsLst.append(sVar);
+     varNames[varIndex]=fd.namesLst[i];
+     varIndex++;
+   }
+
+   DeleteIMatrix(fd.dataInfo);
+   DeleteFMatrix(fd.data_1);
+   DeleteFMatrix(fd.data_2);
+   return ret;
+}
+
+
+QString CSimOut::loadFromModelicaMatFile(FILE * pFile, bool addAlias_){
+  /* Questa è una funzione specializzata per la lettura dei files matlab creati da
+   * Dymola e OM. Essi hanno la stessa struttura, riesco a gestirli da un'unica
+   * funzione.
+   *
+   * DIFFERENTI VERSIONI DELLA FUNZIONE
+   * La versione con un solo argomento carica in memoria la lista completa delle variabili
+   * anche quelle che sono alias di altre. L'utente potrà scegliere ad esempio resistor.i
+   * o resistor.p.i.
+   * La versione contenente due parametri invece crea una lista solo delle variabili
+   * diverse le une dalle eltre, omettendo di produrre quelle che sono uguali ad altre
+   * o uguali all'opposto di altre (definite ALIAS) che in effetti non sono presenti
+   * nel file mat per ridurne, giustamente, le dimensioni. In quest'ultimo caso è
+   * possibile chiedere che venga visualizzato nell'hint di varMenuTable anche la lista
+   * delle alias o meno. Probabilmente si richiedereà sempre addAlias_=true.
    *
    * Quando entro qui il file è già aperto e riavvolto. La struttura che mi aspetto è
    * descritta in tutti i file TXT creati da dymola come output di simulazione, ed in
    * particolare in Bouncing0.txt presente nella cartella data del progetto Mat4ToTxt
    *
-   * **** Nota importante. E' stato visto che in tutte le matrici su file c'è scambio
-   *      righe/colonne rispeto al file tyxt. Però per mia chierezza voglio che gli array
-   *      abbiano come righe e come colonne quelle che vedo nel file txt.
-   *      di conseguenza nella definizione dell'header SCAMBIO LA POSIZIONE DI "nRows"
-   *      CON QUELLA DI "nCols"
+
    *
 */
     int varIndex=0;
-    int dataInfoRows, dataInfoCols;
-    int **dataInfo;
-    float **data_1;
-    float **data_2;
     QString ret;
     QList <int> loadedVarIndices;
 
-    //*** fase 1 legggo Aclass e passo avanti.
-    char * pVarName=NULL;
-    struct Header {
-//        int type,nRows,nCols,imagf,namlen;  Commentta per via diquansto spiegato nel commento di inizio function
-      int type,nCols,nRows,imagf,namlen;
-    } header;
+    struct DataFromModelicaFile fd;
+    char * pVarName=nullptr;
+
+    //demando a una routine specalizzata la lettura delle prime parti del file:
+    fd=inputMatModelicaData(pFile);
+    numOfVariables=fd.numOfData2Cols;
+    numOfPoints=fd.numOfData2Rows;
 
 
-    //1.1 lettura intestazione:
-    if(fread(&header,sizeof(header),1,pFile)!=1)
-        return "Error reading \"Aclass\" in loadFromModelicaMatFile";
-
-    //1.2 lettura nome:
-    delete [] pVarName;
-    pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
-
-    //Se la prima variabile ha come nome "Aclass" si ipotizza che si tratti di un file creato con Modelica (Dymola e OM usano formati quasi identici e entrambi mettonon una prima variabile con questo nome a inizio file). Di conseguenza rimando l'interpretazione alla specifica routine.
-    if(strcmp(pVarName,"Aclass")!=0){
-        delete[] pVarName;
-        return ret;
-    }
-    //1.3 lettura dati:
-    // Faccio staticamente su 44 caratteri in quanto dovrebbe essere sempre una matrice 4x11. caso mai cambio dopo. Così il debug è molto facilitato
-    char  aClassData[44];
-    fread(aClassData,44,1,pFile);
+   //Ora ho inserito tutto tranne i valori. La matrice data_1 contiene i parametri, la data_2 i valori numerici "compatti". Infatti l'output di modelica contiene molte variabili eliminabili in quanto una uguale all'altra o all'opposto dell'altra. Ad esempio in un resistore vi sono tre correnti di cui due sono identiche e la terza è l'opposto della prima.
+   // Per ora faccio la scelta di mettere fra le variabili di SO soltanto quelle non ridondate. Successivamente si può prevedere di aggiungere un array aggiuntivo per i parametri e un'opzione per non eliminare le variabili ridondanti
 
 
-    //*** fase 2 leggo "name" e passo avanti.
-
-    //2.1 lettura intestazione:
-    if(fread(&header,sizeof(header),1,pFile)!=1)
-        return "Error reading \"name\" in loadFromModelicaMatFile";
-
-    //2.2 lettura nome (quindi "name"):
-    delete [] pVarName;
-    pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
-
-    if(strcmp(pVarName,"name")!=0){
-        delete[] pVarName;
-        return ret;
-    }
-
-    //2.3 lettura dati:
-    char *nameData;
-
-    nameData=new char[header.nCols+1]; //il +1 per via del carattere nullo di fine stringa
-    QString *allNames=new QString[header.nRows];
-    for (int i=0; i<header.nRows; i++){
-      fread(nameData,header.nCols,1,pFile);
-      nameData[header.nCols]=0;
-      allNames[i]=QString(nameData);
-    }
-    delete[] nameData;
-
-    //*** fase 3 leggo "description" e passo avanti.
-    //3.1 lettura intestazione:
-    if(fread(&header,sizeof(header),1,pFile)!=1)
-        return "Error reading \"description\" in loadFromModelicaMatFile";
-
-    //3.2 lettura nome (quindi "description"):
-    delete [] pVarName;
-    pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
-
-    if(strcmp(pVarName,"description")!=0){
-        delete[] pVarName;
-        return ret;
-    }
-
-    //3.3 lettura dati:
-    char * description;
-    description = new char[header.nCols+1];
-    for(int i=0; i<header.nRows; i++){
-      fread(description,header.nCols,1,pFile);
-      description[header.nCols]=0;
-    }
-    delete[] description;
-
-
-    //*** fase 4 leggo "dataInfo" e passo avanti.
-    //4.1 lettura intestazione:
-    if(fread(&header,sizeof(header),1,pFile)!=1)
-        return "Error reading \"dataInfo\" in loadFromModelicaMatFile";
-
-    //4.2 lettura nome (quindi "dataInfo"):
-    delete [] pVarName;
-    pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
-
-    if(strcmp(pVarName,"dataInfo")!=0){
-        goto Ret;
-    }
-
-    //Leggo dataInfo.
-
-    dataInfo=CreateIMatrix(header.nRows,header.nCols);
-    //4.3 lettura dati:
-    for (int i=0; i<header.nRows; i++){
-      for (int j=0; j<header.nCols; j++){
-        long  ln;
-        fread(&ln,sizeof(long),1,pFile);
-        dataInfo[i][j]=(int)ln;
-      }
-   }
-    dataInfoRows=header.nRows;
-    dataInfoCols=header.nCols;
-
-
-    //*** fase 5 leggo "data_1" e passo avanti.
-    //5.1 lettura intestazione:
-    if(fread(&header,sizeof(header),1,pFile)!=1)
-        return "Error reading \"data_1\" in loadFromModelicaMatFile";
-
-    //5.2 lettura nome (quindi "data_1"):
-    delete [] pVarName;
-    pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
-
-    if(strcmp(pVarName,"data_1")!=0){
-        goto Ret;
-    }
-
-    //Leggo data_1.
-    data_1=CreateFMatrix(header.nRows,header.nCols);
-    //5.3 lettura dati:
-    for (int i=0; i<header.nRows; i++){
-      for (int j=0; j<header.nCols; j++){
-        float fn;
-        double dn;
-        if(header.type==10){
-           fread(&fn,sizeof(float),1,pFile);
-           data_1[i][j]=fn;
-         }else{
-           fread(&dn,sizeof(double),1,pFile);
-           data_1[i][j]=(float)dn;
-        }
-      }
-   }
-
-    //*** fase 6 leggo "data_1" e passo avanti.
-    //6.1 lettura intestazione:
-    if(fread(&header,sizeof(header),1,pFile)!=1)
-        return "Error reading \"data_2\" in loadFromModelicaMatFile";
-
-    //6.2 lettura nome (quindi "data_2"):
-    delete [] pVarName;
-    pVarName=new char[header.namlen];
-    fread(pVarName,(size_t)header.namlen,1,pFile);
-
-    if(strcmp(pVarName,"data_2")!=0){
-        goto Ret;
-    }
-
-    //Leggo data_2. Nel file binario righe e colonne sono scambiate rispetto al file TXT.
-    data_2=CreateFMatrix(header.nRows,header.nCols);
-    //6.3 lettura dati:
-    for (int i=0; i<header.nRows; i++){
-      for (int j=0; j<header.nCols; j++){
-        float fn;
-        double dn;
-        if(header.type==10){
-           fread(&fn,sizeof(float),1,pFile);
-           data_2[i][j]=fn;
-         }else{
-           fread(&dn,sizeof(double),1,pFile);
-           data_2[i][j]=(float)dn;
-        }
-      }
-   }
-   numOfPoints=header.nRows;
-
-   //Ora ho inserito tutto tranne i valori. La matrice data_1 contiene i parametri, la data_2 i valori numerici "compattti". Infatti l'output di modelica contiene molte variabili eliminabili in quanto una l'opposto dell'altra. Ad esmepio in un resistore vi sono tre correnti di cui due sono identiche e la terza è l'opposto della prima.
-   // Per ora faccio la scelta di mettere fra le variabili di SO soltanto quelle non ridondate. Successivamente si può prevedere di aggiungere un arreayu aggiuntivo per i parametri e un'opzione per non eliminare le variabili ridondanti
-
-   numOfVariables=header.nCols;
-
-   if(y!=NULL)DeleteFMatrix(y);
+   if(y!=nullptr)
+       DeleteFMatrix(y);
    y=CreateFMatrix(numOfVariables,numOfPoints);
-   if(y==NULL){
-       ret= "Unable to allocate space for data storage";
-       goto Ret;
+   if(y==nullptr){
+       return "Unable to allocate space for data storage";
    }
    delete[] varNames;
    varNames=new QString[numOfVariables];
+   delete [] sVars;
+   sVars=new SVar[numOfVariables];
 
-   // Il seguente loop va abbastanza bene. Devo ancora implementare l'eliminazione delle variabili identiche. Ad es. inRL reistor.i e resistor.p.i. Poso farlo con una lista di interi e se un intero è già stato messo fra le variabili non lo rimetto (l'intero è dataInfo[][1]
-   qDebug()<<"data:";
-   for (int i=0; i<dataInfoRows; i++){
-//       qDebug()<<i<<dataInfo[i][0]<<dataInfo[i][1];
-     if (dataInfo[i][0]==1){
+
+   for (int i=0; i<fd.dataInfoRows; i++){
+     if (fd.dataInfo[i][0]==1){
        continue;  //salto i parametri
-     }else if (dataInfo[i][0]==2 && dataInfo[i][1]<0){
+     }else if (fd.dataInfo[i][0]==2 && fd.dataInfo[i][1]<0){
          continue;  //salto le variabili che sono l'opposto di altre
      }
-     if(loadedVarIndices.contains(dataInfo[i][1]-1))
-        continue;  //salto variabili che sono copia oppure opposto di altre
-     varIndex=dataInfo[i][1]-1;
+     if(loadedVarIndices.contains(fd.dataInfo[i][1]-1))
+        continue;  //salto variabili che sono copia di altre
+     varIndex=fd.dataInfo[i][1]-1;
      if(varIndex>=numOfVariables){
-       QMessageBox::critical(NULL,"loadFromModelicaMatFile","critical error 1");
+       QMessageBox::critical(nullptr,"loadFromModelicaMatFile","critical error 1");
        return "";
      }
-     for (int j=0; j<header.nRows; j++){
-       y[varIndex][j]=data_2[j][varIndex];
-       if (j<10)
-         qDebug()<<y[0][j]<<y[1][j]<<y[2][j]<<y[3][j];
+     for (int j=0; j<numOfPoints; j++){
+       y[varIndex][j]=fd.data_2[j][varIndex];
      }
      loadedVarIndices<<varIndex;
-     varNames[varIndex]=allNames[i];
-     varNames[varIndex]=varNames[varIndex].trimmed();
+     varNames[varIndex]=fd.namesLst[i];
+
+   /* A partire dal 12/10/17 decido di utilizzare informazioni più articolate dei files
+    * di dati, sulla scorta della riccchezza delle informazioni disponibili negli
+    * output di Modelica. Pertanto aggiungo a varNames, la lista sVars. In un futuro
+    * più o meno lontano l'array varNames dovrebbe scomparire.
+    *
+    * In questa versione della funzione a due argomenti description contiene, se addAlias
+    *  = true,  oltre alla descrizione della variabile caricata, anche la lista delle
+    * variabili non presenti nel file, e non caricate in PlotXY in "ALIAS".
+  */
+
+     // Per favorire l'identificazione corretta dell'unità di misura sull'asse x, l'iniziale del tempo la metto minuscola:
+     if(varNames[0]=="Time")
+         varNames[0]="time";
+     SVar sVar;
+     sVar.name=varNames[varIndex];
+     sVar.infoIndex=i;
+     sVar.description=fd.descriptionLst[i];
+     sVar.unit=fd.unitLst[i];
+     sVars[varIndex]=sVar;
    }
-   // La variabile tempo ci si aspetta che sia sempre "Time" e di indice 0. Però per far sì che prenda automaticamente l'untà di misura dei secondi deve cominciare, con la convenzione di PlotXY per "t". Wuindi faccio la conversione in minuscolo:
-   if(varNames[0]=="Time")
-     varNames[0]="time";
+
+   //Fin qui la description è solo quella della variabile direttamente interessata. Se richiesto addAlias_ passo in sVar una descrizione più ricca, contenente anche gli alias
+  //Prima passata: aggiungo la parola "ALIASES":
+   if(addAlias_){
+     //Per ogni variabile in sVars vedo se vi sono righe di alias da aggiungere
+     for(int varIdx=0; varIdx<numOfVariables; varIdx++){
+       for (int i=1; i<fd.dataInfoRows; i++){
+         if(fd.dataInfo[i][0]==2 && fd.dataInfo[i][1]==varIdx+1 && i!=sVars[varIdx].infoIndex){
+           sVars[varIdx].description+="\n*** ALIASES ***\n";
+           break;
+         }
+       }
+     }
+   }
+   //A questo punto le variabili che hanno alias avranno in fondo alla description già la dicitura "ALIASES:". Aggiungo le description del caso
+   if(addAlias_){
+     //Per ogni variabile in sVars vedo se vi sono righe di alias da aggiungere
+     for(int varIdx=0; varIdx<numOfVariables; varIdx++){
+       for (int i=1; i<fd.dataInfoRows; i++){
+         if(fd.dataInfo[i][0]==2 && qAbs(fd.dataInfo[i][1])==varIdx+1 && i!=sVars[varIdx].infoIndex){
+           if(fd.dataInfo[i][1]<0)
+             sVars[varIdx].description+="-";
+           sVars[varIdx].description+= fd.namesLst[i];
+           sVars[varIdx].description+= " - ";
+           int unitIdx=fd.descriptionLst[i].lastIndexOf('[');
+           sVars[varIdx].description+= fd.descriptionLst[i].mid(0,unitIdx);
+           sVars[varIdx].description+= "\n";
+         }
+       }
+     }
+   }
+
+   //Prima di uscire creo una struttura stabile con informazioni sui parametri interrogabile dall'esterno tramite la funzione getParamInfo(). Devo escludere la prima riga che non è un vero parametro ma è il tempo. Inoltre diverse righe di dataInfo possono puntare allo stesso valore di data_1
+   //Anche per i Parametri possono esistere degli alias. Uso la stessa loadedVarIndicesInfo usata per le variabili
+   loadedVarIndices.clear();
+   int numOfParams=0;
+   paramInfo.names.clear();
+   paramInfo.description.clear();
+   paramInfo.units.clear();
+   paramInfo.values.clear();
+   int aliasCount=0;
+   for (int i=1;  i<fd.dataInfoRows; i++){
+     if(fd.dataInfo[i][0]==1){
+       int parIdx=qAbs(fd.dataInfo[i][1])-1;
+       int lastIndexOf=loadedVarIndices.lastIndexOf(parIdx);
+       if(lastIndexOf>-1 && addAlias_){  //Caso in cui un parametro è stato memorizzato e gli devo aggiungere uno o più alias
+         QString curDescription=paramInfo.description[lastIndexOf];
+         QString curName=paramInfo.names[lastIndexOf];
+         int lastCharIdx=curDescription.count()-1;
+         //la seguente riga è importante perché se la riga è vuota lastCarIdx è -1
+         if(lastCharIdx<0)
+             continue;
+
+         /* Come per le variabili il testo descrittivo di una variabile contenente alias
+          * è così composto:
+          * - nome
+          * - descrizione con unità di misura
+          * - la stringa "*** ALIASES ***"
+          * - descrizioni degli alias con l'eventuale segno =-= ma senza l'unità di misura
+         */
+
+         if(paramInfo.code [lastIndexOf]==1){
+           paramInfo.description[lastIndexOf]+="\n*** ALIASES ***\n";
+           paramInfo.code[lastIndexOf]=2;
+         }
+         if(fd.dataInfo[i][1]<0)
+           paramInfo.description[lastIndexOf]+="-";
+         paramInfo.description[lastIndexOf]+= fd.namesLst[i];
+         paramInfo.description[lastIndexOf]+= " - ";
+         //Elimino l'unità di misura dalle description sotto la scritta *** ALIASES *** in quanto gli alias condividono l'unità della variabile base:
+         int unitIdx=fd.descriptionLst[i].lastIndexOf('[');
+         paramInfo.description[lastIndexOf]+= fd.descriptionLst[i].mid(0,unitIdx);
+         paramInfo.description[lastIndexOf]+= "\n";
+         aliasCount++;
+         continue;
+       }else { // caso di prima memorizzazione di un parametro
+         loadedVarIndices<<fd.dataInfo[i][1]-1;
+         paramInfo.code.append(1);
+         paramInfo.description.append(fd.descriptionLst[i]);
+         paramInfo.names.append(fd.namesLst[i]);
+         paramInfo.units.append(fd.unitLst[i]);
+         int varIndexToRead=fd.dataInfo[i][1]-1;
+         paramInfo.values.append(fd.data_1[0][qAbs(varIndexToRead)]);
+         numOfParams++;
+       }
+     }
+   }
 
    /*
    Righe commentate che possono essere usate per scrivere su file risultati parziali in caso di problemi.
@@ -1775,24 +2148,20 @@ QString CSimOut::loadFromModelicaMatFile(FILE * pFile){
    fclose(outFile);
 */
 
-
-
-Ret:
    fileType=MAT_Modelica;
-   DeleteIMatrix(dataInfo);
-   DeleteFMatrix(data_1);
-   DeleteFMatrix(data_2);
-   delete[]allNames;
+   DeleteIMatrix(fd.dataInfo);
+   DeleteFMatrix(fd.data_1);
+   DeleteFMatrix(fd.data_2);
+//   delete[]allNames;
    delete[] pVarName;
    return ret;
 }
 
 
-
 //----------------------------------------------------------------------
 CSimOut::CStrTok::CStrTok(void){
   separ=',';
-  string=NULL;
+  string=nullptr;
 }
 void CSimOut::CStrTok::getStr(char * Str_){
   int i;
@@ -1802,15 +2171,15 @@ void CSimOut::CStrTok::getStr(char * Str_){
   //Calcolo il numero di separatori presenti sulla stringa, per supporto ad evantuale
   //debug fatto sulla stringa da parte del programma utilizzante StrTok:
   commas=0;
-  for(i=0; i<(int)strlen(string); i++)   if(string[i]==separ)commas++;
+  for(i=0; i<int(strlen(string)); i++)   if(string[i]==separ)commas++;
   lastBeg=string;
   lastEnd=strchr(lastBeg,separ);
-  if(lastEnd==NULL) lastEnd=strchr(lastBeg,0);
+  if(lastEnd==nullptr) lastEnd=strchr(lastBeg,0);
   *lastEnd=0;
 }
 char *CSimOut::CStrTok::giveTok(void){
   char *retStr;
-  if(endStr)return NULL;
+  if(endStr)return nullptr;
   if(lastTok) {
     endStr=true;
     return lastBeg;
@@ -1818,7 +2187,7 @@ char *CSimOut::CStrTok::giveTok(void){
   retStr=lastBeg;
   lastBeg=lastEnd+1;
   lastEnd=strchr(lastBeg,separ);
-  if(lastEnd==NULL){
+  if(lastEnd==nullptr){
     lastTok=true;
     lastEnd=strchr(lastBeg,0);
   }
@@ -1834,6 +2203,9 @@ CSimOut::CStrTok::~CStrTok(){
 #ifndef EXCLUDEATPCODE
   #include "CSimOutATP.cpp"
 #endif
+
+
+
 
 QString CSimOut::namesAdfToMat(){
   /* Questa routine converte i nomi delle variabili originariamente lette da un file ADF in nomi adatti al Matlab.
@@ -1859,20 +2231,20 @@ QString CSimOut::namesAdfToMat(){
   return "";
 }
 
-QString CSimOut::namesComtradeToAM(bool mat){
+QString CSimOut::namesComtradeToMat(bool mat){
   /* Questa routine converte i nomi delle variabili originariamente lette da un file COMTRADE dallo standard Simout, che è quello utilizzato in PlotXY allo standard Matlab, che è quello utilizzato in Pl42mat.
     Se però il parametro passato Mat è false, vuol dire che l'uscita va su un file ADF e allora ci può essre un maggior rispetto per i nomi originari, in quanto sono ammessi caratteri particolari quali '-', '(', ecc.
     Le modalità di conversione sono chiarite nel documento Conversion.doc
     */
   int i, var, len;
-  char *pToken=NULL, prefix[3];
+  char *pToken=nullptr, prefix[3];
   char dummy[9];
   QString name;
   //Nel seguente loop parto da 1 perché la variabile 0 è sempre il tempo, di nome "t".
   for(var=1; var<numOfVariables; var++){
     pToken=strdup(varNames[var].toLatin1().data());
     //tratto per prima cosa il caso di nome assente nel file Comtrade:
-    len=strlen(pToken);
+    len=int(strlen(pToken));
     if(pToken[len-1]==':'){
       strcpy(dummy,pToken);
       strcat(dummy,"Dummy");
@@ -1893,13 +2265,14 @@ QString CSimOut::namesComtradeToAM(bool mat){
     //Se ho dei separatori considero il nome come "multiword" e lo tratto di conseguenza.
     //Il primo passo consiste nell'eliminazione degli spazi e mettere tutto lowercase
     //eccetto i primi caratteri di ogni parola:
-    if(pToken==NULL)continue;
+    if(pToken==nullptr)
+        continue;
     varNames[var]="";
-    while(pToken!=NULL){
+    while(pToken!=nullptr){
       name=QString(pToken).toLower();
       name[0]=(name[0].toUpper());
       varNames[var]+=name;
-        pToken=strtok(NULL," ,\t");
+        pToken=strtok(nullptr," ,\t");
     }
     //Il secondo passo consiste nel convertire caratteri non alfanumerici in '_' (solo per files Matlab):
     if(mat){
@@ -1926,7 +2299,7 @@ QString CSimOut::namesPl4ToAdf(int addDigit){
   Le operazioni da fare, esclusa la variabile tempo, sono le seguenti:
   1 mettere in minuscolo tutti i caratteri
   2 spezzare il nome nei due nomi di nodo (il secondo vuoto in alcuni casi)
-  3 per ognumo dei nomi di nodo:
+  3 per ognuno dei nomi di nodo:
     - eliminare spazi in cima e in fondo
     - convertire ' ' in '_'
     - mettere in maiuscolo il primo carattere
@@ -2018,14 +2391,14 @@ QString CSimOut::saveToAdfFile(QString fileName, QString comment, int nVars, int
   FILE * pFile;
   //Apertura file:
   pFile=fopen(fileName.toLatin1().data(),"w");
-  if(pFile==NULL)return "Unable to open file";
+  if(pFile==nullptr)return "Unable to open file";
   //Scrittura header:
   comment="//"+comment+"\n";
   fprintf(pFile,comment.toLatin1().data());
   if(fileType==PL4_1 ||fileType==PL4_2)
     namesPl4ToAdf(0);
   else if(fileType==COMTRADE)
-    namesComtradeToAM(false);
+    namesComtradeToMat(false);
   for(iVar=0;iVar<nVars;iVar++) {
       QString _name=varNames[vars[iVar]];
       QByteArray _nameArr=_name.toLatin1();
@@ -2036,7 +2409,7 @@ QString CSimOut::saveToAdfFile(QString fileName, QString comment, int nVars, int
   //Scrittura dati:
     for(point=0;point<numOfPoints;point++){
     for(iVar=0;iVar<nVars;iVar++)
-      fprintf(pFile,"%g\t",y[vars[iVar]][point]);
+      fprintf(pFile,"%g\t",double(y[vars[iVar]][point]));
     fprintf(pFile,"\n");
   }
   if(fclose (pFile))
@@ -2098,7 +2471,8 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
   /* Fase 1: Preparazione file di estensione cfg*/
   //Apertura file:
   pFile=fopen(cfgFileName.toLatin1().data(),"w");
-  if(pFile==NULL)return "Unable to open file";
+  if(pFile==nullptr)
+      return "Unable to open file";
   //Scrittura prima riga  ())a differenza di adf, il commento lo metto al posto dello station name):
   row=stationName+",999,1999\n";
   fprintf(pFile,row.toLatin1().data());
@@ -2137,9 +2511,9 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
       if(y[index][point]<offset[index])offset[index]=y[index][point];
       if(y[index][point]>max)max=y[index][point];
     }
-    factor[index]=(max-offset[index])/(float)(iVarMax-iMin);
+    factor[index]=(max-offset[index])/float(iVarMax-iMin);
     if(factor[index]==0)
-      factor[index]=1.e-45; //L'es. deve essere 45: se metto 46 il risultato è portato a 0!
+      factor[index]=float(1.e-45); //L'es. deve essere 45: se metto 46 il risultato è portato a 0!
     //An,ch_id,ph,ccbm,uu,a,b,skew,min,max,primary,secondary,PS
     // Significato delle variabili esplicitamente assetnate nel descrittore fprintf:
     //  0.0: skew
@@ -2169,7 +2543,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
   //Time multiplication factor.
   factor[0]=y[0][numOfPoints-1]/iTimeMax;
   // Siccome il tempo va inteso in microsecondi il fattore da scrivere su file deve essere moltiplicato per 1.0e6
-  fprintf(pFile,"%e\n",factor[0]*1.0e6);
+  fprintf(pFile,"%e\n",double(factor[0])*1.0e6);
 //  fprintf(pFile,"%e\n",factor[0]);
 
   if(fclose (pFile))
@@ -2187,9 +2561,9 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
   //Scrittura dati:
   for(point=0; point<numOfPoints; point++){
     fprintf(pFile,"%d,",point+1);
-    fprintf(pFile,"%d",(int)(y[0][point]/factor[0]-0.5));
+    fprintf(pFile,"%d",int(y[0][point]/factor[0]-0.5f));
     for(iVar=1; iVar<nVars; iVar++)
-      fprintf(pFile,",%d",(int)((y[vars[iVar]][point]-offset[vars[iVar]])/factor[vars[iVar]]-0.5));
+      fprintf(pFile,",%d",int((y[vars[iVar]][point]-offset[vars[iVar]])/factor[vars[iVar]]-0.5f));
     fprintf(pFile,"\n");
   }
   if(fclose (pFile))
@@ -2201,6 +2575,8 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
 
 
 QString CSimOut::saveToMatFile(QString fileName) {
+  /* Saves all variables in current CSimOut object in a file having fileName as file name
+   */
   int var, point;
   FILE * pFile;
     header.type=110;
@@ -2209,57 +2585,72 @@ QString CSimOut::saveToMatFile(QString fileName) {
 
     header.nRows=numOfPoints;
 
-  //Apertura file:
+    //file opening:
   pFile=fopen(fileName.toLatin1().data(),"w+b");
-    if(pFile==NULL)return "Unable to open file";
-    //Scrittura grandezze:
-    if(fileType==PL4_1 || fileType==PL4_2){
-        namesPl4ToAdf(0);
-        namesAdfToMat();
-    }else if(fileType==ADF)
-        namesAdfToMat();
-    else if(fileType==COMTRADE)
-        namesComtradeToAM(true);
-    for(var=0;var<numOfVariables;var++) {
-        header.namlen=varNames[var].size()+1;
-        fwrite(&header,sizeof(header),1,pFile);
-        fwrite(varNames[var].toLatin1().data(),sizeof(char),(size_t)header.namlen,pFile);
-        for(point=0; point<numOfPoints; point++)
-            fwrite(&y[var][point],sizeof(float),1,pFile);
-    }
-    if(fclose (pFile))
-        return "Error closing file";
-    else
-        return "";
-}
+  if(pFile==nullptr)
+    return "Unable to open file";
 
-QString CSimOut::saveToMatFile(QString fileName, int nVars,int vars[]) {
-  int var, point;
-  FILE * pFile;
-    header.type=110;
-    header.nCols=1;
-    header.imagf=0;
-
-    header.nRows=numOfPoints;
-
-  //Apertura file:
-  pFile=fopen(fileName.toLatin1().data(),"w+b");
-  if(pFile==NULL)return "Unable to open file";
-  //Scrittura grandezze:
+  //Before writing we convert names in matlab-compliant form:
   if(fileType==PL4_1 || fileType==PL4_2){
     namesPl4ToAdf(0);
     namesAdfToMat();
   }else if(fileType==ADF)
     namesAdfToMat();
   else if(fileType==COMTRADE)
-    namesComtradeToAM(true);
-    for(var=0;var<nVars;var++) {
-      header.namlen=varNames[vars[var]].size()+1;
-      fwrite(&header,sizeof(header),1,pFile);
-      fwrite(varNames[vars[var]].toLatin1().data(),sizeof(char),(size_t)header.namlen,pFile);
-      for(point=0; point<numOfPoints; point++)
-      fwrite(&y[vars[var]][point],sizeof(float),1,pFile);
-    }
+    namesComtradeToMat(true);
+
+  //Actual writing.
+  for(var=0;var<numOfVariables;var++) {
+    header.namlen=varNames[var].size()+1;
+    fwrite(&header,sizeof(header),1,pFile);
+    fwrite(varNames[var].toLatin1().data(),sizeof(char),size_t(header.namlen),pFile);
+    for(point=0; point<numOfPoints; point++)
+      fwrite(&y[var][point],sizeof(float),1,pFile);
+  }
+  if(fclose (pFile))
+    return "Error closing file";
+  else
+    return "";
+}
+
+QString CSimOut::saveToMatFile(QString fileName, int nVars,int vars[]) {
+  /* Selectively saves vVars variables (whose indexs are in vars{} from current CSimOut
+   * object in a file having fileName as file name
+  */
+  int var, point;
+  FILE * pFile;
+    header.type=110;
+    header.nCols=1;
+    header.imagf=0;
+
+    header.nRows=numOfPoints;
+
+  //file opening:
+  pFile=fopen(fileName.toLatin1().data(),"w+b");
+  if(pFile==nullptr)
+      return "Unable to open file";
+
+  //Before writing we convert names in matlab-compliant form:
+  if(fileType==PL4_1 || fileType==PL4_2){
+    namesPl4ToAdf(0);
+    namesAdfToMat();
+  }else if(fileType==ADF)
+    namesAdfToMat();
+  else if(fileType==COMTRADE)
+    namesComtradeToMat(true);
+
+  //Actual writing.
+  for(var=0;var<nVars;var++) {
+    header.namlen=varNames[vars[var]].size()+1;
+    fwrite(&header,sizeof(header),1,pFile);
+    // Se i nomi vengono da un file Modelica contengono il puntino, che non è accettato da Matlab; correggo il puntino in underscore:
+    QString name=varNames[vars[var]];
+    name.replace('.','_');
+    fwrite(name.toLatin1().data(),sizeof(char),size_t(header.namlen),pFile);
+//    fwrite(varNames[vars[var]].toLatin1().data(),sizeof(char), size_t(header.namlen),pFile);
+    for(point=0; point<numOfPoints; point++)
+    fwrite(&y[vars[var]][point],sizeof(float),1,pFile);
+  }
   if(fclose (pFile))
     return "Error closing file";
   else
@@ -2324,7 +2715,7 @@ Questo un quanto queste due caratteristiche non sono in alcuno modo necessarie p
 
   fp=fopen(fileName.toLatin1().data(),"w+b");
 //  fp=fopen(fileName.c_str(),"wb");
-  if(fp==NULL){
+  if(fp==nullptr){
     return "Unable to open file (does it exist?)";
   }
   fwrite(&Pl4Type,1,1,fp);
@@ -2338,32 +2729,32 @@ Questo un quanto queste due caratteristiche non sono in alcuno modo necessarie p
 
   //Scrittura nomi variabili:
   for(iVar=1; iVar<nVars; iVar++){
-    switch((int)varNames[vars[iVar]][0].toLatin1()){
-      case (int)'s': //Variabile SM
+    switch(int(varNames[vars[iVar]][0].toLatin1())){
+      case int('s'): //Variabile SM
         code[3]='1';
         break;
-      case (int)'t': //Variabile TACS
+      case int('t'): //Variabile TACS
         code[3]='2';
         break;
-      case (int)'m': //Variabile MODELS
+      case int('m'): //Variabile MODELS
         code[3]='3';
         break;
-      case (int)'v':
+      case int('v'):
         if(varNames[vars[iVar]].length()<9)
           code[3]='4';  //node voltage
         else
           code[3]='8';  //branch voltage
         break;
-      case (int)'u': //Variabile UM
+      case int('u'): //Variabile UM
         code[3]='5';
         break;
-      case (int)'p': //Branch o Switch power
+      case int('p'): //Branch o Switch power
         code[3]='6';
         break;
-      case (int)'e': //Branch o Switch energy
+      case int('e'): //Branch o Switch energy
         code[3]='7';
         break;
-      case (int)'c': //Branch current
+      case int('c'): //Branch current
         code[3]='9';
         break;
     }
@@ -2399,6 +2790,6 @@ Questo un quanto queste due caratteristiche non sono in alcuno modo necessarie p
 CSimOut::~CSimOut(){
   delete[] varNames;
   delete[] factorUnit;
-    if(y!=NULL)DeleteFMatrix(y);
+    if(y!=nullptr)DeleteFMatrix(y);
 }
 

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CParamView</class>
+ <widget class="QDialog" name="CParamView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="leftMargin">
+    <number>3</number>
+   </property>
+   <property name="topMargin">
+    <number>3</number>
+   </property>
+   <property name="rightMargin">
+    <number>3</number>
+   </property>
+   <property name="bottomMargin">
+    <number>3</number>
+   </property>
+   <item>
+    <widget class="QTableWidget" name="tableWidget">
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustToContents</enum>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="dragDropOverwriteMode">
+      <bool>false</bool>
+     </property>
+     <property name="wordWrap">
+      <bool>false</bool>
+     </property>
+     <property name="cornerButtonEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="rowCount">
+      <number>5</number>
+     </property>
+     <property name="columnCount">
+      <number>3</number>
+     </property>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <row/>
+     <column/>
+     <column/>
+     <column/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="matrixBtn">
+     <property name="text">
+      <string>Hide matrix values</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

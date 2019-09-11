@@ -17,39 +17,49 @@
  *
  */
 
-
-
-#ifndef CFOUROPTIONS_H
-#define CFOUROPTIONS_H
+#ifndef CPARAMVIEW_H
+#define CPARAMVIEW_H
 
 #include <QDialog>
-#include "Globals.h"
+#include <qstring.h>
+#include <qscrollbar.h>
 
 namespace Ui {
-class CFourOptions;
+class CParamView;
 }
 
-class CFourOptions : public QDialog
+class CParamView : public QDialog
 {
     Q_OBJECT
-    
+
 public:
-    explicit CFourOptions(QWidget *parent = nullptr);
-    void getData(SFourData data_);
-    void getHMax(int hMax_);
-    SFourOptions giveData();
-    ~CFourOptions();
-    
+    explicit CParamView(QWidget *parent = nullptr);
+    ~CParamView();
+    void fillTable();
+    void getData(QStringList names_, QList <float> values_, QStringList units_, QStringList
+                             descriptions_);
+    void resizeEvent(QResizeEvent *);
+    void showEvent(QShowEvent *);
+
 private slots:
-    void on_startTimeEdit_editingFinished();
-    void on_endTimeEdit_editingFinished();
+    void on_matrixBtn_clicked();
 
 private:
-    bool dataGot; //true if data was received
-    SFourData data;
-    Ui::CFourOptions *ui;
-    void updatehMax(SFourData data);
+    Ui::CParamView *ui;
+    bool dataGot;
+    bool matrixHidden;
+    bool tableFilled;
+
+    QStringList names;
+    QList <float> values;
+    QStringList units;
+    QStringList descriptions;
+
+    void showMatrices();
+    void hideMatrices();
+    void rearrangeTable(bool excludeMatrices);
+
 
 };
 
-#endif // CFOUROPTIONS_H
+#endif // CPARAMVIEW_H

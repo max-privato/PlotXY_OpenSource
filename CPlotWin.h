@@ -23,9 +23,9 @@
 #include <QWidget>
 #include "CLineChart.h"
 #include "CValuesWin.h"
-#include "dialogs/CScaleDlg.h"
-#include "dialogs/CPlotOptions.h"
-#include "dialogs/CPrintWOptions.h"
+#include "Dialogs/CScaleDlg.h"
+#include "Dialogs/CPlotOptions.h"
+#include "Dialogs/CPrintWOptions.h"
 
 
 namespace Ui {
@@ -41,12 +41,13 @@ class CPlotWin : public QWidget
 public:
     bool dataTBtnChecked;
     bool lastWinIsCut; //Assume il valore di windowIsCut dell'ultimo grafico tracciato
-    explicit CPlotWin(QWidget *parent = 0);
+    explicit CPlotWin(QWidget *parent = nullptr);
     void enterEvent(QEvent *) override;
     void getData(float **x1, float*** y1, SCurveParam &x1Info, QList <SCurveParam> *y1Info, QList <SFileInfo> filesInfo);
     struct SFourData giveFourData();
     void plot(bool update=false);
-    ~CPlotWin();
+    void setDrawType(int drawType_);
+    ~CPlotWin() override;
 
 signals:
     void winActivated(int);
@@ -63,12 +64,14 @@ private slots:
     void on_printTBtn_clicked();
 
 public slots:
+    void XYchartResizeStopped(void);
     void chartValuesChanged(SXYValues values, bool hDifference, bool vDifference);
     void on_dataTBtn_clicked(bool checked);
     void updateChartOptions(SOptions programOptions);
 private:
     bool exactMatch;
     bool *variableStep, wasResizing;
+    int drawType; //numero che corrisponde all'indice dell'enum EDrawtyupe in LineChart: 0, default, è la mia routine filterClip, 1 è QtF, 2 QtI, 3 QtPoly.
     int numOfTotPlotFiles, //Numero dei files da cui si fanno grafici. Ogni funzione vale come un file.
         numOfTotPlots; //contiene il numero di grafici totali, sommando quelli dei vari files eccetto.
     int *numOfPoints;
