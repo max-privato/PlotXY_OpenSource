@@ -122,6 +122,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     //Inizializzo le variabili elementari (bool, int, e ordine alfabetico):
     commonXSet=false;
     multiFile=false;
+    timeVarReset=false;
     currFileIdx=0;
     xInfo.idx=-1;
     xInfo.isFunction=false;
@@ -310,7 +311,7 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
 //        qDebug()<<"width: "<<fontMetrics().width(item(i,VARNUMCOL)->text());
 //      }
     }
-    wi[VARNUMCOL]=myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL]));
+    wi[VARNUMCOL]=int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL])));
     wi[VARNUMCOL]+=myDPI/factor*fontMetrics().width("X");
     setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
 
@@ -345,7 +346,7 @@ void CVarTableComp::dragEnterEvent(QDragEnterEvent *event)  {
 void CVarTableComp::dragMoveEvent(QDragMoveEvent *event)  {
     int row=rowAt(event->pos().y());
     if(row==0 || item(row,VARCOL)->text()!="")return;
-    for(int i=0;i<rowCount();i++)
+    for(int i=1;i<rowCount();i++)
         item(i,VARCOL)->setBackground(neCellBkColor);
     item(row,VARCOL)->setBackground(Qt::yellow);
 }
@@ -371,15 +372,15 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
         resizeEvent(nullptr);
         // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
         for(int ii=1; ii<rowCount(); ii++){
-            if(item(ii,FILENUMCOL)->text()==""&&item(ii,VARNUMCOL)->text()=="")
-                item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
+          if(item(ii,FILENUMCOL)->text()==""&&item(ii,VARNUMCOL)->text()=="")
+            item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
         }
         item(row,FILENUMCOL)->setBackgroundColor(neCellBkColor);
         event->acceptProposedAction();
         numOfTotVars++;
         allowSaving=true;
         if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-            allowSaving=false;
+          allowSaving=false;
         emit contentChanged();
     }
 }
@@ -784,14 +785,14 @@ void CVarTableComp::myClicked(int r, int c){
     case VARNUMCOL: //colonna del "#"
       return;
     case XVARCOL: //Colonna della "X"
-      // Qui cambio qual è la riga da considerare come variabile cx. Però fa fatto solo se il numero di variabili selezionate (incluso il tempo) è almeno pari a 2)
+      // Qui cambio qual è la riga da considerare come variabile x. Però fa fatto solo se il numero di variabili selezionate (incluso il tempo) è almeno pari a 2)
       if(numOfTotVars<3 && !timeVarReset){
         QMessageBox::warning(this,"CVarTableComp","Setting x-variable requires at least two variables to be selected");
         return;
       }
       if(multiFile){
-        //In multifile devo verificare se il numero di files da cui fare il plot è 1.
-        //Per far questo devo comandare un analyse.
+        //In multifile I must be sure that all plots requested are from the same file.
+        //For this I need an analyse().
         analyse();
         if(numOfPlotFiles>1){
           QMessageBox::warning(this,"PlotXY-varTableComp",
@@ -801,7 +802,7 @@ void CVarTableComp::myClicked(int r, int c){
           commonXSet=false;
         }
       }
-      // Se ho scelto come variabile x una function plot non ci devono essere altre function plots (altrimenti succede un crash. Non è stata ancora analizzata completamente la causa di questo crash):
+      // If I chose as x a function plot I mustn-t have other function plots, otherwise system crashes (reasons not analysed yet):
       if(item(r,VARNUMCOL)->text()[0]=='f'){
         bool manyFunctionPlots=false;
         for (int i=0; i<rowCount(); i++){
@@ -818,11 +819,13 @@ void CVarTableComp::myClicked(int r, int c){
       }
       if(item(r,XVARCOL)->text()!="")return;
       if(item(r,VARCOL)->text()=="")return;
-     /*Per la gestione dei colori cerco di mantenere stabilità in tabella.
-Pertanto anche dopo molti click, il colore delle celle escluso la prima e quella con la x rimarranno pari a quelli originali.
-Di conseguenza se siamo già con una variabile x diversa da quella di prima riga, CON LA SEGUENTE RIGA prima riporto la x in prima riga, poi faccio la commutazione.*/
+     /* The table colours must stay stable unless the user changes them.
+      * Therefore, if the x variable is already different from the one on the first row,
+      *  WITH THE NEXT ROW I first set again the first row as the x variable, then do che
+      *  requested change */
       if(xVarRow!=1 && r!=1)
          myClicked(1,c);
+
       for(j=0;j<TOTCOLS;j++){
         item(xVarRow,j)->setForeground(item(r,j)->foreground());
         item(r,j)->setForeground(xVarBrush);
@@ -833,13 +836,13 @@ Di conseguenza se siamo già con una variabile x diversa da quella di prima riga
       item(r,c)->setText("x");
       item(r,0)->setBackgroundColor(colors[0]);
       allowSaving=true;
-      //Ora deseleziono la variabile tempo: solo se è in prima riga e solo una volta dopo ogni reset:
+      // Now I unselect time variable. I do this only if it's in the first row and only once after each reset. In this way the user can add again time, if he wants so, and let it be plotted.
       if(!timeVarReset){
-          timeVarReset=true;
-          myClicked(oldXVarRow,VARCOL);
+        timeVarReset=true;
+        myClicked(oldXVarRow,VARCOL);
       }
       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-          allowSaving=false;
+        allowSaving=false;
       //Se la variabile su cui si è cliccato è una funzione di variabile devo prendere l'indice a partire dal secondo carattere;
        str=item(r,VARNUMCOL)->text();
       if(str[0]=='f'){
@@ -1027,7 +1030,9 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
 }
 
 void CVarTableComp::showEvent(QShowEvent *){
-
+    QString  s;
+    s=item(1,3)->text();
+    int i=0; //only to allow to set breakpoint here
 }
 
 int CVarTableComp::unselectFileVars(int fileIndex){

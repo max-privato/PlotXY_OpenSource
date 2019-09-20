@@ -78,7 +78,8 @@ class CVarTableComp:public QTableWidget
 {
     Q_OBJECT
 private:
-    bool multiFile, commonXSet, monotonic[TOTROWS], timeVarReset;
+    bool multiFile, commonXSet, monotonic[TOTROWS],
+        timeVarReset; //if true, the user has clickes on fhe "X" column to select s horizontal variable a variable different than default's
     int currFileIdx;
     int highestUsedRowIdx; // indice dell'ultima riga con contenuto
     int iniVarNumColWidth; // valore iniziale di varNumCol
@@ -90,6 +91,7 @@ private:
     float **yLine;
     // I vettori yLine[i] contengono valori fittizi che simulano dei puntatori a vettori y. Essi sono usati per effettuare un check sintattico su line. Per semplicità quindi sono tutti composti da un unico elemento il cui valore è pari al suo indice i; il numero di elementi di yLine è stato fissato in MAXVARSPERFUN.
 
+    // Now structured Qt Objects in class alphabetic order:
     QColor headerGray; //Colore grigio della prima riga di intestazione setRgb(230,230,230);
     QFont cellFont;
     QList <int> tabFileNums; //contiene i numeri nella colonna file, eccetto riga var. x. Serve per la gestione dell'abilitazione di saveVars
@@ -97,11 +99,13 @@ private:
     QList <QString> allFileNames;  //Lista dei nomi di files usati nella tabella (eccetto in funzioni di variabili);
     //i nomi sono messi in indici corrispondenti all'indice di riga della tabella in cui il file è usato
     QList <int> varMaxNumsLst; //Lista dei numeri di variabili dei files correntemente visualizzati
-    QSet <int> funSet; //contiene gli indici delle funzioni definite.
-/* La seguente variabile funInfoLst contiene una lista di informazioni delle varie variabili, così come introdotte dall'utente. In questa copia privata di CVarTableComp, varNames equivalenti quali ad es. f1v3 e v3 se f1 è il file corrente vengono mantenute distinte.
-Quando però il programma chiamente chiede giveFuninfo, i nomi equivalenti vengono unificati. Infatti vi sarebbe altrienti un problema con la memoria perché i vettori numerici passati per il calcolo sono in numero pari alle variabili effettivamente distinte, mentre e se esistono nomi duplicati si crea un disallineamento pernicioso.*/
 
+    /* La seguente variabile funInfoLst contiene una lista di informazioni delle varie variabili, così come introdotte dall'utente. In questa copia privata di CVarTableComp, varNames equivalenti quali ad es. f1v3 e v3 se f1 è il file corrente vengono mantenute distinte.
+Quando però il programma chiamente chiede giveFuninfo, i nomi equivalenti vengono unificati. Infatti vi sarebbe altrienti un problema con la memoria perché i vettori numerici passati per il calcolo sono in numero pari alle variabili effettivamente distinte, mentre e se esistono nomi duplicati si crea un disallineamento pernicioso.*/
     QList <SXYNameData> funInfoLst;
+    QSet <int> funSet; //contiene gli indici delle funzioni definite.
+
+    //Now provate functions:
     void resizeEvent(QResizeEvent *);
     QColor colors[TOTROWS], bkgroundColor;
     QBrush xVarBrush;
