@@ -41,7 +41,7 @@ SOURCES += main.cpp\
     Dialogs/CHelpDlg.cpp \
     Dialogs/CFunStrInput.cpp \
     Dialogs/CUnitsDlg.cpp \
-    suppFunctions.cpp \
+    SuppFunctions.cpp \
     CParamView.cpp \
     Dialogs/CCustomiseCol.cpp
 
@@ -66,7 +66,7 @@ HEADERS  += CDataSelWin.h\
     Dialogs/CFunStrInput.h \
     Dialogs/CUnitsDlg.h \
     CParamView.h \
-    suppFunctions.h \
+    SuppFunctions.h \
     ExcludeATPCode.h \
     Dialogs/CCustomiseCol.h
 
