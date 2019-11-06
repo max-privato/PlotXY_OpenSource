@@ -673,8 +673,8 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
                       " valid points\n"
                        "that is not consistent with a number of rows of "+
                         QString::number(numOfPoints+2);
-          QMessageBox::warning(parent, "SimOut warning",msg, QMessageBox::Ok);
-          retStr="";
+//          QMessageBox::warning(parent, "SimOut warning",msg, QMessageBox::Ok);
+          return (msg);
         }
         goto Return;
       }
