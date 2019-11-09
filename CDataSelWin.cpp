@@ -352,15 +352,21 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   // Step A3: create windows (plotWin, FourWin, progOptions) ** Decide a uniform window creation rule here: only modals? modals and dialogs? **
 
   for (int win=0; win<MAXPLOTWINS; win++){
-    plotWin[win] = new CPlotWin();
-    QString title;
-    title.setNum(win+1);
-    title="Plot "+title;
-    plotWin[win]->setWindowTitle(title);
-    plotWin[win]->setDrawType(GV.PO.drawType);
+      plotWin[win] = new CPlotWin();
+      QString title;
+      title.setNum(win+1);
+      title="Plot "+title;
+      plotWin[win]->setWindowTitle(title);
+      plotWin[win]->setDrawType(GV.PO.drawType);
+
+      fourWin[win]=new CFourWin();
+      title.setNum(win+1);
+      title= "Fourier chart "+title;
+      fourWin[win]->setWindowTitle(title);
   }
 
   myPlotWin=plotWin[0];
+  myFourWin=fourWin[0];
 
   //Il seguenti for vanno messi qui perché l'aggiunta di tab comanda in esecuzione tabChanged, che a sua volta opera su plotWin, che devono essere create.
   // The following should be placed here because the addition of tab commands running tabChanged, which in turn operates on plotWin, which must be created.
@@ -374,10 +380,6 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
         label="Plot "+label;
     ui->tabWidget->insertTab(tab,varTable[tab],label);
   }
-
-
-  myFourWin= new CFourWin();
-  myFourWin->setWindowTitle("MC's PlotXY - Fourier chart");
 
   myParamWin= new CParamView(this);
   myParamWin->setWindowTitle("MC's PlotXY - Parameters");
@@ -1731,6 +1733,7 @@ void CDataSelWin::on_tabWidget_currentChanged(int index){
 
     myVarTable=varTable[index];
     myPlotWin=plotWin[index];
+    myFourWin=fourWin[index];
 
     myPlotWin->raise();
     myPlotWin->setFocus();

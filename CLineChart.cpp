@@ -4835,20 +4835,20 @@ Escape:
 //Write:
   // La gestione delle parentesi la faccio qui, in modo che agisce sia nel caso di labels automatiche che specificate manualmente dall'utente
   //Aggiustamenti DPI-aware tarati a Feb 2017:
-  if(axis.type==atX) Y+=1*onePixDPI;
+  if(axis.type==atX) Y+=int(1*onePixDPI);
   if(axis.type==atYL && axis.halfTicNum)
-      X-=yAxis.ticPixWidth-1*onePixDPI;
+      X-=int(yAxis.ticPixWidth-1*onePixDPI);
   if(axis.type==atYR && axis.halfTicNum)
-      X+=ryAxis.ticPixWidth-onePixDPI;
+      X+=int(ryAxis.ticPixWidth-onePixDPI);
   if(axis.type==atYR && !axis.halfTicNum)
-      X+=2*onePixDPI;
+      X+=int(2*onePixDPI);
 
   /* Si ha l'obiettivo di passare prima o poi all'unica fuzione smartWriteUnit(). Per ora vi sono ancora delle difficoltà nel calcolo delle spaziature, e quindi nel caso della sola potenza di 10 uso ancora il più vecchio drawText2.
 Notare che a drawText1 si passano separatamente base ed esponente, mentre in smartWriteUnit la potenza di 10 è automaticamente riconosciuta dalla presenza come primi tre caratteri di "10*"
 */
 
   if (useWriteText2){ //Caso residuo solo per le potenze di 10
-      qDebug()<<"Writing Axis Label through drawtext2 ";
+//      qDebug()<<"Writing Axis Label through drawtext2 ";
       return writeText2(myPainter,X,Y,hAdjust,vAdjust,msgBase,msgExp,useBrackets, _virtual)+1;
   }else{  //caso in cui si possono usare lettere greche, puntini, esponenti
     return smartWriteUnit(myPainter, baseFont, X,Y,hAdjust,vAdjust,unitS,useBrackets, _virtual)+1;

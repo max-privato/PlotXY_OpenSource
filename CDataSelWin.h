@@ -142,7 +142,7 @@ private:
 
   CSimOut* mySO[MAXFILES];
   CPlotWin *plotWin[MAXPLOTWINS], *myPlotWin;
-  CFourWin *myFourWin;
+  CFourWin *fourWin[MAXPLOTWINS], *myFourWin;
   CParamView *myParamWin;
   CProgOptions *myProgOptions;
   CVarTableComp *varTable[MAXPLOTWINS], *myVarTable;

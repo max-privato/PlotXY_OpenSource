@@ -661,8 +661,8 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
     for(i1=autoStep; i1<numOfVariables; i1++){
       i=fscanf(fpIn,fStr,&y[i1][iL]);
       /* l'uso di fscanf funziona sia se i numeri sono separati da spazi e/o tab, sia da
-       * una virgola. Sono da evitare combinaizoni di spazi/tab e virgole, in quanto i
-       * risutltati possono risultare imprevedibili. Ad esempio un tab seguito da una
+       * una virgola. Sono da evitare combinazioni di spazi/tab e virgole, in quanto i
+       * risultati possono risultare imprevedibili. Ad esempio un tab seguito da una
        * virgola non è un corretta spaziatura.*/
       if(i!=1){
         if(iL==1){
