@@ -938,7 +938,7 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         x1=x;
         y1=y;
       } //Fine ciclo for tracciamento curve
-      qDebug()<<"PointsDrawn"<<pointsDrawn0;
+//      qDebug()<<"PointsDrawn"<<pointsDrawn0;
       //Tracciamento ultimo punto della curva:
       if(xAxis.scaleType==stLin)
         xf=xAxis.pixPerValue  * (px[iFile][stopIndex[iFile]] - sxmin) +X0;

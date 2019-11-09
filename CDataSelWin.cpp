@@ -3319,7 +3319,6 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     QString keyName, fileName, pathName, tShift;
 
     settings.beginGroup("programState");
-    //Cancello lo stato salvato in precedenza:
     // Delete the previously saved state:
     settings.remove("");
 
@@ -3340,8 +3339,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     settings.setValue("Number Of Files",filesSaved);
     j=0;
     for(i=1; i<MAXFILES+1; i++){
-      //Cerco se esiste una riga di file contenente come numero di file i+1:
-      // I'm looking for a file row containing i + 1 file number:
+      // Looking for a file row containing i + 1 as file number:
       for (r=1; r<=MAXFILES; r++){
 //        int kk=ui->fileTable->item(r,FILENUMCOL)->text().toInt();
         if(ui->fileTable->item(r,FILENUMCOL)->text().toInt() == i)
@@ -3421,7 +3419,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
         settings.setValue(keyName, tableState.varColors[iRow]);
       }
       keyName="VarTable_"+QString::number(iSheet+1)+".colors";
-      settings.endGroup();  //Colors
+      settings.endGroup();  //Colors; entering varTables
       // Per lo stile creo un int per ogni tabella. I 16 bit meno significativi conterranno 1 se lo stile è dashed 0 in caso contrario.
       int styleData=0;
       for (int iRow=0; iRow<TOTROWS-1; iRow++){
@@ -3446,6 +3444,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
 
     //Fase 5: salvataggio dell'indice del file corrente
     //Phase 5: saving the current (selected) file index
+    settings.endGroup(); //exiting VarTables, entering programState
     settings.setValue("selectedFileIndex", selectedFileIdx);
 
 
@@ -3462,7 +3461,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     ui->loadStateTBtn->setVisible(false);
     saveStateLbl->setVisible(true);
 
-    settings.endGroup();
+    settings.endGroup();  //exiting programState, entering MC's PlotXY
     QTimer::singleShot(700, this, SLOT(resetStateBtns()));
 }
 
