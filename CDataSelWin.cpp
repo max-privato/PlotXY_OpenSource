@@ -411,9 +411,11 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       value.setNum(win+1);
       value="plotWin"+value+"/size";
       plotWin[win]->resize(settings.value(value).toSize());
-    }
-    myFourWin->resize(settings.value("fourWin/size", myFourWin->size()).toSize());
 
+      value.setNum(win+1);
+      value="fourWin"+value+"/size";
+      fourWin[win]->resize(settings.value(value).toSize());
+    }
 
   /* Gestione smart degli schermi.
    * 1) mi devo assicurare che le finestre plot siano all'interno dello spazio
@@ -452,11 +454,9 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
     int lastScrAvRight=lastScrAvGeometry.right();
 
     posPoint=settings.value("dataSelWin/pos").toPoint();
-    //Primo passaggio: riporto dentro se lo spazio orizzontale disponibile
-    // si è ridotto ad esempio perché non ho più lo schermo secondario:
 
     // First step: bring in if the horizontal space available
-    // It has been reduced for example because I no longer have the secondary screen:
+    // has been reduced, e.g. because I no longer have the secondary screen:
     if(posPoint.x()+0.5*this->width()>lastScrAvRight){
        someWinDisplaced=true;
        posPoint.setX(lastScrAvRight-this->width()-5);
@@ -485,18 +485,17 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       plotWin[win]->move(posPoint);
       if (posPoint.x()+plotWin[win]->width()<firstScrAvRight)
         plotWin[win]->move(toInPrimaryScreen(posPoint));
+
+      value.setNum(win+1);
+      value="fourWin"+value+"/pos";
+      posPoint=settings.value(value).toPoint();
+
+      // for the time being non smart management of fourier windows:
+      fourWin[win]->move(posPoint);
+      if(posPoint.x()+fourWin[win]->width()<firstScrAvRight)
+        fourWin[win]->move(toInPrimaryScreen(posPoint));
     }
 
-    posPoint=settings.value("fourWin/pos").toPoint();
-    if(posPoint.x()+0.5*myFourWin->width()>lastScrAvRight){
-       someWinDisplaced=true;
-       posPoint.setX(lastScrAvRight-myFourWin->width()-5);
-       if(myFourWin->isVisible())
-         isDisplacedVisible=true;
-    }
-    myFourWin->move(posPoint);
-    if (posPoint.x()+myFourWin->width()<firstScrAvRight)
-       myFourWin->move(toInPrimaryScreen(posPoint));
 
     if (someWinDisplaced){
       QMessageBox::warning(this, "MC's PlotXY",
@@ -722,21 +721,44 @@ void CDataSelWin::closeEvent(QCloseEvent *){
     settings.setValue(value, plotWin[win]->size());
     value="plotWin"+valueNum+"/pos";
     settings.setValue(value,  plotWin[win]->pos());
+    value="fourWin"+valueNum+"/size";
+    settings.setValue(value, fourWin[win]->size());
+    value="fourWin"+valueNum+"/pos";
+    settings.setValue(value,  fourWin[win]->pos());
   }
 
-  settings.setValue("fourWin/pos",   myFourWin->pos());
-  settings.setValue("fourWin/size",  myFourWin->size());
 
 quit:
-  /*  La cancellazione di plotWin# delle seguenti 4 righe non è indispensabile in quanto subito dopo vi è un qApp->quit() che causa l'uscita da a.exec() in main(), e quindi l'uscita dall'applicazione. A quanto si legge su Internet, all'uscita dall'applicazione il sistema operativo è in grado di liberare tutta la memoria allocata dal programma non già liberata durante l'esecuzione da un delete.
-   * Il richiamo esplicito a delete qui riportato mi fa fare la chiusura delle finestre e la relativa disallocazione prima che il controllo del programma sia passato al sistema operativo.
+  /*  La cancellazione di plotWin# delle seguenti 4 righe non è indispensabile in quanto
+   * subito dopo vi è un qApp->quit() che causa l'uscita da a.exec() in main(), e quindi
+   * l'uscita dall'applicazione. A quanto si legge su Internet, all'uscita dall'
+   * applicazione il sistema operativo è in grado di liberare tutta la memoria allocata
+   * dal programma non già liberata durante l'esecuzione da un delete.
+   * Il richiamo esplicito a delete qui riportato mi fa fare la chiusura delle finestre
+   * e la relativa disallocazione prima che il controllo del programma sia passato al
+   * sistema operativo.
    *
-   * NOTA de avessi messo questi delete in ~CDataSelWin() vi sarebbe stato il seguente problema (che si evidenzia solo nel mio Win XP in VirtualBox del calcolatore fisso HP Pavillon):
+   * NOTA de avessi messo questi delete in ~CDataSelWin() vi sarebbe stato il seguente
+   * problema (che si evidenzia solo nel mio Win XP in VirtualBox del calcolatore fisso
+   * HP Pavillon):
    * se chiudo la DatSelWin con una finestra plot aperta, tale finesta plot rimane aperta.
-   * Questo comportamento è facilmente spiegabile. Occorre per prima cosa rimarcare che si esce da application.exec()(cioè la riga a.exec() di main()) soltanto quando tutte le finestre primarie (quelle cioè che non hanno parent) vengono chiuse. Pertanto fintanto che rimangono aperte finestre plotWin#, non si esce da a.exec() di main(). E solo dopo che, in main(), si esce da a.exec(), si va oltre. Dopo a.exec() in main non vi sono altre righe, quindi si passa al delete delle variabili automatiche. Una di queste è CDataSelWin w; il delete di w provoca l'esecuzione di ~CDataSelWin(). Quindi se metto i delete di plotWin# in ~CDataSelWin() essi non vengono esequiti quando l'utente clicca sulla "x" di CDataSelWin, se è ancora visibile qualche finestra di plot, in quanto in tal caso CDataSelWin non è l'ultima finestra primaria che viene chiusa. Vengono solo esequiti successivamente, cioè quanto anche tutte le plotWin# sono state manualmente chiuse dall'utente.
+   * Questo comportamento è facilmente spiegabile. Occorre per prima cosa rimarcare che
+   * si esce da application.exec()(cioè la riga a.exec() di main()) soltanto quando tutte
+   * le finestre primarie (quelle cioè che non hanno parent) vengono chiuse. Pertanto
+   * fintanto che rimangono aperte finestre plotWin#, non si esce da a.exec() di main().
+   * E solo dopo che, in main(), si esce da a.exec(), si va oltre. Dopo a.exec() in main
+   * non vi sono altre righe, quindi si passa al delete delle variabili automatiche. Una
+   * di queste è CDataSelWin w; il delete di w provoca l'esecuzione di ~CDataSelWin().
+   * Quindi se metto i delete di plotWin# in ~CDataSelWin() essi non vengono esequiti
+   * quando l'utente clicca sulla "x" di CDataSelWin, se è ancora visibile qualche
+   * finestra di plot, in quanto in tal caso CDataSelWin non è l'ultima finestra primaria
+   * che viene chiusa. Vengono solo esequiti successivamente, cioè quanto anche tutte le
+   * plotWin# sono state manualmente chiuse dall'utente.
    *
    * Infine una considerazione sul confronto fra "delete plotWin1" e "plotWin1->close()".
-   * QWidget::close() non libera la memoria e non esegue il distruttore, a meno che l'attributo Qt::WA_DeleteOnClose non sia stato settato ad esempio alla creazione della finestra(non è settato per default).
+   * QWidget::close() non libera la memoria e non esegue il distruttore, a meno che
+   * l'attributo Qt::WA_DeleteOnClose non sia stato settato ad esempio alla creazione
+   * della finestra(non è settato per default).
    * Vista la situazione la soluzione con il delete, standard del C++,  appare preferibile.
   */
 

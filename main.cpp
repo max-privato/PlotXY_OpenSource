@@ -69,30 +69,30 @@ int main(int argc, char *argv[])
     GV.PO.drawType=0;  // filtraggio grafici XY
     QString opt;
     for(i=1; i<QCoreApplication::arguments().count(); i++){
-        opt=QCoreApplication::arguments().at(i);
-        if(opt[0]!='/')break;
-        if(optLst.indexOf(opt)<0){
-          QMessageBox msgBox;
-          msgBox.setText("the following command-line option is unrecognised: \n"+opt);
-          msgBox.exec();
-       }
-        if(opt=="/dtQtF")   //filtraggio Qt con precisione float
-            GV.PO.drawType=1;
-        if(opt=="/dtQtI") //filtraggio Qt con precisione integer
-            GV.PO.drawType=2;
-        if(opt=="/dtQtP") //filtraggio Qt con polinomio
-            GV.PO.drawType=3;
-        if(opt=="/sff") //Show Full File List
-            GV.PO.showFullFilelist=true;
-        if(opt=="/uml"){
-            GV.PO.useMatLib=true;
-        }else{
-            GV.PO.useMatLib=false;
-        }
-        if(opt=="/set")  //ShowElapsedTime
-            GV.PO.showElapsTime=true;
-        else
-            GV.PO.showElapsTime=false;
+      opt=QCoreApplication::arguments().at(i);
+      if(opt[0]!='/')break;
+      if(optLst.indexOf(opt)<0){
+        QMessageBox msgBox;
+        msgBox.setText("the following command-line option is unrecognised: \n"+opt);
+        msgBox.exec();
+     }
+     if(opt=="/dtQtF")   //filtraggio Qt con precisione float
+       GV.PO.drawType=1;
+     if(opt=="/dtQtI") //filtraggio Qt con precisione integer
+       GV.PO.drawType=2;
+     if(opt=="/dtQtP") //filtraggio Qt con polinomio
+       GV.PO.drawType=3;
+     if(opt=="/sff") //Show Full File List
+       GV.PO.showFullFilelist=true;
+     if(opt=="/uml"){
+       GV.PO.useMatLib=true;
+      }else{
+        GV.PO.useMatLib=false;
+      }
+      if(opt=="/set")  //ShowElapsedTime
+        GV.PO.showElapsTime=true;
+      else
+        GV.PO.showElapsTime=false;
     }
     // The file names come after the options, so I have to memorize the last option found:
     GV.PO.firstFileIndex=i;
