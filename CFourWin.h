@@ -41,8 +41,11 @@ class CFourWin : public QWidget
 public:
     struct SFourData myData;
     explicit CFourWin(QWidget *parent = nullptr);
+    void enterEvent(QEvent *) override;
     void getData(struct SFourData data_);
-    ~CFourWin();
+    ~CFourWin() override;
+signals:
+    void winActivated(int);
 public slots:
     void updateChartOptions(SOptions opts);
     void valChangedAmp(SXYValues values, bool, bool);

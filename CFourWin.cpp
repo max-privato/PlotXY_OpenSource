@@ -422,7 +422,19 @@ void CFourWin::copyOrPrint(EOutType type){
    }
    delete painter;
    MB.exec();
+}
 
+void CFourWin::enterEvent(QEvent *){
+    /* Quando entro in una certa istanza della finestra devo fare in modo che la corrispondente tabella varSel venga evidenziata. Pertanto prelevo il digit che caratterizza il numero della finestra considerata, che è nel titolo, lo metto nell'int "i" e emetto sul segnale che verrà utilizzato da dataSelWin per attivare la corrispondente pagina del TabSheet.
+  */
+    if(!isActiveWindow())
+        return;
+    // La seguente riga non va bene quando l'opzione "/set" è selezionata. perché ovviamente cambia l'ultimo carattere.
+    //    QChar c=windowTitle()[windowTitle().count()-1];
+    QChar c=windowTitle()[windowTitle().count()-1];
+    QString s=QString(c);
+    int i=s.toInt();
+    emit winActivated(i);
 }
 
 void CFourWin::getData(struct SFourData data_){

@@ -663,8 +663,10 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
 
   connect(ui->varMenuTable,&CVarMenu::groupSelected,this, &CDataSelWin::groupSelected);
 
-  for (int win=0; win<MAXPLOTWINS; win++)
+  for (int win=0; win<MAXPLOTWINS; win++){
     connect(plotWin[win],&CPlotWin::winActivated,this,&CDataSelWin::updateSheet);
+    connect(fourWin[win],&CFourWin::winActivated,this,&CDataSelWin::updateSheet);
+  }
 
 
   //    D) passaggio delle opzioni di programma a plotWin e fourWin (che non sono più lette per accesso diretto a GV)
