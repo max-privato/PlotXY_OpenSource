@@ -135,7 +135,6 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     int ret=0;
     int harm, harm1, harm2;
     float amplFactor;
-    static float *phases1, *amplitudes1;
     QString msg;
     msg.setNum(myData.opt.initialTime,'g',5);
     ui->iniTimeLbl->setText("t1: "+msg);
@@ -184,8 +183,8 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
 
     //Aggiornamento grafici.
     amplitudes1=amplitudes+harm1;
-    ui->amplChart->getData(harmOrders+harm1, &amplitudes1, harm2-harm1+1);
     phases1=phases+harm1;
+    ui->amplChart->getData(harmOrders+harm1, &amplitudes1, harm2-harm1+1);
     ui->phaseChart->getData(harmOrders+harm1, &phases1, harm2-harm1+1);
     ui->amplChart->yGrid=ui->gridChkBox->isChecked();
     ui->phaseChart->yGrid=ui->gridChkBox->isChecked();

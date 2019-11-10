@@ -80,6 +80,7 @@ private:
           *ampl, //Ampiezze delle armoniche prima della correzione con amplFactor
           *amplitudes, //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
           *phases,
+          *phases1, *amplitudes1, //puntatori a cui non verrà allocato spazio di memoria in quanto puntano a elementi di amplitudes e phases
           ampl01[2], //Solo le ampiezze di armonica 0 e 1 per fare l'eventuale p.u.
           THD0, THD1; //THD relativi ad armonica 0 e 1 (in percentuale)
 };
