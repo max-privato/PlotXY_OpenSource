@@ -638,7 +638,8 @@ void CVarTableComp::blankCell()  {
 }
 
 void CVarTableComp::myClicked(int r, int c){
-/*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima gestisce il click destro e per il click sinistro rimanda qui.
+/*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima
+ * gestisce il click destro e per il click sinistro rimanda qui.
 */
 
 //    QSet <int> testSet;

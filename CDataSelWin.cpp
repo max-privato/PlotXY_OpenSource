@@ -352,19 +352,18 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   // Step A3: create windows (plotWin, FourWin, progOptions) ** Decide a uniform window creation rule here: only modals? modals and dialogs? **
 
   for (int win=0; win<MAXPLOTWINS; win++){
-      plotWin[win] = new CPlotWin();
-      QString title;
-      title.setNum(win+1);
-      title="Plot "+title;
-      plotWin[win]->setWindowTitle(title);
-      plotWin[win]->setDrawType(GV.PO.drawType);
+    plotWin[win] = new CPlotWin();
+    QString title;
+    title.setNum(win+1);
+    title="Plot "+title;
+    plotWin[win]->setWindowTitle(title);
+    plotWin[win]->setDrawType(GV.PO.drawType);
 
-      fourWin[win]=new CFourWin();
-      title.setNum(win+1);
-      title= "Fourier chart "+title;
-      fourWin[win]->setWindowTitle(title);
+    fourWin[win]=new CFourWin();
+    title.setNum(win+1);
+    title= "Fourier chart "+title;
+    fourWin[win]->setWindowTitle(title);
   }
-
   myPlotWin=plotWin[0];
   myFourWin=fourWin[0];
 
@@ -416,6 +415,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       value="fourWin"+value+"/size";
       fourWin[win]->resize(settings.value(value).toSize());
     }
+
 
   /* Gestione smart degli schermi.
    * 1) mi devo assicurare che le finestre plot siano all'interno dello spazio
@@ -485,7 +485,6 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       plotWin[win]->move(posPoint);
       if (posPoint.x()+plotWin[win]->width()<firstScrAvRight)
         plotWin[win]->move(toInPrimaryScreen(posPoint));
-
       value.setNum(win+1);
       value="fourWin"+value+"/pos";
       posPoint=settings.value(value).toPoint();
@@ -495,7 +494,6 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       if(posPoint.x()+fourWin[win]->width()<firstScrAvRight)
         fourWin[win]->move(toInPrimaryScreen(posPoint));
     }
-
 
     if (someWinDisplaced){
       QMessageBox::warning(this, "MC's PlotXY",
@@ -726,7 +724,6 @@ void CDataSelWin::closeEvent(QCloseEvent *){
     value="fourWin"+valueNum+"/pos";
     settings.setValue(value,  fourWin[win]->pos());
   }
-
 
 quit:
   /*  La cancellazione di plotWin# delle seguenti 4 righe non è indispensabile in quanto
@@ -3461,7 +3458,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     ui->loadStateTBtn->setVisible(false);
     saveStateLbl->setVisible(true);
 
-    settings.endGroup();  //exiting programState, entering MC's PlotXY
+    settings.endGroup(); //exiting programState, entering MC's PlotXY
     QTimer::singleShot(700, this, SLOT(resetStateBtns()));
 }
 
