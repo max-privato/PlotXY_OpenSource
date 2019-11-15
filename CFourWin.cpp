@@ -218,13 +218,14 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
 
 void CFourWin::computeTHD(){
   float THD=0;
-  for(int harm=_max(myData.opt.harm1,2); harm<=myData.opt.harm2; harm++)
+  // Here I exclude harm1, which II'll introduce later only for THD0:
+  for(int harm=2; harm<=myData.opt.harm2; harm++)
     THD+=amplitudes[harm]*amplitudes[harm];
 
   // THD % relative ad armoniche 0 e 1:
   if(amplitudes[0]==0)
       return;
-  THD0=float(100*sqrt(double(THD))/fabs(double(amplitudes[0])));
+  THD0=float(100.0*(sqrt(double(THD)+amplitudes[1]*amplitudes[1]))/fabs(double(amplitudes[0])));
   if(amplitudes[1]==0)
       return;
   THD1=float(100*sqrt(double(THD))/fabs(double(amplitudes[1])));
