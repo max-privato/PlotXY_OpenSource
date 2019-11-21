@@ -2942,19 +2942,20 @@ void CDataSelWin::on_loadTBtn_clicked(){
 }
 
 void CDataSelWin::on_refrTBtn_clicked(){
-  //Per trovare il nome del file completo del percorso parto dal tooltip, che lo contiene.
-  //Il tooltip è fatto così:
-
-  // To find the complete file name of the path, I start the tooltip, which contains it.
-  // The tooltip is like this:
-
-  //  fileTooltip="<p><B>Full name:</B> "+ fullName+"</p>";
-
-  // cui è aggiunta poi altra roba.
-  //Pertanto prima taglio i primi 21 caratteri, poi taglio quello che c'è a partire dalla prima parentesi angolare aperta
-
-  // Then other stuff is added.
-  // Therefore I first cut the first 21 characters, then what is there starting from the first open angle bracket
+  /*Per trovare il nome del file completo del percorso parto dal tooltip, che lo contiene.
+   * Il tooltip è fatto così:
+   *   fileTooltip="<p><B>Full name:</B> "+ fullName+"</p>";
+   *  cui è aggiunta poi altra roba.
+   * Pertanto prima taglio i primi 21 caratteri, poi taglio quello che c'è a partire
+   * dalla prima parentesi angolare aperta
+  */
+  /* To find the complete file name of the path, I start the tooltip, which contains it.
+   * The tooltip is like this:
+   *   fileTooltip="<p><B>Full name:</B> "+ fullName+"</p>";
+   * Then other stuff is added.
+   * Therefore I first cut the first 21 characters, then what is there starting from
+   * the first open angular bracket
+  */
   QString name=ui->fileTable->item(selectedFileRow,2)->toolTip();
   name.remove(0,21);
   name.chop(name.length()-name.indexOf('<',0));
@@ -2980,7 +2981,6 @@ void CDataSelWin::on_refrTBtn_clicked(){
  1) selezionare in sequenza i vari sheet (come se facessi un click, e non direttamente da  ui->tabWidget->setCurrentIndex(0); Questo è importante perché se uno sheet non ha variabili in questo modo il pulsante plot non è attivo
  2) se il pulsante plot è attivo lo clicco
  3) ripristino currentShIndex
-
 */
 
 /*
@@ -2990,27 +2990,28 @@ void CDataSelWin::on_refrTBtn_clicked(){
     if a sheet has no variables in this way the plot button is not active
  2) if the plot button is active, I click it
  3) restore currentShIndex
-
 */
  int currentTabIndex=ui->tabWidget->currentIndex();
-    for(int iTab=0; iTab<actualPlotWins; iTab++){
-      on_tabWidget_currentChanged(iTab);
-      if(ui->plotTBtn->isEnabled())
-          on_plotTBtn_clicked();
-    }
-    /* La seguente riga commentata fa un sempice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
-    on_tabWidget_currentChanged(currentTabIndex);
-    //ui->tabWidget->setCurrentIndex(currentTabIndex);
-    myVarTable=varTable[currentTabIndex];
-
-    //Aggiorno la finestra dei parametri, se visibile
-    // Update the parameter window, if visible
-    if(myParamWin->isVisible())
-        myParamWin->fillTable();
-    updatingPlot=false;
-    if(myFourWin->isVisible() && ui->fourTBtn->isEnabled()){
+  for(int iTab=0; iTab<actualPlotWins; iTab++){
+    on_tabWidget_currentChanged(iTab);
+    if(ui->plotTBtn->isEnabled())
+        on_plotTBtn_clicked();
+    if(fourWin[iTab]->isVisible())
         on_fourTBtn_clicked();
-    }
+  }
+  /* La seguente riga commentata fa un semplice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
+  on_tabWidget_currentChanged(currentTabIndex);
+  //ui->tabWidget->setCurrentIndex(currentTabIndex);
+  myVarTable=varTable[currentTabIndex];
+
+  //Aggiorno la finestra dei parametri, se visibile
+  // Update the parameter window, if visible
+  if(myParamWin->isVisible())
+      myParamWin->fillTable();
+  updatingPlot=false;
+  if(myFourWin->isVisible() && ui->fourTBtn->isEnabled()){
+      on_fourTBtn_clicked();
+  }
 }
 
 
