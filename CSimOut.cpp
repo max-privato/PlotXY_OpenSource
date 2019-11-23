@@ -391,8 +391,8 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
 
 QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
 /* Function per la lettura delle informazioni da un file avente la semplice struttura
-che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione completa è nel file "Input formats and naming conventions".
-
+ * che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione completa è
+ *  nel file "Input formats and naming conventions".
 */
     char  *str=nullptr, //Stringa per contenere le prime due righe del file.
           *str1, *pStr, *pBuffer,
@@ -432,6 +432,8 @@ che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione comple
         if(c=='\n')i++;
     }while(c!=EOF);
     numOfPoints=i;
+    if(csv)
+      numOfPoints++;
 
     rewind(fpIn);
 
