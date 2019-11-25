@@ -107,7 +107,6 @@ private:
   enum ESortType{noSort, descending, ascending} sortType;
   qreal currentDPI; //current value of DPI: can change in a single run in case of multiple screens
   int currentTableIndex; //indice attuale del tabWidget; serve solo per debug
-  int fourTableIndex; //Contiene l'indice di varTable quando si  fatto fourier. va salvato nei settings al salvataggio stato per rifare al recupero stato l'analisi di fourier sulla tabella plot corretta.
   int numOfLoadedFiles; // numero di files presenti nella fileTable;
   int actualPlotWins; //Numero effettivo di finestre di plot (Jan 18: 4 o 8)
   int originalMaxWidth;

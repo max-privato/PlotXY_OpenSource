@@ -19,6 +19,7 @@
 
 #include "CDataSelWin.h"
 #include "CLineCalc.h"
+#undef EXCLUDEATPCODE
 #include "ExcludeATPCode.h"
 #include <QApplication>
 #include <QDebug>
@@ -309,7 +310,6 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   actualPlotWins=MAXPLOTWINS/2;  //Inizialmente invece di 8 ho 4 finestre
                                  // Initially instead of 8 I have 4 windows
   funXVar=nullptr;
-  fourTableIndex=-1;
   currentTableIndex=ui->tabWidget->currentIndex();
   numOfLoadedFiles=0;
   selectedFileIdx=-1;
@@ -2822,8 +2822,6 @@ void CDataSelWin::on_fourTBtn_clicked() {
     }
     myFourWin->close();
     myFourWin->show();
-    fourTableIndex=ui->tabWidget->currentIndex();
-
  }
 
 void CDataSelWin::on_optBtn_clicked()
@@ -2981,6 +2979,7 @@ void CDataSelWin::on_refrTBtn_clicked(){
  1) selezionare in sequenza i vari sheet (come se facessi un click, e non direttamente da  ui->tabWidget->setCurrentIndex(0); Questo è importante perché se uno sheet non ha variabili in questo modo il pulsante plot non è attivo
  2) se il pulsante plot è attivo lo clicco
  3) ripristino currentShIndex
+
 */
 
 /*
@@ -2990,28 +2989,29 @@ void CDataSelWin::on_refrTBtn_clicked(){
     if a sheet has no variables in this way the plot button is not active
  2) if the plot button is active, I click it
  3) restore currentShIndex
+
 */
  int currentTabIndex=ui->tabWidget->currentIndex();
-  for(int iTab=0; iTab<actualPlotWins; iTab++){
-    on_tabWidget_currentChanged(iTab);
-    if(ui->plotTBtn->isEnabled())
-        on_plotTBtn_clicked();
-    if(fourWin[iTab]->isVisible())
-        on_fourTBtn_clicked();
-  }
-  /* La seguente riga commentata fa un semplice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
-  on_tabWidget_currentChanged(currentTabIndex);
-  //ui->tabWidget->setCurrentIndex(currentTabIndex);
-  myVarTable=varTable[currentTabIndex];
+    for(int iTab=0; iTab<actualPlotWins; iTab++){
+      on_tabWidget_currentChanged(iTab);
+      if(ui->plotTBtn->isEnabled())
+          on_plotTBtn_clicked();
+      if(fourWin[iTab]->isVisible())
+          on_fourTBtn_clicked();
+    }
+    /* La seguente riga commentata fa un sempice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
+    on_tabWidget_currentChanged(currentTabIndex);
+    //ui->tabWidget->setCurrentIndex(currentTabIndex);
+    myVarTable=varTable[currentTabIndex];
 
-  //Aggiorno la finestra dei parametri, se visibile
-  // Update the parameter window, if visible
-  if(myParamWin->isVisible())
-      myParamWin->fillTable();
-  updatingPlot=false;
-  if(myFourWin->isVisible() && ui->fourTBtn->isEnabled()){
-      on_fourTBtn_clicked();
-  }
+    //Aggiorno la finestra dei parametri, se visibile
+    // Update the parameter window, if visible
+    if(myParamWin->isVisible())
+        myParamWin->fillTable();
+    updatingPlot=false;
+    if(myFourWin->isVisible() && ui->fourTBtn->isEnabled()){
+        on_fourTBtn_clicked();
+    }
 }
 
 
@@ -3392,11 +3392,12 @@ void CDataSelWin::on_saveStateTBtn_clicked()
       // of the file in the file table and in the variable tables
       settings.setValue(keyName+".num",i);
       //Salvo il tShift
-      // Except for the tShift
+      // Saving tShift
       settings.setValue(keyName+".shift",tShift);
-      settings.setValue("fourWin/visible",  myFourWin->isVisible());
-      settings.setValue("fourWin/tableIndex", fourTableIndex);
-
+      for(int iTab=0; iTab<actualPlotWins; iTab++){
+        QString str="fourWin"+QString::number(iTab+1)+"Visible";
+        settings.setValue(str,  fourWin[iTab]->isVisible());
+      }
       if(!GV.multiFileMode)
         break;
     }
@@ -3621,12 +3622,12 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 
   // Phase 3: Fourwin data
   keyName="fourWin/tableIndex";
-  fourTableIndex=settings.value(keyName,"").value<int>();
-  bool fourVisible=settings.value("fourWin/visible", false).toBool();
-  for (int iSheet=0; iSheet<MAXPLOTWINS; iSheet++){
-    if(myVarTable->numOfTotVars==2 && fourVisible && iSheet==fourTableIndex)
-      on_fourTBtn_clicked();
+  bool fourWinVisible[MAXPLOTWINS];
+  for(int iSheet=0; iSheet<MAXPLOTWINS; iSheet++){
+    QString str="fourWin"+QString::number(iSheet+1)+"Visible";
+    fourWinVisible[iSheet]=settings.value(str,false).toBool();
   }
+
 
 
   // Fase 4: Recupero il testo e la palette di colori e stili delle celle delle tableComp, e lo invio loro.  Quando tableComp riceve le stringhe ricostruisce gli altri dati interni che ne completano lo stato.
@@ -3678,6 +3679,8 @@ void CDataSelWin::on_loadStateTBtn_clicked()
       ui->tabWidget->setCurrentIndex(iSheet);
       myPlotWin=plotWin[iSheet];
       on_plotTBtn_clicked();
+      if(fourWinVisible[iSheet])
+        on_fourTBtn_clicked();
     }
   }
   settings.endGroup();  //VarTables
