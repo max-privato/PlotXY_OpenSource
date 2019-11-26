@@ -243,6 +243,11 @@ void CFourWin::copyOrPrint(EOutType type){
    * L'utente finale potrà tranquillamente tagliare questa parte, se non di suo interesse.
 */
   bool ok=true;
+  // La seguente riga diabilita la scrittura della prima riga bold in cima al diagramma di Fourier quando si fa un copy grafico (non di testo).
+//  Infatti essa un po' disturba e appare ecccessiva. Fra l'altro l'indicazione che contiene non è presente quando si copia in grafico di una Plot Window, quindi appare opportuno toglierla anche per omogeneità.
+// Però non si sa mai, lascioil codice relativo che si può se nel caso riabilitare immediatamente mettendo a true la seguente variabile.
+
+  bool useLargeHeader=false;
   int imageWidth, imageHeight; //larghezza e altezza dell'immagine combinata contenente intestazione e grafici a barre (o grafico a barre)
   int yPosition;
   QClipboard *clipboard = QApplication::clipboard();
@@ -274,6 +279,7 @@ void CFourWin::copyOrPrint(EOutType type){
      QMessageBox MB;
      if(type==otCopy){
        QString allText;
+       allText="";
        allText=headText1+"\n"+headText2;
        allText+="\n\nHarm.\tAmplitude\tPhase\n";
        for(int i=myData.opt.harm1; i<=myData.opt.harm2; i++){
@@ -335,14 +341,20 @@ void CFourWin::copyOrPrint(EOutType type){
       QFont font=painter->font();
       font.setBold(true);
       painter->setFont(font);
-      painter->drawText(dummyRect,0,headText1,&headRect1);
+      if(useLargeHeader)
+         painter->drawText(dummyRect,0,headText1,&headRect1);
       painter->drawText(dummyRect,0,headText2,&headRect2);
       delete painter;
   }
 
   //ora che ho le dimensioni della parte testuale posso allocare lo spazio alla combinedImage.
-  imageHeight=headRect1.height()+headRect2.height();
-  imageWidth=qMax(headRect1.width(),headRect2.width());
+  if(useLargeHeader){
+    imageHeight=headRect1.height()+headRect2.height();
+    imageWidth=qMax(headRect1.width(),headRect2.width());
+  }else{
+    imageHeight=headRect2.height();
+    imageWidth=headRect2.width();
+  }
   if(fourOutInfo->amplChart){
       amplImg=ui->amplChart->giveImage();
       imageHeight+=amplImg->rect().height();
@@ -363,7 +375,8 @@ void CFourWin::copyOrPrint(EOutType type){
    QFont font=painter->font();
    font.setBold(true);
    painter->setFont(font);
-   painter->drawText(combinedImage->rect(),0,headText1);
+   if(useLargeHeader)
+     painter->drawText(combinedImage->rect(),0,headText1);
    //le altre righe sono a spessore normale:
    font.setBold(false);
    painter->setFont(font);
@@ -490,7 +503,6 @@ Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcol
 
 void CFourWin::on_copyBtn_clicked()
 {
-
     copyOrPrint(otCopy);
 }
 
