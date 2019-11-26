@@ -57,7 +57,6 @@ CFourWin::CFourWin(QWidget *parent) :
   font.setPointSize(7);
   ui->harmNLbl->setFont(font);
   ui->harmValLbl->setFont(font);
-
 #endif
 
   dftDone=false;
@@ -127,6 +126,7 @@ CFourWin::CFourWin(QWidget *parent) :
   }
   */
  #endif
+
 }
 
 int  CFourWin::analyseAndShow(bool changed){
@@ -243,11 +243,6 @@ void CFourWin::copyOrPrint(EOutType type){
    * L'utente finale potrà tranquillamente tagliare questa parte, se non di suo interesse.
 */
   bool ok=true;
-  // La seguente riga diabilita la scrittura della prima riga bold in cima al diagramma di Fourier quando si fa un copy grafico (non di testo).
-//  Infatti essa un po' disturba e appare ecccessiva. Fra l'altro l'indicazione che contiene non è presente quando si copia in grafico di una Plot Window, quindi appare opportuno toglierla anche per omogeneità.
-// Però non si sa mai, lascioil codice relativo che si può se nel caso riabilitare immediatamente mettendo a true la seguente variabile.
-
-  bool useLargeHeader=false;
   int imageWidth, imageHeight; //larghezza e altezza dell'immagine combinata contenente intestazione e grafici a barre (o grafico a barre)
   int yPosition;
   QClipboard *clipboard = QApplication::clipboard();
@@ -279,7 +274,6 @@ void CFourWin::copyOrPrint(EOutType type){
      QMessageBox MB;
      if(type==otCopy){
        QString allText;
-       allText="";
        allText=headText1+"\n"+headText2;
        allText+="\n\nHarm.\tAmplitude\tPhase\n";
        for(int i=myData.opt.harm1; i<=myData.opt.harm2; i++){
@@ -341,20 +335,14 @@ void CFourWin::copyOrPrint(EOutType type){
       QFont font=painter->font();
       font.setBold(true);
       painter->setFont(font);
-      if(useLargeHeader)
-         painter->drawText(dummyRect,0,headText1,&headRect1);
+      painter->drawText(dummyRect,0,headText1,&headRect1);
       painter->drawText(dummyRect,0,headText2,&headRect2);
       delete painter;
   }
 
   //ora che ho le dimensioni della parte testuale posso allocare lo spazio alla combinedImage.
-  if(useLargeHeader){
-    imageHeight=headRect1.height()+headRect2.height();
-    imageWidth=qMax(headRect1.width(),headRect2.width());
-  }else{
-    imageHeight=headRect2.height();
-    imageWidth=headRect2.width();
-  }
+  imageHeight=headRect1.height()+headRect2.height();
+  imageWidth=qMax(headRect1.width(),headRect2.width());
   if(fourOutInfo->amplChart){
       amplImg=ui->amplChart->giveImage();
       imageHeight+=amplImg->rect().height();
@@ -375,8 +363,7 @@ void CFourWin::copyOrPrint(EOutType type){
    QFont font=painter->font();
    font.setBold(true);
    painter->setFont(font);
-   if(useLargeHeader)
-     painter->drawText(combinedImage->rect(),0,headText1);
+   painter->drawText(combinedImage->rect(),0,headText1);
    //le altre righe sono a spessore normale:
    font.setBold(false);
    painter->setFont(font);
@@ -449,6 +436,7 @@ void CFourWin::enterEvent(QEvent *){
     QString s=QString(c);
     int i=s.toInt();
     emit winActivated(i);
+    raise();
 }
 
 void CFourWin::getData(struct SFourData data_){
@@ -503,6 +491,7 @@ Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcol
 
 void CFourWin::on_copyBtn_clicked()
 {
+
     copyOrPrint(otCopy);
 }
 
@@ -559,10 +548,10 @@ void CFourWin::on_optionsBtn_clicked(){
 
 int CFourWin::performDFT(){
 /* Questa function è quasi uno script per fare l'analisi DFT.
-Significato di alcune variabili:
- *ampl,     //Ampiezze delle armoniche calcolate
- *phases,   //Fasi delle armoniche calcolate
- ampl01[2], //Solo le ampiezze di armonica 0 e 1 per fare l'eventuale p.u.
+ *Significato di alcune variabili:
+ *  *ampl,     //Ampiezze delle armoniche calcolate
+ *  *phases,   //Fasi delle armoniche calcolate
+ *  ampl01[2], //Solo le ampiezze di armonica 0 e 1 per fare l'eventuale p.u.
 */
   int ret=0;
   int harm, sample, nSamples=indexRight-indexLeft;
@@ -597,7 +586,18 @@ Significato di alcune variabili:
 
   for(harm=harm1+(harm1==0); harm<=harm2; harm++){
     dft=0;
+  /*  OLD algorithm
     auxC=auxC1*dcmplx(harm);
+    for (sample=0; sample<nSamples; sample++){
+      dft+=dcmplx(double(y1[sample]))*exp(-auxC*dcmplx(sample));
+    }
+    ampl[harm]=float(abs(dcmplx(2.0)*dft/dcmplx(nSamples)));
+    // the following factor 2.0f has been checked with inverse-fourier in Matlab and Excel
+    phases[harm]=2.f*float(aux2*atan2(real(dft),-imag(dft)));
+*/
+
+    auxC=auxC1*dcmplx(harm);
+    //La seguente formula da https://en.wikipedia.org/wiki/Discrete_Fourier_transform; l'analoga formula di Matlab ha gli indici sfalsati di 1 in quanto la base degli indici per matlab è 1.
     for (sample=0; sample<nSamples; sample++){
       dft+=dcmplx(double(y1[sample]))*exp(-auxC*dcmplx(sample));
     }
