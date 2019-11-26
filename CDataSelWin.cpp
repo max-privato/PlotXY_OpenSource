@@ -2996,7 +2996,8 @@ void CDataSelWin::on_refrTBtn_clicked(){
       on_tabWidget_currentChanged(iTab);
       if(ui->plotTBtn->isEnabled())
           on_plotTBtn_clicked();
-      if(fourWin[iTab]->isVisible())
+      // Può capitare che si faccia il refresh da un file nel quale non sono presenti variabili precedentemente visualizzate. In questo caso non eseguo il plot e neanche il Four (il quale al suo interno comanderebbe comunque un plot causando un segfault)
+      if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
           on_fourTBtn_clicked();
     }
     /* La seguente riga commentata fa un sempice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
