@@ -245,6 +245,9 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
         }
         calcData.name=item(i,VARNUMCOL)->text();
         calcData.color=item(i,VARCOL)->foreground().color();
+        calcData.style=Qt::SolidLine;
+        if(item(i,0)->text()=="-")
+           calcData.style=Qt::DashLine;
         calcData.rightScale=item(i,XVARCOL)->text()=="r";
         calcData.lineInt=item(i,VARCOL)->text();
         funInfoLst.append(calcData);

@@ -90,6 +90,7 @@ struct SXYNameData{
     bool rightScale;  //dice se la variabile va plottata verso l'asse verticale destro o no.
     bool integralRequest;  //dice se si sta richiedendo l'integrale di una stringa
     QColor color;
+    Qt::PenStyle style;
     QList <int> fileNums; //contiene la lista dei numeri dei files da cui è necessario prelevare le variabili della stringa (un item in lista per ogni file differente)
     QList <SVarNums> varNumsLst; //Numeri delle variabili. Un item in lista per ogni variabile differente
     QList <QString> varNames; //i nomi delle variabili della stringa. Forniscono un'informazione meno sofisticata di varNumsLst ma utile quando non serve la scomposizione di dettaglio ma solo i nomi.

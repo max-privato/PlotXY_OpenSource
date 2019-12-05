@@ -2217,9 +2217,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
     param.midName=funInfo.line;
     param.fullName=myLineCalc.giveLine("lineFullNames");
     param.color=funInfo.color;
-
-    // Al momento funInfo non contiene lo stile e quindi metto in param semplicemente lo stile dilinea continua:
-    param.style=Qt::SolidLine;
+    param.style=funInfo.style;
 
     param.rightScale=funInfo.rightScale;
 //    param.unitS=myLineCalc.computeUnits();
