@@ -798,6 +798,8 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
 //          plotPen.setStyle(Qt::DashLine);
 //      else
 //          plotPen.setStyle(Qt::SolidLine);
+      Qt::PenStyle myPenStyle=plotPen.style();
+      myPenStyle=Qt::SolidLine;
       myPainter->setPen(plotPen);
       // Calcolo yRatio e symin, valutando se sono relativi alla scala di sinistra o a quella eventuale di destra:
       if(curveParamLst[iTotPlot].rightScale){
