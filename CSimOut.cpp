@@ -394,57 +394,57 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
  * che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione completa è
  *  nel file "Input formats and naming conventions".
 */
-    char  *str=nullptr, //Stringa per contenere le prime due righe del file.
-          *str1, *pStr, *pBuffer,
-        *fStr,  //Stringa che stabilisce il formato di lettura dei numeri
-        *tStr; //Stringa per la ricerca dei token
-    bool autoStep=false;
-    bool acceptsCommas=false;
-    int i, iRow, c, i1, iName,
-                rowLength[3]; //Numero di Bytes delle prime tre righe
-    float autoStepValue=0; //inizializzazione solo per evitare un warning
-    QString retStr="", XVarName;
-    long iL;
-    FILE * fpIn;
+  char  *str=nullptr, //Stringa per contenere le prime due righe del file.
+        *str1, *pStr, *pBuffer,
+      *fStr,  //Stringa che stabilisce il formato di lettura dei numeri
+      *tStr; //Stringa per la ricerca dei token
+  bool autoStep=false;
+  bool acceptsCommas=false;
+  int i, iRow, c, i1, iName,
+              rowLength[3]; //Numero di Bytes delle prime tre righe
+  float autoStepValue=0; //inizializzazione solo per evitare un warning
+  QString retStr="", XVarName;
+  long iL;
+  FILE * fpIn;
 
-    fileType=ADF;
-    QFileInfo fi(fullName);
-    runType=rtUndefined;
-    allowsPl4Out=false;
-    fpIn=fopen(qPrintable(fullName),"r");
-    if(fpIn==nullptr){
-        return "Unable to open file "+fullName+ "\n(does it exist?)";
-    }
-    fileInfo=fi;
-    //Misuro la lunghezza delle prime tre righe, poi il numero di righe successive, poi riavvolgo.
-    for(iRow=0; iRow<3; iRow++){
-      i=0;
-      do{
-        c=fgetc(fpIn);   i++;
-      }while(c!=EOF && c!='\n');
-      rowLength[iRow]=i+1;
-    }
+  fileType=ADF;
+  QFileInfo fi(fullName);
+  runType=rtUndefined;
+  allowsPl4Out=false;
+  fpIn=fopen(qPrintable(fullName),"r");
+  if(fpIn==nullptr){
+      return "Unable to open file "+fullName+ "\n(does it exist?)";
+  }
+  fileInfo=fi;
+  //Misuro la lunghezza delle prime tre righe, poi il numero di righe successive, poi riavvolgo.
+  for(iRow=0; iRow<3; iRow++){
+    i=0;
+    do{
+      c=fgetc(fpIn);   i++;
+    }while(c!=EOF && c!='\n');
+    rowLength[iRow]=i+1;
+  }
 
   //Per calcolare il numero di punti, conteggio il numero di caratteri '\n'
-    i=1;
-    do{
-        c=fgetc(fpIn);
-        if(c=='\n')i++;
-    }while(c!=EOF);
-    numOfPoints=i;
-    if(csv)
-      numOfPoints++;
+  i=1;
+  do{
+    c=fgetc(fpIn);
+    if(c=='\n')i++;
+  }while(c!=EOF);
+  numOfPoints=i;
+  if(csv)
+    numOfPoints++;
 
-    rewind(fpIn);
+  rewind(fpIn);
 
-    if(commasAreSeparators || csv )
-        fStr=strdup("%f,");
-    else
-        fStr=strdup("%f");
-    if(commasAreSeparators || csv )
-        tStr=strdup(" \t,");
-    else
-        tStr=strdup(" \t");
+  acceptsCommas=commasAreSeparators || csv ;
+  if(acceptsCommas){
+    fStr=strdup("%f,");
+    tStr=strdup(" \t,");
+  }else{
+    fStr=strdup("%f");
+    tStr=strdup(" \t");
+  }
   //Seconda passata. Per prima cosa analizzo la prima riga:
   if(!csv){
     str=new char[rowLength[0]];
@@ -458,15 +458,18 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
     if(pStr){
       *pStr='\0';
     }
-    //verifico se è presente l'opzione "accepts commas:
+    //verifico se è presente l'opzione "accepts commas":
     pStr=strstr(str,"/ac");
     if(pStr){
        acceptsCommas=true;
        *pStr='\0';
     }
     if(acceptsCommas){
-        fStr=strdup("%f,");
-        tStr=strdup(" \t,");
+      fStr=strdup("%f,");
+      tStr=strdup(" \t,");
+    }else{
+      fStr=strdup("%f");
+      tStr=strdup(" \t");
     }
     //Ora la stringa può contenere il passo automatico il nome della variabile x e null'altro.
     QRegExp notSeparators, separators;
@@ -499,16 +502,21 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
       // Se non ho trovato il nome della variabile definisco il nome default, altrimenti lo leggo. Tolgo tutti i separatori e verifico se rimane una stringa vuota:
       i=qString.indexOf(notSeparators);
       if(i==-1){
-          XVarName="X_(auto)";
+        XVarName="X_(auto)";
       }else{
-          i=qString.indexOf(notSeparators);
-          qString=qString.mid(i);
-          XVarName=qString;
-          //dopo qString ci devono essere solo separatori
-          i=qString.indexOf(separators);
-          i=qString.mid(i).indexOf(notSeparators);
-          if(i>=0)
-            return ("Error: the first row contains invalid characters after the x variable name");
+        i=qString.indexOf(notSeparators);
+        // qui i indica il primo carattere del nome automatico
+        qString=qString.mid(i);
+        XVarName=qString;
+        //dopo qString ci devono essere solo separatori o carattere di fine riga. Eseguo quindi questa verifica
+        i=qString.indexOf(separators);
+        if (i<0)
+          i=qString.indexOf("\n");
+//        i=qString.mid(i).indexOf(notSeparators);
+
+//      if(i>=0)
+        if(i<0)
+          return ("Error: the first row contains invalid characters after the x variable name");
       }
     }else
       autoStep=false;

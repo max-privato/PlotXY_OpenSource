@@ -938,7 +938,7 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         x1=x;
         y1=y;
       } //Fine ciclo for tracciamento curve
-//      qDebug()<<"PointsDrawn"<<pointsDrawn0;
+      // qDebug()<<"PointsDrawn"<<pointsDrawn0;
       //Tracciamento ultimo punto della curva:
       if(xAxis.scaleType==stLin)
         xf=xAxis.pixPerValue  * (px[iFile][stopIndex[iFile]] - sxmin) +X0;
@@ -991,8 +991,9 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 //          qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
       }else{
 // Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fa i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
+          int i;
           foreach(QPolygonF poly, path.toSubpathPolygons())
-              for(int i=0; i<poly.size()-1; i++)
+              for(i=0; i<poly.size()-1; i++)
                   myPainter->drawLine(poly.at(i),poly.at(i+1));
 //          qDebug() << "foreach operation took" << timer.elapsed() << "milliseconds";
       }
@@ -3760,6 +3761,7 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
     //Si ricordi che il risultato della seguente divisione è troncato, non arrotondato.
     ticPen.setWidth((plotRect.width()+plotRect.height())/500);
     plotPen.setWidth(ticPen.width());
+    int iii=ticPen.width();
     framePen.setWidth(plotPen.width());
   }
   if(cutsLimits){
@@ -4848,7 +4850,7 @@ Notare che a drawText1 si passano separatamente base ed esponente, mentre in sma
 */
 
   if (useWriteText2){ //Caso residuo solo per le potenze di 10
-//      qDebug()<<"Writing Axis Label through drawtext2 ";
+      //qDebug()<<"Writing Axis Label through drawtext2 ";
       return writeText2(myPainter,X,Y,hAdjust,vAdjust,msgBase,msgExp,useBrackets, _virtual)+1;
   }else{  //caso in cui si possono usare lettere greche, puntini, esponenti
     return smartWriteUnit(myPainter, baseFont, X,Y,hAdjust,vAdjust,unitS,useBrackets, _virtual)+1;
@@ -4954,6 +4956,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
     iTotPlStartBlock; //indice globale di variabile di inizio blocco
     iRow=0;
     blocksPerRow[0]=blocksPerRow[1]=blocksPerRow[2]=0;
+    msg = "file";
     for(int iFile=0; iFile<nFiles; iFile++){
       endBlock=false;
       iTotPlStartBlock=iTotPlot;
@@ -5011,9 +5014,9 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
       }
       myPainter->setPen(Qt::black);
       if(xPosition==0)
-        msg=filesInfo[iFile].name+":  ";
+        msg="file "+filesInfo[iFile].name+":  ";
       else
-        msg="  "+filesInfo[iFile].name+":  ";
+        msg="  file "+ filesInfo[iFile].name+":  ";
       myPainter->drawText(xPosition,yPosition,msg);
       //Ora che ho scritto ad inizio riga il nome del file scrivo l'elenco delle corrispondenti variabili:
       xPosition+=myPainter->fontMetrics().width(msg);

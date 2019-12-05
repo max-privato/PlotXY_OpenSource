@@ -2230,6 +2230,11 @@ void CDataSelWin::on_plotTBtn_clicked() {
     // Nel caso di funzioni di variabili faccio per default diagrammi di linea e quindi metto falso a frequency scan:
     // In the case of variable functions, I do line diagrams by default and then put a false frequency scan:
     myFileInfo.frequencyScan=false;
+    /*  Comment on 4 December 2019. Timeshift of function plots has not been yet programmed.
+     * for the time being it is always set to zero:
+     *
+    */
+    myFileInfo.timeShift=0.0f;
     filesInfo.append(myFileInfo);
   }
   //Ora, nel caso in cui myVarTable.xInfo.isFunction==true devo ricopiare funXVar in x1
