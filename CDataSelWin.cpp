@@ -47,7 +47,7 @@ extern SGlobalVars GV; //definite in main(); struttura in "Globals.h"
 
 void CDataSelWin::adaptToDPI(qreal currentDPI_, int maxHeight_){
 
-/* Function to adapt the program's behavior to DPI.
+/* Function to adapt the program's behavior to DPI. ** Modify text to test git **
    * In the first implementation it was put in the DatasSelWin constructor.
    * It is now isolated because the program has also become multiple-screeen-aware.
    * It may very well happen that the second screen has a different resolution, for
