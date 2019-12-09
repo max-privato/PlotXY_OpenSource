@@ -52,7 +52,7 @@ void CScaleDlg::getFullLimits(SFloatRect2 fullLimits_, bool manageFullLimits_){
    * come derivano dal clcolo prima di qualunque arrotondamento. Solo in casi
    * molto particolari i fullLimits per uno degli assi possono risultare esterni
    * agli assi arrotondati; in tal caso do all'utente la possibilità di fare una
-   *  visualizzazione completa del grafico, rinunciando ai numeri tondi sulgli assi.
+   *  visualizzazione completa del grafico, rinunciando ai numeri tondi sugli assi.
    * Solo in questo caso, caratterizzato da managefullLimits=true, attivo i radio
    * button per gestire anche questo tipo di visualizzazione speciale.
 */

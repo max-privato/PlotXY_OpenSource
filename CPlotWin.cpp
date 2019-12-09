@@ -578,35 +578,34 @@ void CPlotWin::on_titleBtn_clicked(bool checked)
 }
 
 
-void CPlotWin::on_scaleTBtn_clicked()
-{
-    //Preparazione prima della visualizzazione della scheda:
-    myScaleDlg->getInfo(ui->lineChart->giveDispRect(),ui->lineChart->twinScale);
-    myScaleDlg->getFullLimits(ui->lineChart->giveFullLimits(),ui->lineChart->cutsLimits);
-    myScaleDlg->xUnit=ui->lineChart->givexUnit();
-    //Visualizzazione della scheda fino a che non metto dati corretti o faccio Cancel:
-    QString ret;
-    do{
-      int result=myScaleDlg->exec();
-      if (result==QDialog::Rejected)return;
-      ret=myScaleDlg->validDispRect();
-      if(ret!="")
-        QMessageBox::warning(this," ",ret);
-    }while (ret!="");
-    ui->lineChart->setDispRect(myScaleDlg->giveDispRect());
+void CPlotWin::on_scaleTBtn_clicked(){
+  //Preparazione prima della visualizzazione della scheda:
+  myScaleDlg->getInfo(ui->lineChart->giveDispRect(),ui->lineChart->twinScale);
+  myScaleDlg->getFullLimits(ui->lineChart->giveFullLimits(),ui->lineChart->cutsLimits);
+  myScaleDlg->xUnit=ui->lineChart->givexUnit();
+  //Visualizzazione della scheda fino a che non metto dati corretti o faccio Cancel:
+  QString ret;
+  do{
+    int result=myScaleDlg->exec();
+    if (result==QDialog::Rejected)return;
+    ret=myScaleDlg->validDispRect();
+    if(ret!="")
+      QMessageBox::warning(this," ",ret);
+  }while (ret!="");
+  ui->lineChart->setDispRect(myScaleDlg->giveDispRect());
 
-    exactMatch=myScaleDlg->giveExactMatch();
+  exactMatch=myScaleDlg->giveExactMatch();
 
-    if(myScaleDlg->useUserUnits){
-      ui->lineChart->getUserUnits(myScaleDlg->xUnit, myScaleDlg->yUnit, myScaleDlg->ryUnit);
-      ui->lineChart->useUserUnits=true;
-    }else{
-      ui->lineChart->useUserUnits=false;
-    }
-    ui->lineChart->useBrackets=myScaleDlg->useBrackets;
-    ui->lineChart->exactMatch=myScaleDlg->exactMatch;
-    ui->lineChart->useSmartUnits=myScaleDlg->useSmartUnits;
-    ui->lineChart->plot(false);
+  if(myScaleDlg->useUserUnits){
+    ui->lineChart->getUserUnits(myScaleDlg->xUnit, myScaleDlg->yUnit, myScaleDlg->ryUnit);
+    ui->lineChart->useUserUnits=true;
+  }else{
+    ui->lineChart->useUserUnits=false;
+  }
+  ui->lineChart->useBrackets=myScaleDlg->useBrackets;
+  ui->lineChart->exactMatch=myScaleDlg->exactMatch;
+  ui->lineChart->useSmartUnits=myScaleDlg->useSmartUnits;
+  ui->lineChart->plot(false);
 //    ui->lineChart->markAll();
 }
 

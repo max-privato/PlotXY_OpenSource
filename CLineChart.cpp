@@ -3761,7 +3761,6 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
     //Si ricordi che il risultato della seguente divisione è troncato, non arrotondato.
     ticPen.setWidth((plotRect.width()+plotRect.height())/500);
     plotPen.setWidth(ticPen.width());
-    int iii=ticPen.width();
     framePen.setWidth(plotPen.width());
   }
   if(cutsLimits){
@@ -4430,11 +4429,22 @@ Significato delle variabili passate (solo fino a maxVal sono usate per scale log
   }
 
 ComputeScaleFactor:
+  /* Qui gestisco cutslimits. Questa variabile indica se gli estremi visuaizzati sono interni agli estremi effettivi. SIccome PlotXY opera in semplice recisione, questo è significativo solo se l'errore supera quanto rappresentbile entro la sesta cifra significativa. */
+  myAxis.cutsLimits=false;
+  if(myAxis.scaleMin>minVal)
+      if(minVal!=0)
+          if(qAbs((myAxis.scaleMin-minVal)/minVal)>float(1.e-6))
+              myAxis.cutsLimits=true;
+  if(myAxis.scaleMax<maxVal)
+      if(maxVal!=0)
+          if(qAbs((myAxis.scaleMax-maxVal)/maxVal)>float(1.e-6))
+              myAxis.cutsLimits=true;
+/*
   if(myAxis.scaleMin>minVal||myAxis.scaleMax<maxVal)
     myAxis.cutsLimits=true;
   else
     myAxis.cutsLimits=false;
-
+*/
   /* Calcolo di eventuale fattore di scala:  */
   aux=iermx;
   if(Max.roundValue==0)
@@ -4899,8 +4909,22 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
     yPosition=plotRect.y()+plotRect.height()-legendHeight+textHeight;
   if(legendHeight==-1)return;
   numRows=1;
+  // Uso la leggenda con il nome di file all'inizio sia nel caso in cui nFIles=1 che nel caso che ho function plots tutte riferite al medesimo file.
+  // per identificare la leggenda a file singolo invece di nFiles faccio un confronto dei nomi delle stringhe di file
+  bool oneFileName=nFiles==1;
+  if(nFiles>1){
+    oneFileName=true;
+    for (int i=0; i<nFiles; i++){
+      QString dbgStr=filesInfo[i].name;
+      if(filesInfo[i].name!=filesInfo[0].name){
+        oneFileName=false;
+        break;
+      }
+    }
+  }
+
   //Nel seguente caso di nFiles=1 il medesimo codice serve per il calcolo delle dimensioni della leggenda e l'effettiva scrittura:
-  if(nFiles==1){
+  if(oneFileName){
     myPainter->setPen(Qt::black);
     msg="(file "+filesInfo[0].name + "; x-var "+xVarParam.name+")  ";
     if(!_virtual)myPainter->drawText(xPosition,yPosition,msg);
@@ -4947,7 +4971,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
     return;
   }
   //Nel seguente caso di nFiles>1 il codice è organizzato su due passate e si fanno tutte con Virtual = false:
-  if(nFiles>1 && !_virtual){
+  if(!oneFileName && !_virtual){
     bool endBlock;
     int count=0, //generico contatore
     iRow, //indice della riga corrente
