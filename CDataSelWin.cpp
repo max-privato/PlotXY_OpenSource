@@ -2547,7 +2547,8 @@ void CDataSelWin::on_fileTable_doubleClicked(const QModelIndex &index){
       myVarTable->setCommonX(computeCommonX());
     else{
       ui->refrTBtn->setEnabled(false);
-      ui->refrUpdTBtn->setEnabled(false);
+      // The following button can always stay enabled: it won't harm. If I disalble it YI must find somewhere to re-enable!
+//      ui->refrUpdTBtn->setEnabled(false);
 	}
   }
 
