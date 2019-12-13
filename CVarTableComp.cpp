@@ -40,7 +40,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     numOfPlotFiles=0;
     numOfTotVars=0;
     singleFileNum=0;
-    neCellBkColor.setRgb(245,245,245);
+    neCellBkColor.setRgb(240,240,240);
     headerGray.setRgb(210,210,210);
     hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
@@ -268,7 +268,8 @@ void CVarTableComp::myReset(bool deep) {
   for(int i=1; i<rowCount(); i++){
     myBrush.setColor(colors[i]);
     for(int j=1; j<columnCount(); j++){
-      if(j<columnCount()-1)item(i,j)->setBackground(neCellBkColor);
+      if(j<columnCount()-1)
+        item(i,j)->setBackground(neCellBkColor);
       item(i,j)->setForeground(myBrush);
       item(i,j)->setText("");
       item(i,j)->setToolTip("");
@@ -472,7 +473,11 @@ void CVarTableComp::getColorScheme(bool useOldColors_){
 }
 
 void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_ ){
-  /* In questa routine si ripristina lo stato salvato in precedenza. In realtà passo solo il testo da mettere nelle celle e i colori delel variabili; sulla base dei contenuti del testo vengono poi ricomposte le altre variabili strutturate che vengono compilate durante il normale funzionamento del programma.
+  /* In questa routine si ripristina lo stato salvato sulla baase dei dati salvati in
+   * precedenza sul registro. In realtà passo solo
+   * il testo da mettere nelle celle e i colori delll variabili; sulla base dei contenuti
+   * del testo vengono poi ricomposte le altre variabili strutturate che vengono
+   * compilate durante il normale funzionamento del programma.
 */
   int r,c;
   int i=-1;
@@ -503,9 +508,14 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
       numOfTotVars=0;
   else
       numOfTotVars=1;
-  //Ora metto a grigio il background della cella FILENUMCOL delle righe dove è presente una variabile e contemporaneamente conto le variabili selezionate
+
+  //Now we manage the background of cells below "f" column.
+  // We start with white, then we add grey when we have rows with variables, which are not function plot definitions
 
   for(r=1; r<TOTROWS; r++){ //r=1 + la riga default della x
+    item(r,FILENUMCOL)->setBackgroundColor(Qt::white);
+    if(item(r,XVARCOL)->text()!="")
+      item(r,FILENUMCOL)->setBackgroundColor(neCellBkColor);
     if(item(r,VARNUMCOL)->text()!=""){
       // Se c'è qualcosa sulla riga sotto quella default della x aumento di 1 il numero di
       // variabili; la casella sotto f diviene grigia solo se non si tratta di funzione di variabile.
@@ -935,22 +945,22 @@ Faccio qui una funzione specializzata proprio per selezionare la variabile x com
 - non si possono selezionare variabili se non si è selezionata una commonX
 - una variabile non commonX non potrà mai prendere la prima riga*/
 
-    if(commonXSet) return 1;
-    if(!multiFile) return 2;
-    xInfo.idx=0;
-    item(1,VARNUMCOL)->setText("");
-    item(1,VARCOL)->setText(str);
-    item(1,XVARCOL)->setText("x");
-    item(1,FILENUMCOL)->setText("a");
-    item(1,VARNUMCOL)->setText("1");
-    commonXSet=true;
-    numOfTotVars++;
+  if(commonXSet) return 1;
+  if(!multiFile) return 2;
+  xInfo.idx=0;
+  item(1,VARNUMCOL)->setText("");
+  item(1,VARCOL)->setText(str);
+  item(1,XVARCOL)->setText("x");
+  item(1,FILENUMCOL)->setText("a");
+  item(1,VARNUMCOL)->setText("1");
+  commonXSet=true;
+  numOfTotVars++;
     // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
-    for(int ii=2; ii<rowCount(); ii++){
-       item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
-    }
-    emit contentChanged();
-    return 0;
+  for(int ii=2; ii<rowCount(); ii++){
+    item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
+  }
+  emit contentChanged();
+  return 0;
 }
 
 int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightScale, bool monotonic_, QString unit_){

@@ -123,7 +123,8 @@ private:
   float * funXVar; //contiene i valori della variabie x quando è una funzione di variabile (cfr. developer.odt)
   QFont myFont;
   QString * saveStrings;  //Stringhe per il salvataggio valori della rica di indice 1 di fileTable quando si passa da multifile a singlefile
-  QColor headerGray, neCellBkColor;
+  QColor headerGray,
+        neCellBkColor; //colore delle celle non editabili
   QLabel *saveStateLbl;
   QSet <int> freeFileIndex; //contiene gli indici dei files NON caricati (liberi).
 

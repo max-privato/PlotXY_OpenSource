@@ -306,17 +306,13 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   refreshUpdate=ui->refrTBtn->isChecked();
   updatingPlot=false;
 
-  actualPlotWins=MAXPLOTWINS/2;  //Inizialmente invece di 8 ho 4 finestre
-                                 // Initially instead of 8 I have 4 windows
+  actualPlotWins=MAXPLOTWINS/2;    // Initially instead of 8 I have 4 windows
   funXVar=nullptr;
   currentTableIndex=ui->tabWidget->currentIndex();
   numOfLoadedFiles=0;
   selectedFileIdx=-1;
-  selectedFileRow=-1; //Valore inaccettabile nel normale uso; viene usato per indicare
-                         //che ancora non è stato selezionato alcun file
-
-                      // Value unacceptable in normal use; it is used to indicate
-                         // that no file has yet been selected
+  selectedFileRow=-1;  // Value unacceptable in normal use; it is used to indicate
+                       // that no file has yet been selected
 
   headerGray.setRgb(210,210,210);
   neCellBkColor.setRgb(240,240,240);
@@ -567,10 +563,8 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
         item->setBackgroundColor(neCellBkColor);
         //La sola colonna con TShift la metto bianca per far capire che è editabile:
         // The only column with TShift I put it white to make it clear that it is editable:
-        QColor white;
-        white.setRgb(255,255,255);
         if(j==6)
-          item->setBackgroundColor(white);
+          item->setBackgroundColor(Qt::white);
       }
       if(j<2)
         item->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
@@ -877,28 +871,24 @@ void CDataSelWin::dragEnterEvent(QDragEnterEvent *event)
 
 void CDataSelWin::dropEvent(QDropEvent *event)
 {
-    /* Funzione per il caricamento dei files che vengono "droppati" sulla finestra*/
-    /* Function for loading files that are "dropped" on the window */
+  /* Function for loading files that are "dropped" on the window */
 
-    int i;
-    QString ret;
-    QStringList fileList;
-    const QMimeData *mimeData = event->mimeData();
-    for(i=0; i<mimeData->urls().count(); i++)
-      fileList.append( mimeData->urls().at(i).path());
-    ret=loadFileList(fileList);
-//    QResizeEvent *e=NULL;
-    resizeEvent(nullptr);
-    ui->varMenuTable->resizeColumnsToContents();
-    if(ret=="")
-      event->acceptProposedAction();
-    else{
-      // Qui in realtà il messaggio non va emesso perché ci pensa già LoadFileList:
-      //QMessageBox::critical(this,"CDataSelWin.cpp","unable to load file: "+ret)
-        ;
-    }
-    ui->multifTBtn->setEnabled(true);
-
+  int i;
+  QString ret;
+  QStringList fileList;
+  const QMimeData *mimeData = event->mimeData();
+  for(i=0; i<mimeData->urls().count(); i++)
+    fileList.append( mimeData->urls().at(i).path());
+  ret=loadFileList(fileList);
+  resizeEvent(nullptr);
+  ui->varMenuTable->resizeColumnsToContents();
+  if(ret=="")
+    event->acceptProposedAction();
+  else{
+    // Qui in realtà il messaggio non va emesso perché ci pensa già LoadFileList:
+    //QMessageBox::critical(this,"CDataSelWin.cpp","unable to load file: "+ret)
+  }
+  ui->multifTBtn->setEnabled(true);
 }
 
 
@@ -1739,13 +1729,9 @@ The list always starts from the first value (index 0). */
 
 
 void CDataSelWin::on_tabWidget_currentChanged(int index){
-  /* Il seguente if serve in quanto alla costruzione di CDataSelWin tolgo dalla tabWidget
-   *  tutte le tab per poi rimetterle. Quando tolgo l'ultima qui si entra con index
-   * pari a -1!
-*/
-  /* The following if serves as the construction of CDataSelWin from the tabWidget
-   * all the tabs and then put them back. When you togo the last one here you enter with index
-   * equal to -1!
+  /* The following if is needed since when I construct DataSelWin I remove from the
+   * tabWidget all the tabs which are then put back. When I remove the last one here
+   * one enters with index equal to -1!
 */
     if (index<0)
       return;
@@ -1760,10 +1746,9 @@ void CDataSelWin::on_tabWidget_currentChanged(int index){
     myVarTable->setMultiFile(GV.multiFileMode);
     myVarTable->setCurrFile(selectedFileIdx);
     if(!fileLoaded)
-		return;
+      return;
 
-    //Seleziono la variabile tempo:
-    // Select the time variable:
+    // Select time variable:
     if(myVarTable->xInfo.idx==-1 && GV.multiFileMode){
        myVarTable->setCommonX(computeCommonX());
     }else{
@@ -1771,8 +1756,7 @@ void CDataSelWin::on_tabWidget_currentChanged(int index){
 //        if(myVarTable->xInfo.idx==-1)
          varMenuTable_cellClicked(0,1,false);
     }
-    //gestisco l'attivazione dei vari bottoni
-    // I manage the activation of the various buttons
+    // manage the activation of the various buttons:
     varTableChanged();
 }
 
@@ -3638,9 +3622,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 
 
 
-  // Fase 4: Recupero il testo e la palette di colori e stili delle celle delle tableComp, e lo invio loro.  Quando tableComp riceve le stringhe ricostruisce gli altri dati interni che ne completano lo stato.
-
-  // Phase 4: Retrieve the text of the tableComp cells, and send it to them.
+  // Phase 4: Retrieve text, color palette and cell styles of tableComp's, and send to them.
   // When tableComp receives the strings it reconstructs the other internal data that complete its status.
   QStringList list;
   bool xIsFunction;
@@ -3658,9 +3640,9 @@ void CDataSelWin::on_loadStateTBtn_clicked()
       QRgb color=settings.value(keyName).value<QRgb>();
       if(color==0){
        QMessageBox::information(this, "PlotXY",
-                    "The stored data do not appear to be created using this PlotXY version\n"
-                    "Save state operation before restoring.\n"
-                    "No data restored.");
+                 "The stored data do not appear to be created using this PlotXY version\n"
+                 "Save state operation before restoring.\n"
+                 "No data restored.");
           return;
       }
       colorVect.append(color);
@@ -3680,7 +3662,6 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   // Note that the following line implicitly runs an on_tabWidget_currentChanged (), which in turn runs a setCommon() if necessary.
 
     myVarTable=varTable[iSheet];
-
     myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, multifileMode);
     myVarTable->getFileNums(fileNumsLst, varMaxNumsLst);
     if(myVarTable->numOfTotVars>1){
