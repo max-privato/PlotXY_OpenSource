@@ -514,7 +514,6 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
           i=qString.indexOf("\n");
 //        i=qString.mid(i).indexOf(notSeparators);
 
-//      if(i>=0)
         if(i<0)
           return ("Error: the first row contains invalid characters after the x variable name");
       }

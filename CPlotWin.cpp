@@ -133,11 +133,11 @@ CPlotWin::CPlotWin(QWidget *parent) :
 void CPlotWin::chartValuesChanged(SXYValues values, bool hDifference, bool vDifference){
     QString msg;
 //    msg=msg.setNum(values.X[0],'g',4+exactMatch);
-    msg=smartSetNum(values.X[0],4+exactMatch);
+    msg=smartSetNum(values.X[0],5+exactMatch);
     char buffer[17];
 
-    // Qui alfuni tentativi di avere indicati i numeri di decimali giusti dopo la virgola.
-    // L'idea è si scrivere sia con E e poi trattare io i digit pe rla rappresentazione
+    // Qui alcuni tentativi di avere indicati i numeri di decimali giusti dopo la virgola.
+    // L'idea è si scrivere sia con E e poi trattare io i digit per la rappresentazione
     // a numero di cifre significative giusto ('g' ha lo stesso problema del 'g' di setNum)
     //però dovrei provare l'algoritmo in un programmino a sé stante.
     sprintf(buffer,"%+12.5e",double(values.X[0]));
@@ -147,7 +147,7 @@ void CPlotWin::chartValuesChanged(SXYValues values, bool hDifference, bool vDiff
       msg= "*"+msg;
     ui->xValueLbl->setText(msg);
 //    msg=msg.setNum(values.Y[0][0],'g',4+exactMatch);
-    msg=smartSetNum(values.Y[0][0],4+exactMatch);
+    msg=smartSetNum(values.Y[0][0],5+exactMatch);
     if(vDifference) msg= "*"+msg;
     ui->yValueLbl->setText(msg);
     valuesWin->updateVarValues(values.X, values.Y,hDifference, exactMatch);
