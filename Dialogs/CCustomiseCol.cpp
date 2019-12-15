@@ -81,7 +81,7 @@ QList <QColor> CCustomiseCol::setColorf(){
 
 void  CCustomiseCol::getStates(int styleData, QVector <QRgb> varColRgb){
   for (int column=0; column<ui->customColorTable->columnCount()-1; column++){
-      int iii=styleData&1<<column;
+//      int iii=styleData&1<<column;
     if((styleData&1<<column)!=0)
       ui->customColorTable->item(0,column)->setCheckState(Qt::Checked);
     else

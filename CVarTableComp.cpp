@@ -316,7 +316,7 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
 //      }
     }
     wi[VARNUMCOL]=int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL])));
-    wi[VARNUMCOL]+=myDPI/factor*fontMetrics().width("X");
+    wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().width("X"));
     setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
 
     i=0;
@@ -329,11 +329,11 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
 #if defined(Q_OS_MAC)
     factor=72.0;
 #endif
-    wi[FILENUMCOL]+=8*myDPI/factor;
-    wi[XVARCOL]+=7*myDPI/factor;
+    wi[FILENUMCOL]+=int(8*myDPI/factor);
+    wi[XVARCOL]+=int(7*myDPI/factor);
 #if defined(Q_OS_MAC)
-    wi[FILENUMCOL]+=3*myDPI/factor;
-    wi[XVARCOL]+=2*myDPI/factor;
+    wi[FILENUMCOL]+=int(3*myDPI/factor);
+    wi[XVARCOL]+=int(2*myDPI/factor);
 #endif
     wi[VARCOL]=w-i-int(17.*myDPI/factor); //attribuisco a VARCOL tutto lo spazio disponibile diminuito di quello occupato dalle altre colonne, determinato sulla base dei contenuti (e non delle dimensioni della tabella, così come risultano dal resize in atto)
     for(i=0;i<TOTCOLS;i++)
@@ -1046,7 +1046,7 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
 void CVarTableComp::showEvent(QShowEvent *){
     QString  s;
     s=item(1,3)->text();
-    int i=0; //only to allow to set breakpoint here
+//    int i=0; //only to allow to set breakpoint here
 }
 
 int CVarTableComp::unselectFileVars(int fileIndex){

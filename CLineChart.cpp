@@ -119,11 +119,11 @@ La reimplementazione della funzione virtual resizeEvent in questo file contiene 
     symbFontName="Symbol";
     plotType=ptLine;
     xAxis.type=atX;
-    xAxis.scaleType=stLin;;
+    xAxis.scaleType=stLin;
     xVarParam.unitS="";
     xAxis.addZeroLine=false;
     yAxis.type=atYL;
-    yAxis.scaleType=stLin;;
+    yAxis.scaleType=stLin;
     yAxis.addZeroLine=false;
     ryAxis.type=atYR;
     ryAxis.scaleType=stLin;
