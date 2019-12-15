@@ -29,8 +29,12 @@
 
 #define _abs(a)  (((a) > (0)) ? (a) : (-a))
 
+double **CreateDMatrix(int numOfRows, int numOfCols);
+int DeleteDMatrix(double **matrix);
+
 float **CreateFMatrix(int numOfRows, int numOfCols);
 int DeleteFMatrix(float **matrix);
+
 float **ReallocFMatrix(float **m, long nr, long nc, long old_nr);
 int **CreateIMatrix(long numRows, long numCols);
 void DeleteIMatrix(int **Matrix);

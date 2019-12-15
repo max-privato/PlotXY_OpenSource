@@ -53,7 +53,6 @@ HEADERS  += CDataSelWin.h\
     CValuesWin.h \
     CVarmenu.h \
     Globals.h \
-    matrix.h \
     CVarTableComp.h \
     CLineCalc.h \
     Dialogs/CFourOutputInfo.h \

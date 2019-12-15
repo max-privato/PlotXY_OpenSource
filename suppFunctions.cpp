@@ -46,6 +46,27 @@ void DeleteIMatrix(int  **Matrix){
     delete[] Matrix;
 }
 
+double **CreateDMatrix(int numOfRows, int numOfCols){
+/* Con questa funzione si alloca un unico spazio contiguo alla matrice, ma le righe ricevono dei puntatori specifici.
+Quindi si deve allocare anche spazio per i puntatori alle righe.*/
+    int i;
+    double **matrix;
+    //Allocaz. vettore puntatori alle righe:
+    matrix=new double*[numOfRows];
+    if(matrix==nullptr)
+      return nullptr;
+    if(matrix==nullptr)
+      return nullptr;
+    //Allocaz. matrice:
+    matrix[0]=new double[numOfRows*numOfCols];
+    if(matrix[0]==nullptr)
+      return nullptr;
+    for(i=1; i<numOfRows; i++)
+        matrix[i]=matrix[0]+i*numOfCols;
+    return matrix;
+}
+
+
 float **CreateFMatrix(int numOfRows, int numOfCols){
 /* Con questa funzione si alloca un unico spazio contiguo alla matrice, ma le righe ricevono dei puntatori specifici.
 Quindi si deve allocare anche spazio per i puntatori alle righe.*/
@@ -64,6 +85,14 @@ Quindi si deve allocare anche spazio per i puntatori alle righe.*/
     for(i=1; i<numOfRows; i++)
         matrix[i]=matrix[0]+i*numOfCols;
     return matrix;
+}
+
+int DeleteCMatrix(float **matrix){
+    if(matrix==nullptr)
+      return 1;
+    delete[] matrix[0];
+    delete[] matrix;
+    return 0;
 }
 
 
