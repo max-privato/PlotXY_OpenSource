@@ -3711,13 +3711,13 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 
 }
 
-void CDataSelWin::enterEvent(QEvent *){
+void CDataSelWin::focusInEvent(QFocusEvent *){
   for (int win=0; win<MAXPLOTWINS; win++){
   if(plotWin[win]->isVisible())
      plotWin[win]->raise();
+  if(fourWin[win]->isVisible())
+     fourWin[win]->raise();
   }
-  if(myFourWin->isVisible())
-     myFourWin->raise();
   //Ora che ho alzato tutte le finestre che potevano essere sotto altre, devo alsare la dinestra DataSelWin, che deve superare quelle di plot:
   raise();
 }

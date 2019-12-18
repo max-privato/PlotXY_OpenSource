@@ -41,7 +41,7 @@ class CFourWin : public QWidget
 public:
     struct SFourData myData;
     explicit CFourWin(QWidget *parent = nullptr);
-    void enterEvent(QEvent *) override;
+    void focusInEvent(QFocusEvent *) override;
     void getData(struct SFourData data_);
     ~CFourWin() override;
 signals:

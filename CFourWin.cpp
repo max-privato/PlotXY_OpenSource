@@ -425,11 +425,16 @@ void CFourWin::copyOrPrint(EOutType type){
    MB.exec();
 }
 
-void CFourWin::enterEvent(QEvent *){
+void CFourWin::focusInEvent(QFocusEvent *){
     /* Quando entro in una certa istanza della finestra devo fare in modo che la corrispondente tabella varSel venga evidenziata. Pertanto prelevo il digit che caratterizza il numero della finestra considerata, che è nel titolo, lo metto nell'int "i" e emetto sul segnale che verrà utilizzato da dataSelWin per attivare la corrispondente pagina del TabSheet.
   */
-    if(!isActiveWindow())
-        return;
+
+
+    // **** NOTA DICEMBRE 2019
+    // **** NON SI SA PERCHé QWUESTA FUNZIONE NON VIENE MAI RICHIAMATA.
+    // **** CODICE IDENTICO IN CPLOTWIN FUNZIONA PERFETTAMENTE
+    // ****
+
     // La seguente riga non va bene quando l'opzione "/set" è selezionata. perché ovviamente cambia l'ultimo carattere.
     //    QChar c=windowTitle()[windowTitle().count()-1];
     QChar c=windowTitle()[windowTitle().count()-1];

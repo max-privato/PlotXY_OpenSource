@@ -42,7 +42,8 @@ public:
     bool dataTBtnChecked;
     bool lastWinIsCut; //Assume il valore di windowIsCut dell'ultimo grafico tracciato
     explicit CPlotWin(QWidget *parent = nullptr);
-    void enterEvent(QEvent *) override;
+    void focusInEvent(QFocusEvent *) override;
+//    void enterEvent(QEvent *) override;
     void getData(float **x1, float*** y1, SCurveParam &x1Info, QList <SCurveParam> *y1Info, QList <SFileInfo> filesInfo);
     struct SFourData giveFourData();
     void plot(bool update=false);

@@ -55,7 +55,7 @@ public:
     void closeEvent(QCloseEvent *) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
-    void enterEvent(QEvent *) override;
+    void focusInEvent(QFocusEvent *) override;
     QDataStream giveState();
     void resizeEvent(QResizeEvent *) override;
     void showEvent(QShowEvent *) override;
