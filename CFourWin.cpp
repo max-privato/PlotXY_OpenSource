@@ -430,10 +430,10 @@ void CFourWin::focusInEvent(QFocusEvent *){
   */
 
 
-    // **** NOTA DICEMBRE 2019
-    // **** NON SI SA PERCHé QWUESTA FUNZIONE NON VIENE MAI RICHIAMATA.
-    // **** CODICE IDENTICO IN CPLOTWIN FUNZIONA PERFETTAMENTE
-    // ****
+  // **** NOTA DICEMBRE 2019
+  // **** NON SI SA PERCHE' QUESTA FUNZIONE NON VIENE MAI RICHIAMATA.
+  // **** CODICE IDENTICO IN CPLOTWIN FUNZIONA PERFETTAMENTE
+  // ****
 
     // La seguente riga non va bene quando l'opzione "/set" è selezionata. perché ovviamente cambia l'ultimo carattere.
     //    QChar c=windowTitle()[windowTitle().count()-1];

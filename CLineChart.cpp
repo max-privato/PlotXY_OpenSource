@@ -601,9 +601,9 @@ Oltre che al momento della costruzione di CLineChart, e ad ogni suo ridimensiona
   QScreen *screen=QGuiApplication::primaryScreen();
   myDPI=int(screen->logicalDotsPerInch());
   if(myDPI>100)
-    generalFontPx=qMax(qMin(int(0.016f*(plotRect.height()+plotRect.width())),28),13);
+    generalFontPx=qMax(qMin(int(0.014f*(plotRect.height()+plotRect.width())),28),12);
   else
-     generalFontPx=qMax(qMin(int(0.014f*(plotRect.height()+plotRect.width())),24),10);
+     generalFontPx=qMax(qMin(int(0.012f*(plotRect.height()+plotRect.width())),20),10);
   onePixDPI=myDPI/float(96);
   int fontPxSize=generalFontPx;
   if(fontSizeType==fsFixed)
@@ -3755,7 +3755,7 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
     framePen.setWidth(PPlotPenWidth+1);
   }else{  //Ora sono in spessore penna automatico
     //Si ricordi che il risultato della seguente divisione è troncato, non arrotondato.
-    ticPen.setWidth((plotRect.width()+plotRect.height())/500);
+    ticPen.setWidth((plotRect.width()+plotRect.height())/1000);
     plotPen.setWidth(ticPen.width());
     framePen.setWidth(plotPen.width());
   }
