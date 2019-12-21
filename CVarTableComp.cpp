@@ -940,10 +940,12 @@ void  CVarTableComp::setPosition(int x, int y){
 }
 
 int CVarTableComp::setCommonX(QString str){
-/* Nel caso di multifile la variabile x è sempre in prima riga e a comune fra i vari files.
-Faccio qui una funzione specializzata proprio per selezionare la variabile x comune in multifile, per poter implementare alcuni check:
-- non si possono selezionare variabili se non si è selezionata una commonX
-- una variabile non commonX non potrà mai prendere la prima riga*/
+/* Nel caso di multifile la variabile x è sempre in prima riga e a comune fra i vari
+ * files.
+ * Faccio qui una funzione specializzata proprio per selezionare la variabile x comune
+ * in multifile, per poter implementare alcuni check:
+ * - non si possono selezionare variabili se non si è selezionata una commonX
+ * - una variabile non commonX non potrà mai prendere la prima riga*/
 
   if(commonXSet) return 1;
   if(!multiFile) return 2;

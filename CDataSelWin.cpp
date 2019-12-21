@@ -1261,12 +1261,14 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   QString varMenutime=ui->varMenuTable->item(0,1)->text();
   QString expectedVarTime=myVarTable->item(1,3)->text();
 
-  // Ora devo resettare la tabella sia se non sto facendo un refresh, sia se le variabili selezionate nella varTable non sono compatibili con quelle caricate. La compatibilità al monmmento è valutata solo sulla variabile tempo, nell'ipotesi che sia posizionata nella prima riga della mvarMenuTable. In particolare::
-  //- se la variabile in prima posizione nella varMenuTable (la variabile tempo è uguale a quella in prima posizione della varMenuTable c'è compatibilità
-  // c'è compatibilità anche nel caso in cui la variabile della prima riga della varMenuTable comincia per 't', e la variabile ion prima riga della varMenuTable è "t*". Infatti attraverso la funzione computeCommonX() si sceglie una unità comune per la variabile x, che cviene posta pari a "t*" se tutte le variabili in prima posizione delle varMenuTable cominciano per t, e sono quindi interpretate come variabili - tempo.
-  if(!refresh || (varMenutime!=expectedVarTime && !(varMenutime[0]=='t' && expectedVarTime=="t*")))
-    on_resetTBtn_clicked();
-  else{
+  // Devo resettare la se non sto facendo un refresh se le variabili asse x non sono compatibili
+  // a verifica della compatibilità la faccio in via semplificativa immaginando che la variabile asse x sia in prima riga.
+  // c'è compatibilità anche nel caso in cui la variabile da caricare in prima riga della varMenuTable comincia per 't', e la variabile lì già è "t*". Infatti attraverso la funzione computeCommonX() si sceglie una unità comune per la variabile x, che viene posta pari a "t*" se tutte le variabili in prima posizione delle varMenuTable cominciano per t, e sono quindi interpretate come variabili tempo.
+  if(!refresh){
+    if(varMenutime!=expectedVarTime && !(varMenutime[0]=='t' && expectedVarTime=="t*")){
+      on_resetTBtn_clicked();
+    }
+  }else{
       //devo eliminare dalle varie varTables eventuali variabili che non sono più presenti nel file rinfrescato. Faccio la verifica sulla base del nome, considerando solo nomi delle varTable che si riferiscono al file corrente, che è quello rinfrescato.
       //Se un nome di una varTable non è presente nella varMenuTable, allora faccio il click sulla cella contenente il nome per togliere quella variabile.
 
@@ -1357,35 +1359,37 @@ QString CDataSelWin::loadFileList(QStringList fileNameList, QString tShift){
     //carico nel primo indice disponibile:
     // load in the first available index:
     for(j=0; j<MAXFILES; j++)
-        if(freeFileIndex.contains(j))
-            break;
-    if(j==MAXFILES)
+      if(freeFileIndex.contains(j))
         break;
+    if(j==MAXFILES)
+      break;
     // Se il file da caricare non è oltre il N. 8, ma è oltre il numero di righe correntemente visualizzate aumento la visualizzazione della filetable di una riga:
 
     // If the file to be loaded is not more than N. 8, but it is beyond the
     // number of rows currently displayed, I increase the display of the filetable of a row:
     if(numOfLoadedFiles>=visibleFileRows){
-       int newVSize=ui->fileTable->height()+ui->fileTable->rowHeight(0)+1;
-       ui->fileTable->setMaximumHeight(newVSize);
-       ui->fileTable->setMinimumHeight(newVSize);
-       visibleFileRows++;
-       if(visibleFileRows>MAXFILES)
-         QMessageBox::critical(this,"CDataSelWin","Critical error N. 1");
+     int newVSize=ui->fileTable->height()+ui->fileTable->rowHeight(0)+1;
+     ui->fileTable->setMaximumHeight(newVSize);
+     ui->fileTable->setMinimumHeight(newVSize);
+     visibleFileRows++;
+     if(visibleFileRows>MAXFILES)
+       QMessageBox::critical(this,"CDataSelWin","Critical error N. 1");
     }
     ret=loadFile(j,path,false,false,tShift);  //aggiorna anche numOfSelFiles e fileNumsLst
                                               // also update numOfSelFiles and fileNumsLst
     if(ret!=""){
-        QMessageBox::warning(this,"PlotXY-dataSelWin",ret);
-        qDebug()<<"warning 2";
-        QApplication::restoreOverrideCursor();
-        return ret;
+      QMessageBox::warning(this,"PlotXY-dataSelWin",ret);
+      qDebug()<<"warning 2";
+      QApplication::restoreOverrideCursor();
+      return ret;
     }
     freeFileIndex.remove(j);
-    if(ret!="")break;
-    if(!GV.multiFileMode) break;
+    if(ret!="")
+      break;
+    if(!GV.multiFileMode)
+      break;
     if(GV.multiFileMode)
-        myVarTable->setCommonX(computeCommonX());
+      myVarTable->setCommonX(computeCommonX());
   }
 
   QApplication::restoreOverrideCursor();
