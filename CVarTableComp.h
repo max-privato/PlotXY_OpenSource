@@ -132,7 +132,7 @@ public:
     ~CVarTableComp();
 
     //Funzioni pubbliche in ordine alfabetico:
-    void analyse();
+    QString analyse();
     void fillFunNames(void);
     void filterOutVars(QList <QString> varList);
     void getFileNums(QList<int> fileNums, QList<int> varNums);

@@ -137,7 +137,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
 
 }
 
-void CVarTableComp::analyse(){
+QString CVarTableComp::analyse(){
 /* Questa funzione analizza i dati di tabella e riempie le liste:
 - SCurveParam xInfo
 - QList <SCurveParam> yInfo [iFile]
@@ -159,10 +159,11 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
 */
     extern QString giveUnits(QChar c); //definita in CLineCalc
     int iRow, iFile;
-    QString str;
+    QString str, ret="";
     SCurveParam myPar;
     //Se la tabella è vuota xVarNum=-1
-    if(xInfo.idx==-1) return;
+    if(xInfo.idx==-1)
+        return "Empty VarList Table";
     for(iFile=0; iFile<MAXFILES; iFile++){
       yInfo[iFile].clear();
     }
@@ -229,7 +230,6 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
 
     //Ora compilo funInfoLst
     CLineCalc myLineCalc;
-    QString ret;
     SXYNameData calcData;
     funInfoLst.clear();
     myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
@@ -241,7 +241,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
         ret=calcData.ret;
         if(ret.length()>0){
            QMessageBox::warning(this, "CCalcData", "ERROR\n"+ret);
-            return;
+            return ret;
         }
         calcData.name=item(i,VARNUMCOL)->text();
         calcData.color=item(i,VARCOL)->foreground().color();
@@ -254,7 +254,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
       }
       numOfFuns=funInfoLst.count();
     }
-    return;
+    return "";
     //Naturalmente gli elementi del vettore plotInfo che sono stati compilati sono quelli per cui sono richiesti plot.
     //nulla assicura che siano sequenziali. Potrebbero essere ad es. 1 e 3 o 2 e 3.
     //La rimappatura verrà automaticamente effettuata quando si ricopieranno i valori dei dati dai file di input secondo le indicazioni di plotInfo

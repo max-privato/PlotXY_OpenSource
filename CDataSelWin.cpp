@@ -1869,7 +1869,8 @@ void CDataSelWin::on_plotTBtn_clicked() {
 
  // - fase 1: analizzo varTable
  // - phase 1: analyze varTable
-  myVarTable->analyse();
+  if(myVarTable->analyse()!="")
+    return;
   if(myVarTable->numOfPlotFiles>MAXFILES){
     QMessageBox::critical(this,"CDataSelWin", "Internal critical error\ncontact program maintenance",QMessageBox::Ok);
     return;

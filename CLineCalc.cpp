@@ -399,12 +399,12 @@ struct SXYNameData{
        // Ora qui devo verificare se i numeri di file e gli indici di variabile sono validi
        if(!fileNumsLst.contains(varXYNums.fileNum)){
          nameData.ret=
-           "The string refers to the following non-existent file number: "   +QString::number(varXYNums.fileNum);
+           "The string \""+line+"\" refers to the following non-existent file number: "   +QString::number(varXYNums.fileNum);
          return nameData;
        }
        if(varXYNums.varNum > varMaxNumsLst[varXYNums.fileNum-1]){
          nameData.ret=
-           "The string contains reference to non-existant variable number: "   + QString::number(varXYNums.varNum) +
+           "The string contains reference to non-existent variable number: "   + QString::number(varXYNums.varNum) +
            "\nreferring to file number: "+ QString::number(varXYNums.fileNum) ;
          return nameData;
        }
