@@ -2025,23 +2025,26 @@ void CDataSelWin::on_plotTBtn_clicked() {
     float**varMatrix= new float*[funInfo.varNumsLst.count()];
     QList <QString *> namesFullList;
     int size=int(sizeof(float))*points;
-    //Creo i valori di x1, cioè sull'asse x delle variabili funzione, nel caso in cui proprio sull'asse x non vi sia una funzione:
 
-    // I create the values ​​of x1, that is, on the x axis of the function variables,
+    // I create the values ​​of x1 values, that is, on the x axis of function variables,
     // in the case where there is no function on the x axis:
     if(!myVarTable->xInfo.isFunction){
       memcpy(x1[plotFiles+iFun],mySO[funFileIdx[0]]->y[myVarTable->xInfo.idx], size);
-      // Qui va messa la gestione del timeshift nel caso di funzione di variabili. Occorrerà comporre la x1 considerando differenti time shifts per i vari files che compongono la funzione. Pertanto il seguente for non è sufficiente in quanto traslerebbe uniformemente la funzione e non selettivamente gli assi x dei vari files presenti nella funzione:
 
-      // Here the timeshift management must be set in the case of a variable function.
-      // It will be necessary to compose the x1 considering different time shifts for
-      // the various files that make up the function. Therefore the following for is
-      // not sufficient because it would uniformly translate the function and not
-      // selectively the x-axis of the various files present in the function:
-
-//      for(int iPoint=0; iPoint<points; iPoint++)
-//          x1[plotFiles+i][iPoint]+=timeShift[funFileIdx];
+      // Manage timeShift set in the case of a function of variables.
+      float funTimeShift=timeShift[funFileIdx[0]];
+      for(int i=1;i<funFileIdx.count(); i++){
+        if(timeShift[funFileIdx[i]]!=funTimeShift){
+          QMessageBox::warning(this, "PlotXY",
+           "unable to evaluate function,\n"
+           "since it involves files having different time shifts\n"
+           "(Tshift field, below Tmax, in the fileList Table)"
+              );
+            return;
+        }
+      }
     }
+    myFileInfo.timeShift=timeShift[funFileIdx[0]];
 
     for(int j=0; j<funInfo.varNumsLst.count(); j++){
       int soIndex=funInfo.varNumsLst[j].fileNum-1;
@@ -2104,8 +2107,8 @@ void CDataSelWin::on_plotTBtn_clicked() {
      ret=myLineCalc.getNamesAndMatrix(funInfo.varNames, funInfo.varUnits, varMatrix,
                                                    namesFullList, selectedFileIdx);
     if(ret!=""){
-        QMessageBox::critical(this, "PlotXY",ret);
-        return;
+      QMessageBox::critical(this, "PlotXY",ret);
+      return;
     }
     //Per soli scopi di visualizzazione per l'utente finale passo, tramite doppia indirezione per ragioni di efficienza, l'array di array dei nomi espliciti di tutte le variabili presenti nei files caricati:
 
@@ -2224,7 +2227,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
      * for the time being it is always set to zero:
      *
     */
-    myFileInfo.timeShift=0.0f;
+//    myFileInfo.timeShift=0.0f;
     filesInfo.append(myFileInfo);
   }
   //Ora, nel caso in cui myVarTable.xInfo.isFunction==true devo ricopiare funXVar in x1
