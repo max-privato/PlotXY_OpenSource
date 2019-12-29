@@ -787,8 +787,11 @@ void CVarTableComp::myClicked(int r, int c){
           }
       }
 //ridefinisco il nome della funzione solo se non si stava ridefinendo una funzione:
-      if(nextFun!=-1)
+      if(nextFun!=-1){
         item(r,VARNUMCOL)->setText("f"+QString::number(nextFun));
+        QResizeEvent *e=nullptr;
+        resizeEvent(e);
+      }
       item(r,VARCOL)->setText(str);
       fillNames(str,currFileIdx+1);
       allowSaving=true;
