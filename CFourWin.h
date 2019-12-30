@@ -70,8 +70,9 @@ private:
     void computeTHD();
     bool indexesFromTimes(SFourData data);
     int performDFT();
-    void resizeEvent(QResizeEvent *);
-    void showEvent(QShowEvent *);
+    int performNuDFT();
+    void resizeEvent(QResizeEvent *) override;
+    void showEvent(QShowEvent *) override;
     void valChanged(SXYValues values);
 
     bool dftDone,

@@ -146,6 +146,7 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     if(changed){
         indexesFromTimes(myData);
         ret=performDFT();
+        ret=performNuDFT();
         if (ret>0)
           return ret;
     }
@@ -606,7 +607,8 @@ int CFourWin::performDFT(){
     for (sample=0; sample<nSamples; sample++){
       dft+=dcmplx(double(y1[sample]))*exp(-auxC*dcmplx(sample));
     }
-    ampl[harm]=float(abs(dcmplx(2.0)*dft/dcmplx(nSamples)));
+//    ampl[harm]=float(abs(dcmplx(2.0)*dft/dcmplx(nSamples)));
+    ampl[harm]=2.f*float(abs(dft))/float(nSamples);
     double phase(dcmplx x);
     phases[harm]= float(aux2*phase(dcmplx(-imag(dft),real(dft))));
 
@@ -633,6 +635,96 @@ int CFourWin::performDFT(){
      }
      ampl01[1]=2*float(abs(dft))/nSamples;
    }
+  QApplication::restoreOverrideCursor();
+  return ret;
+}
+
+int CFourWin::performNuDFT(){
+/* Variante di performDFT che consente la DFT anche per campioni non equispaziati (non-uniform-DFT)
+*/
+  int ret=0;
+  int harm, nSamples=indexRight-indexLeft;
+  int harm1=myData.opt.harm1, harm2=myData.opt.harm2;
+  const float pi=3.14159265358979f;
+  float *x1=myData.x+indexLeft;
+  float *y1=myData.y+indexLeft;
+  float period=x1[nSamples]-x1[0];
+  float  ak, bk;
+  QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+  if(harm2<2){
+      QMessageBox::critical(this,"CFourWin","Maximum harmonic order must be at least 2");
+      return 1;
+  }
+  delete[] harmOrders;
+  delete[] ampl;  //Ampiezze delle armoniche prima della correzione con amplFactor
+  delete[] amplitudes; //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
+  delete[] phases;
+  harmOrders=new float[harm2+1];
+  ampl=new float[harm2+1];
+  amplitudes=new float[harm2+1];
+  phases=new float[harm2+1];
+   // Riga per debug:
+  if(indexRight>=myData.numOfPoints){
+    QMessageBox::critical(this,"CFourWin","Internal error \"myData.indexRight\" in CFourWin");
+    QApplication::closeAllWindows();
+  }
+  harmOrders[0]=0;
+  dftDone=true;
+
+  for(harm=harm1; harm<=harm2; harm++){
+    //La seguente formula è ricavata con la regola dei trapezi dalla definizione dei coefficienti del polinomio della scomposizione in serie di Fourier, fatta da me. La cosa interessante è che se viene applicata a campioni equispaziati fornisce, una voltra che i coefficienti di seno e coseno sono combinati fra diloro attraverso i numeri complessi,  esattamente la formula  usata in performDFT(), di letteratura
+    ak=0;
+    bk=0;
+    float Om=2*pi/period;
+    int n; //  n is sample
+    for (n=0; n<nSamples; n++){
+      ak+=(y1[n]*cosf(harm*Om*x1[n])+y1[n+1]*cosf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
+      bk+=(y1[n]*sinf(harm*Om*x1[n])+y1[n+1]*sinf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
+    }
+    if(harm==0)
+      ampl[harm]=1.f/period*ak;
+    else
+      ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
+    phases[harm]= atan2f(ak,bk)*180.f/pi;
+    harmOrders[harm]=harm;
+  }
+
+  // Le componenti di ordine 0 e 1 vanno sempre calcolate per fare il p.u.
+  if(harm1>0 || harm2<1)
+    for(harm=0; harm<2; harm++){
+      ak=0;
+      bk=0;
+      float Om=2*pi/period;
+      int n; //  n is sample
+      for (n=0; n<nSamples; n++){
+        ak+=(y1[n]*cosf(harm*Om*x1[n])+y1[n+1]*cosf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
+        bk+=(y1[n]*sinf(harm*Om*x1[n])+y1[n+1]*sinf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
+      }
+      if(harm==0)
+        ampl[harm]=1.f/period*ak;
+      else
+        ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
+      phases[harm]= atan2f(ak,bk)*180.f/pi;
+      harmOrders[harm]=harm;
+    }
+    ampl[0]/=2.f;
+
+/*
+  //Calcolo della componente continua (va comunque calcolata per poter fare
+  //l'eventuale p.u.):
+  ak=0;
+  for (int n=0; n<nSamples; n++)
+    ak+=(y1[n]+y1[n+1])*(x1[n+1]-x1[n]);
+  ak/=2.0f*period;
+  ampl01[0]=ak;
+  if(harm1==0){
+    ampl[0]=ak;
+    phases[0]=0;
+  }
+*/
+  ampl01[0]=ampl[0];
+  ampl01[1]=ampl[1];
+
   QApplication::restoreOverrideCursor();
   return ret;
 }
