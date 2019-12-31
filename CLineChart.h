@@ -29,7 +29,7 @@
 #include <QTimer>
 #include <QToolTip>
 
-#define MAXFILES 8  //numero massimo di files (le linee inizialmente visualizzate sono invece 3)
+#define MAXFILES 9  //numero massimo di files (le linee inizialmente visualizzate sono invece 3)
 #define MAXVARS 15  //Numero massimo di variabili nella lista (escluso il tempo)
 
 #include "SuppFunctions.h"

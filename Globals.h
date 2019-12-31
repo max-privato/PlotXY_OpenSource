@@ -26,6 +26,8 @@
 
 // *** Valori limite ad allocazione statica POI METTERE 8 A MAXSHEETS!):
 #define MAXPLOTWINS 8
+// *** Notare che la seguente MAXVARS è definita canche dentro CLineChart.h. I due valori DEVONO  coincidere!
+#define MAXVARS 15  //Numero massimo di variabili nella lista (escluso il tempo)
 #define MAXFUNPLOTS MAXVARS  //Numero massimo di funzioni di variabili plottabili simultaneamente
 #define VARTABLEPANELS 4
 

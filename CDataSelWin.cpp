@@ -533,12 +533,12 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   ui->loadStateTBtn->setEnabled(true);
 
   // ***
-  // Fase A5: Inizializzazioni relative alla tabella File
-  // Step A5: Initializations related to the File table
+  // Step A5: Initializations related to FileList table
   // ***
   //Tolgo la scrollbar verticale:
   // I remove the vertical scrollbar:
   ui->fileTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  ui->fileTable->setRowCount(MAXFILES+1);
   //Inizializzazione degli items per la fileTable:
   // Initialization of items for the fileTable:
   QString hdrs[7]={"  ","f","  FileName  ","# of vars ","# of points", "Tmax", "Tshift"};
@@ -1846,7 +1846,6 @@ void CDataSelWin::on_plotTBtn_clicked() {
         // information related to thet plots generated from input data (one per file)
         // and to variable functions (one per function).
         // Therefore the number of elements it contains is equal to numOfTotPlotFiles
-
   QList <SCurveParam> y1Info[MAXFILES+MAXFUNPLOTS];
   QList <SXYNameData> funInfoLst; //una  voce della lista per ogni funzione di variabile
                                // a list item for each variable function
@@ -2509,25 +2508,21 @@ void CDataSelWin::on_fileTable_clicked(const QModelIndex &index)
 }
 
 void CDataSelWin::on_fileTable_doubleClicked(const QModelIndex &index){
-    /*  Quando c'è un double click il file viene rimosso
-     *
-   */
-    /* When there is a double click, the file is removed
-     *
-    */
+  /* When there is a double click, the file is removed
+  */
 
-    int i=index.row(),j=index.column();
+  int i=index.row(),j=index.column();
 
-    //se il doppio click è fatto nella colonna Tmax o Tshift, non in prima riga esco: altrimenti farei la deselezione del file corrente
+  //se il doppio click è fatto nella colonna Tmax o Tshift, non in prima riga esco: altrimenti farei la deselezione del file corrente
 
-    // if the double click is done in the Tmax or Tshift column, not in the
-    // first line I go out: otherwise I would deselect the current file
-    if(i>0 && j>4)
-          return;
-    //Alla prima riga il double-click non deve vare nulla:
-    // On the first line the double-click must not vanish:
-    if(i==0)
-        return;
+  // if the double click is done in the Tmax or Tshift column, not in the
+  // first line I go out: otherwise I would deselect the current file
+  if(i>0 && j>4)
+    return;
+  //Alla prima riga il double-click non deve vare nulla:
+  // On the first line the double-click must not vanish:
+  if(i==0)
+    return;
   //devo comandare la rimozione solo se nella riga dove ho cliccato esiste realmente un file. Lo verifico attraverso la presenza di un qualsiasi contenuto nella FILENUMCOL
 
   // I have to command the removal only if a file really exists in the line where I clicked.
@@ -2539,11 +2534,10 @@ void CDataSelWin::on_fileTable_doubleClicked(const QModelIndex &index){
       myVarTable->setCommonX(computeCommonX());
     else{
       ui->refrTBtn->setEnabled(false);
-      // The following button can always stay enabled: it won't harm. If I disalble it YI must find somewhere to re-enable!
+   // The following button can always stay enabled: it won't harm. If I disable it I must find somewhere to re-enable!
 //      ui->refrUpdTBtn->setEnabled(false);
-	}
+    }
   }
-
 }
 
 
@@ -2588,8 +2582,7 @@ void CDataSelWin::removeFile(int row_) {
     if(ui->fileTable->item(row_,1)->text()!="") break;
   selectFile(row);
 
-  //rendo "free" l'indice del file che sto per far scomparire dalla tabella:
-  // I render "free" the index of the file that I am going to make disappear from the table:
+  // I make "free" the index of the file that I am going to make disappear from the table:
   fileIndex=ui->fileTable->item(row_,1)->text().toInt()-1;
   freeFileIndex<<fileIndex;
   GV.varNumsLst[fileIndex]=0;
@@ -2602,7 +2595,7 @@ void CDataSelWin::removeFile(int row_) {
     ui->varMenuTable->setRowCount(0);
   }
   //Adesso a partire dalla riga su cui si è fatto click sposto più in alto tutti gli items, e i relativi tooltip
-  // Now starting from the line on which we have clicked, move all the items upwards, and the relative tooltips
+  // Now, starting from the line on which we have clicked, move all the items upwards, and the relative tooltips
   if(row_<MAXFILES )
     for(row=row_; row<MAXFILES; row++){
       for(col=0; col<ui->fileTable->columnCount(); col++)
@@ -2629,8 +2622,7 @@ void CDataSelWin::removeFile(int row_) {
   if(freeFileIndex.count()==MAXFILES)
     fileLoaded=false;
 
-  //se il file che ho scaricato è l'ultimo devo fare una cancellazione completa del contenuto delle 4 tabelle
-  // if the file I downloaded is the last one I have to make a complete deletion of the contents of the 4 tables
+  // if the file I downloaded is the last one I have to make a complete deletion of the contents of the SelectedVar tables
   if(numOfLoadedFiles==0){
     for (int tab=0; tab<MAXPLOTWINS; tab++)
       varTable[tab]->myReset(true);
