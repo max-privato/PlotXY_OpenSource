@@ -90,7 +90,7 @@ void CDataSelWin::adaptToDPI(qreal currentDPI_, int maxHeight_){
     setMaximumWidth(int(factorW*originalMaxWidth));
     setMinimumWidth(int(factorW*originalMinWidth));
 
-    // ALla fine la massima altezza è bene che sia pari al massimo spazio disponibile in verticale. QUesta logica è ad esempio quella di Qt Creator. Se infatti una finestra alta al massimo viene spostata verso i lbasso non si può più espandere agendo sul bordo superiore, proprio perché appare opportuno non superare l'altezza massima disponibile.
+    // ALla fine la massima altezza è bene che sia pari al massimo spazio disponibile in verticale. Questa logica è ad esempio quella di Qt Creator. Se infatti una finestra alta al massimo viene spostata verso i lbasso non si può più espandere agendo sul bordo superiore, proprio perché appare opportuno non superare l'altezza massima disponibile.
 
     // At the end the maximum height is good that it is equal to the maximum
     // available vertical space. This logic is, for example, that of Qt Creator.
@@ -162,7 +162,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       ** Decidere una regola uniforme di creazione delle finestre qui: solo le modali?
       ** le modali e le dialog? **
   A4: lettura settings ed eventuale personalizzazione dimensione e posizione finestre
-  A5: Inizializzazioni relative alla FileTable
+  A5: Inizializzazioni relative alla FileList Table
   A6: Inizializzazioni relative alla VarMenuTable
   A7: Inizializzazioni relative alla SelVarTable
 */
@@ -190,7 +190,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       ** Decide a uniform window creation rule here: only modals?
       ** modals and dialogs? **
   A4: reading settings and any customization of windows size and position
-  A5: Initializations related to the FileTable
+  A5: Initializations related to the FileList table
   A6: Initializations related to the VarMenuTable
   A7: Initializations related to SelVarTable
 */
@@ -539,6 +539,10 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   // I remove the vertical scrollbar:
   ui->fileTable->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ui->fileTable->setRowCount(MAXFILES+1);
+  //the following two rows strictly are not needed for Qt<5.11
+  // see https://bugreports.qt.io/browse/QTBUG-68503
+  ui->fileTable->horizontalHeader()->setMinimumSectionSize(1);
+  ui->fileTable->verticalHeader()->setMinimumSectionSize(1);
   //Inizializzazione degli items per la fileTable:
   // Initialization of items for the fileTable:
   QString hdrs[7]={"  ","f","  FileName  ","# of vars ","# of points", "Tmax", "Tshift"};
@@ -603,6 +607,10 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   sortType=noSort;
   ui->varMenuTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ui->varMenuTable->setRowCount(0);
+  //the following two rows strictly are not needed for Qt<5.11
+  // see https://bugreports.qt.io/browse/QTBUG-68503
+  ui->varMenuTable->horizontalHeader()->setMinimumSectionSize(1);
+  ui->varMenuTable->verticalHeader()->setMinimumSectionSize(1);
 
   // ***
   // FASE A7: Inizializzazioni relative alla tabella SelVarTable
@@ -1510,11 +1518,7 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
     // columnCount-1 index is that of TShift.
   if(ui->multifTBtn->isChecked()){
     maxNameWidth-=ui->fileTable->columnWidth(0); // "x" cell
-    //La seguente riga dovrebbe esserci. Per ragioni sconosciute il programma va meglio se in Win la tolgo
-    // The following line should be there. For unknown reasons, the program is better if I remove it in Win
-#ifdef Q_OS_MAC
     maxNameWidth-=ui->fileTable->columnWidth(1); // "f" cell
-#endif
   }
   maxNameWidth-=ui->fileTable->columnWidth(3); //# of vars
   maxNameWidth-=ui->fileTable->columnWidth(4); //# of Points
@@ -1527,12 +1531,20 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
   maxNameWidth-=2;
   ui->fileTable->setColumnWidth(2,maxNameWidth);
 
+int rh=ui->fileTable->rowHeight(1);
+int tw=ui->fileTable->fontMetrics().height();
+  // It has been noted that with Qt 5.12 there is difference between rowHeight and textHeight. for instance in a PC the former is 21 the latter 15 pixels.
+// In the same case, with Qt 5.7 we had always 15 points. Therefore, I add the following line that does nothig with Qt 5.7, but reduces row length with 5.12:
+  int textHeight=ui->fileTable->fontMetrics().height();
+  for(int r=0; r<ui->fileTable->rowCount(); r++)
+      ui->fileTable->setRowHeight(r,textHeight);
+
   ui->varMenuTable->resizeColumnsToContents();
     //In Windows le colonne 0 e 1 sono troppo larghe e le riduco un po':
     // In Windows, columns 0 and 1 are too large and I reduce them a bit:
 #ifndef Q_OS_MAC
-  ui->fileTable->setColumnWidth(0,int(0.4f*ui->fileTable->columnWidth(0)));
-  ui->fileTable->setColumnWidth(1,int(0.5f*ui->fileTable->columnWidth(1)));
+  ui->fileTable->setColumnWidth(0,int(0.8f*ui->fileTable->columnWidth(0)));
+  ui->fileTable->setColumnWidth(1,int(0.8f*ui->fileTable->columnWidth(1)));
 #endif
 
   //Gestione della label "more..."

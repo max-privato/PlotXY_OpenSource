@@ -31,6 +31,10 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     QScreen *screen=QGuiApplication::primaryScreen();
     myDPI=screen->logicalDotsPerInch();
     horizontalHeader()->setVisible(false);
+    //the following two rows strictly are not needed for Qt<5.11
+    // see https://bugreports.qt.io/browse/QTBUG-68503
+    horizontalHeader()->setMinimumSectionSize(1);
+    verticalHeader()->setMinimumSectionSize(1);
     customiseCol=new CCustomiseCol(this);
     funStrInput=new CFunStrInput(this);
 
@@ -44,6 +48,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     headerGray.setRgb(210,210,210);
     hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
+    int iii=fontMetrics().width(hdrs[VARNUMCOL]);
     setColumnWidth(VARNUMCOL,fontMetrics().width(hdrs[VARNUMCOL]));
     iniVarNumColWidth=2*fontMetrics().width(hdrs[VARNUMCOL]);
     hdrs[FILENUMCOL]="f";
