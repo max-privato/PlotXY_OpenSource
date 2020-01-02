@@ -120,6 +120,8 @@ private:
 
   float * integrate(float*x, float *y, int nPoints); //calcola l'integrale di un array
   QString integrateUnits(QString unitS_);
+  void screenChanged();
+
   float * funXVar; //contiene i valori della variabie x quando è una funzione di variabile (cfr. developer.odt)
   QFont myFont;
   QString * saveStrings;  //Stringhe per il salvataggio valori della rica di indice 1 di fileTable quando si passa da multifile a singlefile

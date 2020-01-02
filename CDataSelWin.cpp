@@ -1516,6 +1516,7 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
     // are different both for the singleFile / Multifile difference, and for
     // the fact that in the last column I can have Tmax or TShift. the
     // columnCount-1 index is that of TShift.
+
   if(ui->multifTBtn->isChecked()){
     maxNameWidth-=ui->fileTable->columnWidth(0); // "x" cell
     maxNameWidth-=ui->fileTable->columnWidth(1); // "f" cell
@@ -1531,13 +1532,21 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
   maxNameWidth-=2;
   ui->fileTable->setColumnWidth(2,maxNameWidth);
 
-int rh=ui->fileTable->rowHeight(1);
-int tw=ui->fileTable->fontMetrics().height();
   // It has been noted that with Qt 5.12 there is difference between rowHeight and textHeight. for instance in a PC the former is 21 the latter 15 pixels.
-// In the same case, with Qt 5.7 we had always 15 points. Therefore, I add the following line that does nothig with Qt 5.7, but reduces row length with 5.12:
+// In the same case, with Qt 5.7 we had always 15 points. Therefore, I add the following line that does nothing with Qt 5.7, but reduces row length with 5.12:
   int textHeight=ui->fileTable->fontMetrics().height();
-  for(int r=0; r<ui->fileTable->rowCount(); r++)
-      ui->fileTable->setRowHeight(r,textHeight);
+  if(currentDPI<100){
+    for(int r=0; r<ui->fileTable->rowCount(); r++)
+      ui->fileTable->setRowHeight(r,int(1.2f*textHeight));
+    for(int r=0; r<ui->varMenuTable->rowCount(); r++)
+      ui->varMenuTable->setRowHeight(r,int(1.2f*textHeight));
+  }else{
+    for(int r=0; r<ui->fileTable->rowCount(); r++)
+      ui->fileTable->setRowHeight(r,int(1.6f*textHeight));
+    for(int r=0; r<ui->varMenuTable->rowCount(); r++)
+      ui->varMenuTable->setRowHeight(r,int(1.6f*textHeight));
+  }
+
 
   ui->varMenuTable->resizeColumnsToContents();
     //In Windows le colonne 0 e 1 sono troppo larghe e le riduco un po':
@@ -2431,8 +2440,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
 
   // When I switch between multifile and singlefile, I resize the file table by hiding
   // or showing columns. So I have to enable custom resizing with the following resizeEvent:
-  QResizeEvent * ev=nullptr;
-  resizeEvent(ev);
+  resizeEvent(nullptr);
 
   myVarTable->setMultiFile(GV.multiFileMode);
   if(GV.multiFileMode && fileLoaded){
@@ -2935,7 +2943,6 @@ void CDataSelWin::on_loadTBtn_clicked(){
   ret=loadFileList(fileNameLst);
   qApp->restoreOverrideCursor();
 
-//  QResizeEvent *e=NULL;
   resizeEvent(nullptr);
   ui->varMenuTable->resizeColumnsToContents();
   // La stringa ret non va trattata in un messageBox perché è già stato fatto all'interno di loadFile().
@@ -3621,8 +3628,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   qApp->restoreOverrideCursor();
 
 //  ui->varMenuTable->resizeColumnsToContents();
-  QResizeEvent *event=nullptr;
-  resizeEvent(event);
+  resizeEvent(nullptr);
 
   // Phase 3: Fourwin data
   keyName="fourWin/tableIndex";
