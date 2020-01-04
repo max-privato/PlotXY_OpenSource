@@ -1542,9 +1542,9 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
   int textHeight=ui->fileTable->fontMetrics().height();
   if(currentDPI<100){
     for(int r=0; r<ui->fileTable->rowCount(); r++)
-      ui->fileTable->setRowHeight(r,int(1.2f*textHeight));
+      ui->fileTable->setRowHeight(r,int(1.1f*textHeight));
     for(int r=0; r<ui->varMenuTable->rowCount(); r++)
-      ui->varMenuTable->setRowHeight(r,int(1.2f*textHeight));
+      ui->varMenuTable->setRowHeight(r,int(1.1f*textHeight));
   }else{
     for(int r=0; r<ui->fileTable->rowCount(); r++)
       ui->fileTable->setRowHeight(r,int(1.6f*textHeight));
