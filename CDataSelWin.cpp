@@ -128,16 +128,21 @@ void CDataSelWin::adaptToDPI(qreal currentDPI_, int maxHeight_){
 #endif
     for(int i=0;i<=MAXFILES;i++)
       ui->fileTable->setRowHeight(i,cellRowHeight);
+
+    //Le seguenti tre righe dovrebbero essere attivate. Esse sono identiche a quelle regolarmente usate quando si caricano e scaricano files (in removeFile() e loadFileList()).
+    //Per ragioni sconosciute in questa posizione creano un comportamento imprevedibile, con l'altezza della CDataSelWin che sfora oltre il bordo inferiore dello schermo e il programma che diviene instabile.
+    //L'inconveniente di lasviciare le seguenti tre righe disabilitate consiste nel fatto che la tabella fileListTable quando la finestra primcipale del programma è trasferita ad uno schermo con minore numero di DPI sotto la tabella compare una banda bianca.
+
+//    int newVSize=(visibleFileRows+1)*ui->fileTable->rowHeight(0)+2;
+//    ui->fileTable->setMaximumHeight(newVSize);
+//    ui->fileTable->setMinimumHeight(newVSize);
+
+
     for (int i=0; i<TOTROWS; i++){
         for (int tab=0; tab<MAXPLOTWINS; tab++)
           varTable[tab]->setRowHeight(i,cellRowHeight);
     }
-    //Sperimentale: leggo e riscrivo gli item nella prima riga della tabella file per fare aggiornare le dimensioni in pixel del contenuto
-    // Experimental: I read and rewrite the items in the first row of the file table to update the pixel dimensions of the content
-//      ui->fileTable->setFont(myFont);
-// ui->tool468->setVisible(false);
 }
-
 
 
 CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CDataSelWin){
@@ -2623,8 +2628,8 @@ void CDataSelWin::removeFile(int row_) {
       ui->fileTable->item(row,2)->setToolTip(ui->fileTable->item(row+1,2)->toolTip());
    }
 
-  //ora devo "sbiancare" l'ultima riga. Non è visualizzata ma è bene cha abbia contenuto vuoto:
-  // now I have to "whiten" the last line. It is not displayed but it is good to have empty content:
+  //ora devo "sbiancare" l'ultima riga. Non è visualizzata ma è bene che abbia contenuto vuoto:
+  // now I have to "blank" the last line. It is not displayed but it is good to have empty content:
   for(col=0; col<ui->fileTable->columnCount(); col++)
      ui->fileTable->item(numOfLoadedFiles+1,col)->setText("");
   if(numOfLoadedFiles>2)
