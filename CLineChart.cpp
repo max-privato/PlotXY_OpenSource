@@ -163,7 +163,7 @@ La reimplementazione della funzione virtual resizeEvent in questo file contiene 
     //Nelle seguenti righe faccio predisposizioni affinché nella routine Plot si possa prima deallocare (rispettivamente con delete, DeleteIMatrix e DeleteFMatrix) gli array e poi riallocarli con le dimensioni giuste.
     cursorXValues=nullptr;
     cursorXValBkp=nullptr;
-    curveParamLst.clear();;
+    curveParamLst.clear();
     startIndex=nullptr;
     stopIndex=nullptr;
     pixelToIndexDX=CLineChart::CreateIMatrix(1,1);

@@ -559,21 +559,21 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
       item->setFont(myFont);
       if(i==0){
         item->setText(hdrs[j]);
-        item->setBackgroundColor(headerGray);
+        item->setBackground(headerGray);
         item->setFlags(item->flags()&~ (Qt::ItemIsEditable+Qt::ItemIsSelectable));
 //Tmax e TShift devono essere a fondo leggermente più chiaro per far capire che sono cliccabili
 // Tmax and TShift must be thoroughly clearer to make it clear that they are clickable
         if(j>4)
-          item->setBackgroundColor(headerGray.lighter(110));
+          item->setBackground(headerGray.lighter(110));
           item->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
       }else{
         if(j!=6)
           item->setFlags(item->flags()&~Qt::ItemIsEditable);
-        item->setBackgroundColor(neCellBkColor);
+        item->setBackground(neCellBkColor);
         //La sola colonna con TShift la metto bianca per far capire che è editabile:
         // The only column with TShift I put it white to make it clear that it is editable:
         if(j==6)
-          item->setBackgroundColor(Qt::white);
+          item->setBackground(Qt::white);
       }
       if(j<2)
         item->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
@@ -2736,7 +2736,7 @@ void CDataSelWin::fillVarMenuTable(int fileIndex){
    /* In item 1 I put the number of the variable. The number of digits with which it
     * is written must be equal to the digit number of the highest variable number,
     * to allow a subsequent effective sort. */
-       item0->setBackgroundColor(neCellBkColor);
+       item0->setBackground(neCellBkColor);
 
        QTableWidgetItem *item = new QTableWidgetItem(mySO[fileIndex]->varNames[i]);
        ui->varMenuTable->mySetItem(i,1,item,mySO[fileIndex]->timeVarIndex==i);
@@ -2749,9 +2749,9 @@ void CDataSelWin::fillVarMenuTable(int fileIndex){
          item->setToolTip(mySO[fileIndex]->varNames[i]);
        }
 
-       item->setBackgroundColor(neCellBkColor);
+       item->setBackground(neCellBkColor);
        QFontMetrics fontMetrics(myFont);
-       int myHeight=FACTORROWS*fontMetrics.height();
+       auto myHeight=int(FACTORROWS*fontMetrics.height());
        ui->varMenuTable->setRowHeight(i,myHeight);
     }
 
@@ -3307,6 +3307,23 @@ void CDataSelWin::on_arrTBtn_clicked(){
     r=plotWin[1]->frameGeometry();
     r.moveTop(r.y()+win1Rect.height()+1);
     plotWin[3]->move(r.topLeft());
+
+    r=plotWin[0]->frameGeometry();
+    r.moveTop(r.y()+2*win1Rect.height()+2);
+    plotWin[4]->move(r.topLeft());
+
+    r=plotWin[1]->frameGeometry();
+    r.moveTop(r.y()+2*win1Rect.height()+2);
+    plotWin[5]->move(r.topLeft());
+
+    r=plotWin[0]->frameGeometry();
+    r.moveTop(r.y()+3*win1Rect.height()+3);
+    plotWin[6]->move(r.topLeft());
+
+    r=plotWin[1]->frameGeometry();
+    r.moveTop(r.y()+3*win1Rect.height()+3);
+    plotWin[7]->move(r.topLeft());
+
 
     //I put MyFourWin in the same position of Plot3; if plot3 is visible, it will be below DataSelection window.
     if(plotWin[2]->isVisible()){
@@ -3871,10 +3888,33 @@ void CDataSelWin::on_showParTBtn_clicked(bool checked) {
 
 void CDataSelWin::on_tool468_clicked()
 {
+  if(actualPlotWins==4){
+    setActualPlotWins(6);
+    for (int win=4; win<6; win++){
+      on_tabWidget_currentChanged(win);
+      if(ui->plotTBtn->isEnabled())
+        on_plotTBtn_clicked();
+    }
+   } else if(actualPlotWins==6){
+     setActualPlotWins(8);
+     for (int win=6; win<8; win++){
+       on_tabWidget_currentChanged(win);
+       if(ui->plotTBtn->isEnabled())
+         on_plotTBtn_clicked();
+     }
+   } else if(actualPlotWins==8){
+     for (int win=4; win<MAXPLOTWINS; win++)
+       plotWin[win]->hide();
+     setActualPlotWins(4);
+   }
+
+
+    /*
     if(actualPlotWins==4)
       setActualPlotWins(6);
     else if(actualPlotWins==6)
       setActualPlotWins(8);
     else if(actualPlotWins==8)
       setActualPlotWins(4);
+    */
 }

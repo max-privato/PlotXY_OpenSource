@@ -97,11 +97,11 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
         newItem->setFont(cellFont);
         newItem->setText("");
         newItem->setForeground(myBrush);
-        newItem->setBackgroundColor(neCellBkColor);
+        newItem->setBackground(QBrush(neCellBkColor));
         newItem->setFlags(flags);
         setItem(i,j,newItem);
         if(j==0)
-          newItem->setBackgroundColor(colors[i]);
+          newItem->setBackground(QBrush(colors[i]));
         if(j!=VARCOL)
           newItem->setTextAlignment(Qt::AlignCenter);
       }
@@ -122,7 +122,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     verticalHeader()->setVisible(false);
 
     xVarBrush.setColor(Qt::black);
-    bkgroundColor=item(1,1)->backgroundColor();
+    bkgroundColor=item(1,1)->background().color();
 
     //Inizializzo le variabili elementari (bool, int, e ordine alfabetico):
     commonXSet=false;
@@ -279,7 +279,7 @@ void CVarTableComp::myReset(bool deep) {
       item(i,j)->setText("");
       item(i,j)->setToolTip("");
     }
-    item(i,COLORCOL)->setBackgroundColor(colors[i]);
+    item(i,COLORCOL)->setBackground(colors[i]);
     item(i,COLORCOL)->setForeground(Qt::white);
   }
   numOfTotVars=0;
@@ -376,15 +376,15 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
         if(multiFile)
           item(row,FILENUMCOL)->setText(str.setNum(fileIdx+1));
         item(row,VARCOL)->setText(varName);
-        item(row,FILENUMCOL)->setBackgroundColor(neCellBkColor);
+        item(row,FILENUMCOL)->setBackground(neCellBkColor);
         highestUsedRowIdx=qMax(row,highestUsedRowIdx);
         resizeEvent(nullptr);
         // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
         for(int ii=1; ii<rowCount(); ii++){
           if(item(ii,FILENUMCOL)->text()==""&&item(ii,VARNUMCOL)->text()=="")
-            item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
+            item(ii,FILENUMCOL)->setBackground(Qt::white);
         }
-        item(row,FILENUMCOL)->setBackgroundColor(neCellBkColor);
+        item(row,FILENUMCOL)->setBackground(neCellBkColor);
         event->acceptProposedAction();
         numOfTotVars++;
         allowSaving=true;
@@ -495,7 +495,7 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
   tabFileNums.clear();
   funSet.clear();
   for(r=1; r<TOTROWS; r++){
-    item(r,COLORCOL)->setBackgroundColor(QColor(varColRgb[r-1]));
+    item(r,COLORCOL)->setBackground(QColor(varColRgb[r-1]));
     if (styleData_&1<<r)
         // il + 1 perché la riga 0 della tabella è l'header e ad essa non corrisponde alcun colore e alcun dash
         item(r+1,COLORCOL)->setText("-");
@@ -518,9 +518,9 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
   // We start with white, then we add grey when we have rows with variables, which are not function plot definitions
 
   for(r=1; r<TOTROWS; r++){ //r=1 + la riga default della x
-    item(r,FILENUMCOL)->setBackgroundColor(Qt::white);
+    item(r,FILENUMCOL)->setBackground(Qt::white);
     if(item(r,XVARCOL)->text()!="")
-      item(r,FILENUMCOL)->setBackgroundColor(neCellBkColor);
+      item(r,FILENUMCOL)->setBackground(neCellBkColor);
     if(item(r,VARNUMCOL)->text()!=""){
       // Se c'è qualcosa sulla riga sotto quella default della x aumento di 1 il numero di
       // variabili; la casella sotto f diviene grigia solo se non si tratta di funzione di variabile.
@@ -528,7 +528,7 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
       if(r>1)
         numOfTotVars++;
       if(r>1 &&item(r,VARNUMCOL)->text()[0]!='f')
-        item(r,FILENUMCOL)->setBackgroundColor(neCellBkColor);
+        item(r,FILENUMCOL)->setBackground(neCellBkColor);
       if(item(r,VARNUMCOL)->text()[0]=='f')
         funStrInput->getStr(item(r,VARCOL)->text());
     }
@@ -544,10 +544,10 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
     allowSaving=false;
   //Ora faccio lo scambio di colori di riga se la x non è in prima riga
   if(xVarRow!=0){
-    QColor color=item(1,0)->backgroundColor();
+    QColor color=item(1,0)->background().color();
     QBrush brush=item(1,0)->background();
-    item(1,0)->setBackgroundColor(item(xVarRow,0)->backgroundColor());
-    item(xVarRow,0)->setBackgroundColor(color);
+    item(1,0)->setBackground(item(xVarRow,0)->background().color());
+    item(xVarRow,0)->setBackground(color);
     for(c=1; c<TOTCOLS; c++){
       item(1,c)->setForeground(item(xVarRow,0)->foreground());
       item(xVarRow,c)->setForeground(brush);
@@ -575,7 +575,7 @@ SVarTableState CVarTableComp::giveState(){
   int r,c;
   struct SVarTableState s;
   for(r=1; r<TOTROWS; r++){
-    QColor color=item(r,COLORCOL)->backgroundColor();
+    QColor color=item(r,COLORCOL)->background().color();
     s.varColors.append(color.rgb());
     if(item(r,COLORCOL)->text()=="-")
       s.styles.append(Qt::DashLine);
@@ -682,7 +682,7 @@ void CVarTableComp::myClicked(int r, int c){
           //remember that first row is the header in our table!
           int  row_1=row-1;
           myBrush.setColor(setColors[row_1]);
-          item(row,COLORCOL)->setBackgroundColor(setColors[row_1]);
+          item(row,COLORCOL)->setBackground(setColors[row_1]);
           item(row,FILENUMCOL)->setForeground(myBrush);
           item(row,VARNUMCOL)->setForeground(myBrush);
           item(row,VARCOL)->setForeground(myBrush);
@@ -710,7 +710,7 @@ void CVarTableComp::myClicked(int r, int c){
            funSet.remove(item(r,VARNUMCOL)->text().mid(1,1).toInt());
          }
          if(item(r,VARNUMCOL)->text()!="")
-             item(r,FILENUMCOL)->setBackgroundColor(Qt::white);
+             item(r,FILENUMCOL)->setBackground(Qt::white);
       }
       tabFileNums.removeOne(item(r,FILENUMCOL)->text().toInt());
       for(j=0;j<TOTCOLS;j++)
@@ -739,7 +739,7 @@ void CVarTableComp::myClicked(int r, int c){
        * Faccio anche una verifica sintattica per evitare di accettare una funzione inammissibile.
        * Il calcolo effettivo della funzione avverrà in risposta al click sul bottone di plot().
       */
-      if(item(r,FILENUMCOL)->backgroundColor()!=Qt::white) break;
+      if(item(r,FILENUMCOL)->background().color()!=Qt::white) break;
       while(1){
         int inpRet=funStrInput->exec();
         if (inpRet==QDialog::Rejected) return;
@@ -852,11 +852,11 @@ void CVarTableComp::myClicked(int r, int c){
         item(xVarRow,j)->setForeground(item(r,j)->foreground());
         item(r,j)->setForeground(xVarBrush);
       }
-      item(xVarRow,0)->setBackgroundColor(item(r,0)->backgroundColor());
+      item(xVarRow,0)->setBackground(item(r,0)->background().color());
       item(xVarRow,c)->setText("");
       xVarRow=r;
       item(r,c)->setText("x");
-      item(r,0)->setBackgroundColor(colors[0]);
+      item(r,0)->setBackground(colors[0]);
       allowSaving=true;
       // Now I unselect time variable. I do this only if it's in the first row and only once after each reset. In this way the user can add again time, if he wants so, and let it be plotted.
       if(!timeVarReset){
@@ -967,7 +967,7 @@ int CVarTableComp::setCommonX(QString str){
   numOfTotVars++;
     // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
   for(int ii=2; ii<rowCount(); ii++){
-    item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
+    item(ii,FILENUMCOL)->setBackground(Qt::white);
   }
   emit contentChanged();
   return 0;
@@ -1040,9 +1040,9 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
   // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
   for(int ii=1; ii<rowCount(); ii++){
     if(item(ii,FILENUMCOL)->text()==""&&item(ii,VARNUMCOL)->text()=="")
-      item(ii,FILENUMCOL)->setBackgroundColor(Qt::white);
+      item(ii,FILENUMCOL)->setBackground(Qt::white);
   }
-  item(i,FILENUMCOL)->setBackgroundColor(neCellBkColor);
+  item(i,FILENUMCOL)->setBackground(neCellBkColor);
   item(i,XVARCOL)->setToolTip(unit_);
   if(numOfTotVars>1)
     allowSaving=true;
