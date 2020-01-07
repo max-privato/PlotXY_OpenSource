@@ -394,7 +394,7 @@ struct SXYNameData{
          else
            nameData.ret=
              "The following incorrect variable name was read in the input string: \"" +varStr+"\"";
-           return nameData;
+         return nameData;
        }
        // Ora qui devo verificare se i numeri di file e gli indici di variabile sono validi
        if(!fileNumsLst.contains(varXYNums.fileNum)){
@@ -597,11 +597,11 @@ La costruzione di lineFullNames segue la seguente logica:
     QString name=nameList[i];
     if(name.indexOf("v")<0)
       return "Error in getNamesAndMatrix";
-      int varIndex=name.remove(0,name.indexOf("v")+1).toInt()-1; //indice della variabile (es. se è f4v3 index è 3-1=2)
-      name=nameList[i];
-      if(name.indexOf("v")>1)
-        if(name[name.indexOf("v")-2]=='f')
-           fileIndex= name.mid(name.indexOf("v")-1,1).toInt()-1; //indice del file (es. se è f4v3 index è 4-1=3)
+    int varIndex=name.remove(0,name.indexOf("v")+1).toInt()-1; //indice della variabile (es. se è f4v3 index è 3-1=2)
+    name=nameList[i];
+    if(name.indexOf("v")>1)
+      if(name[name.indexOf("v")-2]=='f')
+        fileIndex= name.mid(name.indexOf("v")-1,1).toInt()-1; //indice del file (es. se è f4v3 index è 4-1=3)
     //aggiungo il primo carattere alla lista dei caratteri che serve per le unità di misura:
     unitCharLst.append(namesFullList[fileIndex][varIndex][0]);
 

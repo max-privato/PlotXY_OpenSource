@@ -707,7 +707,7 @@ int CFourWin::performNuDFT(){
       phases[harm]= atan2f(ak,bk)*180.f/pi;
       harmOrders[harm]=harm;
     }
-    ampl[0]/=2.f;
+  ampl[0]/=2.f;
 
 /*
   //Calcolo della componente continua (va comunque calcolata per poter fare

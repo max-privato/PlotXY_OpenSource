@@ -565,7 +565,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
 // Tmax and TShift must be thoroughly clearer to make it clear that they are clickable
         if(j>4)
           item->setBackground(headerGray.lighter(110));
-          item->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
+        item->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
       }else{
         if(j!=6)
           item->setFlags(item->flags()&~Qt::ItemIsEditable);
@@ -3222,10 +3222,15 @@ void CDataSelWin::on_eqTBtn_clicked() {
 }
 
 void CDataSelWin::on_arrTBtn_clicked(){
-/* this function rearranges plot windows.
- * The windows are positioned as a 4x4 matrix, following the natural direction of western
- * writing.
- * If I have more than 4 windows, only the first 4 are automatically arranged.
+/* This function rearranges plot windows.
+ * From standard four plot windows arrangement, the plot windows are positioned
+ * as a 2x2 matrix, following the natural direction of western writing.
+ * In case of 6 or 8 plot windows, the matrices are 3x2 and 4x2 respectively.
+ *
+ * Each fourier window, up to the sixth, is placed below the corresponding plot window:
+ * this can cause some plot window to be (partially or totally) covered. Seventh and
+ * eight fourier windows are not rearranged. The fourier windows are placed on top of any
+ * existing plot windows.
  *
 */
 
@@ -3303,28 +3308,40 @@ void CDataSelWin::on_arrTBtn_clicked(){
     r=plotWin[0]->frameGeometry();
     r.moveTop(r.y()+win1Rect.height()+1);
     plotWin[2]->move(r.topLeft());
+    fourWin[0]->move(r.topLeft());
+    fourWin[0]->raise();
 
     r=plotWin[1]->frameGeometry();
     r.moveTop(r.y()+win1Rect.height()+1);
     plotWin[3]->move(r.topLeft());
+    fourWin[1]->move(r.topLeft());
+    fourWin[1]->raise();
 
     r=plotWin[0]->frameGeometry();
     r.moveTop(r.y()+2*win1Rect.height()+2);
     plotWin[4]->move(r.topLeft());
+    fourWin[2]->move(r.topLeft());
+    fourWin[2]->raise();
 
     r=plotWin[1]->frameGeometry();
     r.moveTop(r.y()+2*win1Rect.height()+2);
     plotWin[5]->move(r.topLeft());
+    fourWin[3]->move(r.topLeft());
+    fourWin[3]->raise();
 
     r=plotWin[0]->frameGeometry();
     r.moveTop(r.y()+3*win1Rect.height()+3);
     plotWin[6]->move(r.topLeft());
+    fourWin[4]->move(r.topLeft());
+    fourWin[4]->raise();
 
     r=plotWin[1]->frameGeometry();
     r.moveTop(r.y()+3*win1Rect.height()+3);
     plotWin[7]->move(r.topLeft());
+    fourWin[5]->move(r.topLeft());
+    fourWin[5]->raise();
 
-
+/*
     //I put MyFourWin in the same position of Plot3; if plot3 is visible, it will be below DataSelection window.
     if(plotWin[2]->isVisible()){
       r=thisFrameGeom;
@@ -3334,6 +3351,9 @@ void CDataSelWin::on_arrTBtn_clicked(){
       r.moveTop(r.y()+win1Rect.height()+1);
     }
     myFourWin->move(r.topLeft());
+
+    */
+
 }
 
 void CDataSelWin::on_saveStateTBtn_clicked()

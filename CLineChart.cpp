@@ -2616,7 +2616,7 @@ if(dataCursDragging)
         }
       }
     } else{
-        ;
+
     }
     update();
 }
@@ -2869,7 +2869,7 @@ void  CLineChart::drawAllLabelsAndGrid(SAxis axis){
     //La seguente riga mette la label di asse al centro fra due tic, se non sono in halfTicNum, nel qual caso viene spostata un poco a sinistra ma non tanto da sembrare posta proprio in corrispondenza della "halftic".
     int xAxisLabelx=X1-int((0.5f+0.1f*xAxis.halfTicNum)*axis.ticIntervalPix);
     if(removeOneNumLbl)
-        xAxisLabelx-=axis.ticIntervalPix/2;
+        xAxisLabelx-=int(axis.ticIntervalPix/2.f);
     writeAxisLabel(xAxisLabelx, Y1+xAxis.ticPixWidth,xAxis,false);
     //Eventuale griglia:
     for(auxF=axis.ticIntervalPix, x=NearInt(auxF); x<xAxis.widthPix-1;
@@ -3377,10 +3377,10 @@ void CLineChart::mark(bool store){
       QApplication::beep();
       return;
     }
-    //Traccio i marcatori sulle curve:
-    for(iFile=0; iFile<nFiles; iFile++){
-      for(iPlot=0; iPlot<nPlots[iFile]; iPlot++)	{
-        if(X>=xStartIndex[iFile] && X<xStopIndex[iFile]){
+  //Traccio i marcatori sulle curve:
+  for(iFile=0; iFile<nFiles; iFile++){
+    for(iPlot=0; iPlot<nPlots[iFile]; iPlot++)	{
+      if(X>=xStartIndex[iFile] && X<xStopIndex[iFile]){
         someMark=true;
         markSingle(iFile, iVSFile, iPlot, iTotPlot, store);
       }else if (store){
@@ -4228,8 +4228,8 @@ Significato delle variabili passate (solo fino a maxVal sono usate per scale log
         msg="Cannot create a log scale on the y-axis\n"
             "because the range contains null or negative values\n\n"
             "Please change the variable to be plot, or the y-axis range or choose a linear scale";
-        QMessageBox::critical(this, "MC's PlotXWin",msg,QMessageBox::Ok);
-        return 1;
+      QMessageBox::critical(this, "MC's PlotXWin",msg,QMessageBox::Ok);
+      return 1;
     }
     sprintf(buffer,"%+10.3e",double(minVal));
     sscanf(buffer+7, "%u", &myAxis.eMin);

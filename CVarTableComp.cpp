@@ -48,7 +48,6 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     headerGray.setRgb(210,210,210);
     hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
-    int iii=fontMetrics().width(hdrs[VARNUMCOL]);
     setColumnWidth(VARNUMCOL,fontMetrics().width(hdrs[VARNUMCOL]));
     iniVarNumColWidth=2*fontMetrics().width(hdrs[VARNUMCOL]);
     hdrs[FILENUMCOL]="f";
