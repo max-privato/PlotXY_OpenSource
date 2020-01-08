@@ -71,7 +71,7 @@ private:
     bool indexesFromTimes(SFourData data);
     int performDFT();
     int performNuDFT();
-    void resizeEvent(QResizeEvent *) override;
+//    void resizeEvent(QResizeEvent *) override;
     void showEvent(QShowEvent *) override;
     void valChanged(SXYValues values);
 

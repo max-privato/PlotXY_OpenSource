@@ -729,8 +729,8 @@ int CFourWin::performNuDFT(){
   return ret;
 }
 
-void CFourWin::resizeEvent(QResizeEvent *){
-}
+//void CFourWin::resizeEvent(QResizeEvent *){
+//}
 
 void CFourWin::showEvent(QShowEvent *){
     struct SCurveParam curveParam;

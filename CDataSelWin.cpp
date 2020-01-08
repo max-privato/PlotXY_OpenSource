@@ -3179,45 +3179,51 @@ but in any case they will have to have the same number of points
 
 
 void CDataSelWin::on_eqTBtn_clicked() {
-    /* Questa funzione serve per equalizzare le dimensioni delle finestre di plot, o a un numero prefissato, o alle dimensioni della finestra 1. In quest'ultimo caso l'utente vede visivamente, agendo sulla finestra 1, come verranno le dimensioni delle varie finestre.
-     *Le finestre mantengono l'angolo quperiore sinistro originale. Per risistemarle nello spazio a disposizione occorre cliccare sul bottone "arrange"
+ /* This function is used to equalize the dimensions of the plot windows, either to a
+  * predetermined number, or to the dimensions of the window 1.
+  * In this last case, the user visually sees, by acting on window 1, how the various
+  * windows will look.
+  * Starting from January 2020, equate button will equate also Fourier Windows. However
+  * since they have a different structure from plot's, it might be impossible to equate
+  * a fourier Window exactly to the size of plot1, because minimum window size might be hit.
+  *
+  * The windows maintain the original top-left corner. To rearrange them in the available
+  * space, click on the "arrange" button. After equate button the plot windows stay on
+  * top of the Fourier's, after arrange it is the reverse.
 */
-    /* This function is used to equalize the dimensions of the plot windows,
-     * or to a predetermined number, or to the dimensions of the window 1.
-     * In this last case, the user visually sees, by acting on window 1,
-     * how the various windows will look.
-     * The windows maintain the original left quarter angle. To rearrange
-     * them in the available space, click on the "arrange" button
-*/
-    int w,h;
-    QScreen *screen=QGuiApplication::primaryScreen();
-    QRect avGeom=screen->availableGeometry();
+  int w,h;
+  QScreen *screen=QGuiApplication::primaryScreen();
+  QRect avGeom=screen->availableGeometry();
 //    QMargins m(10,10,10,10);
-    avGeom=avGeom.marginsRemoved(QMargins(10,10,10,10));
+  avGeom=avGeom.marginsRemoved(QMargins(10,10,10,10));
 
-    if(ui->allToBtn->isChecked()){
-        w=ui->winWEdit->text().toInt();
-        h=ui->winHEdit->text().toInt();
-        //Come unica verifica sui dati evito che larghezza e altezza superino le dimensioni dello schermo. Presumo infatti che le finestre siano in partenza con la sbarra superiore all'interno della parte utile dello schermo e pertanto se per casu una parte della finestra sforasse fuori schermo l'utente potrebbbe agevolmente risistemarle.
+  if(ui->allToBtn->isChecked()){
+    w=ui->winWEdit->text().toInt();
+    h=ui->winHEdit->text().toInt();
+    //Come unica verifica sui dati evito che larghezza e altezza superino le dimensioni dello schermo. Presumo infatti che le finestre siano in partenza con la sbarra superiore all'interno della parte utile dello schermo e pertanto se per casu una parte della finestra sforasse fuori schermo l'utente potrebbbe agevolmente risistemarle.
 
-        // As the only verification of the data I avoid the width and height
-        // exceeding the screen size. In fact, I assume that the windows are
-        // starting with the upper bar inside the useful part of the screen
-        // and therefore if for a part of the window casu out of screen the
-        // user could easily rearrange them.
-        w=min(w, avGeom.right()-avGeom.left());
-        h=min(h, avGeom.bottom()-avGeom.top());
-        for (int win=0; win<MAXPLOTWINS; win++)
-          plotWin[win]->resize(w,h);
-    } else if(ui->toWin1Btn->isChecked()){
-        w=plotWin[0]->width();
-        h=plotWin[0]->height();
-        for (int win=1; win<MAXPLOTWINS; win++)
-          plotWin[win]->resize(w,h);
-        QString s;
-        ui->winWEdit->setText(s.setNum(w));
-        ui->winHEdit->setText(s.setNum(h));
-      }
+    // As the only verification of the data I avoid the width and height
+    // exceeding the screen size. In fact, I assume that the windows are
+    // starting with the upper bar inside the useful part of the screen
+    // and therefore if for a part of the window casu out of screen the
+    // user could easily rearrange them.
+    w=min(w, avGeom.right()-avGeom.left());
+    h=min(h, avGeom.bottom()-avGeom.top());
+    for (int win=0; win<MAXPLOTWINS; win++)
+      plotWin[win]->resize(w,h);
+    for (int win=0; win<MAXPLOTWINS; win++)
+      fourWin[win]->resize(w,h);
+  } else if(ui->toWin1Btn->isChecked()){
+    w=plotWin[0]->width();
+    h=plotWin[0]->height();
+    for (int win=1; win<MAXPLOTWINS; win++)
+      plotWin[win]->resize(w,h);
+    for (int win=0; win<MAXPLOTWINS; win++)
+      fourWin[win]->resize(w,h);
+    QString s;
+    ui->winWEdit->setText(s.setNum(w));
+    ui->winHEdit->setText(s.setNum(h));
+  }
 
 }
 
