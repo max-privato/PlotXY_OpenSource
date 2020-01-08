@@ -268,7 +268,22 @@ void CFourWin::copyOrPrint(EOutType type){
   headText1="MC's PlotXY - Fourier chart(s). Copied on "+ dateStr.mid(4);
   headText2="File: "+myData.fileName +"; Variable: "+myData.varName+"\n";
   headText2+=QString("t1: %1; ").arg(double(myData.opt.initialTime),0,'g',5);
-  headText2+=QString("t2: %1").arg(double(myData.opt.finalTime),0,'g',5);
+  headText2+=QString("t2: %1\n").arg(double(myData.opt.finalTime),0,'g',5);
+  switch (myData.opt.amplUnit){
+//enum EAmplUnit {peak, rms, puOf0, puOf1};
+  case  peak:
+    headText2+= "Unit of amplitude: peak value";
+      break;
+  case  rms:
+    headText2+= "Unit of amplitude: rms value";
+    break;
+  case puOf0:
+    headText2+= "Unit of amplitude: p.u. of 0-order component";
+    break;
+  case puOf1:
+    headText2+= "Unit of amplitude: p.u. of 1-order component";
+    break;
+  }
 
   if(fourOutInfo->numData){
    //E' stato richiesto un copy dei valori numerici.
@@ -497,7 +512,6 @@ Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcol
 
 void CFourWin::on_copyBtn_clicked()
 {
-
     copyOrPrint(otCopy);
 }
 
