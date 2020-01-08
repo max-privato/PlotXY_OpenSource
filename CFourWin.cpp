@@ -226,7 +226,7 @@ void CFourWin::computeTHD(){
   // THD % relative ad armoniche 0 e 1:
   if(amplitudes[0]==0)
       return;
-  THD0=float(100.0*(sqrt(double(THD)+amplitudes[1]*amplitudes[1]))/fabs(double(amplitudes[0])));
+  THD0=float(100.0*(sqrt(double(THD+amplitudes[1]*amplitudes[1])))/fabs(double(amplitudes[0])));
   if(amplitudes[1]==0)
       return;
   THD1=float(100*sqrt(double(THD))/fabs(double(amplitudes[1])));
@@ -251,7 +251,7 @@ void CFourWin::copyOrPrint(EOutType type){
   QPainter *painter;
   QString pdfFileName, fullFileName;
   QString dateStr=QDateTime::currentDateTime().date().toString();
-  fourOutInfo->setPhaseChart(ui->phaseChart->isVisible());
+//  fourOutInfo->setPhaseChart(ui->phaseChart->isVisible());
   fourOutInfo->setType(type);
 
   if(type==otCopy)

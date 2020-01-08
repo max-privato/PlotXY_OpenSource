@@ -22,8 +22,7 @@
 
 CFourOutputInfo::CFourOutputInfo(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::CFourOutputInfo)
-{
+    ui(new Ui::CFourOutputInfo){
     ui->setupUi(this);
 }
 
