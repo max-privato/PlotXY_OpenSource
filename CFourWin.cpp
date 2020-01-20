@@ -244,6 +244,7 @@ void CFourWin::copyOrPrint(EOutType type){
    * L'utente finale potrà tranquillamente tagliare questa parte, se non di suo interesse.
 */
   bool ok=true;
+  bool avoidBoldRow=true; //this row is a flag to avoid writing bold row when copying plots. For the time being it is not available to tfrom the GUI.
   int imageWidth, imageHeight; //larghezza e altezza dell'immagine combinata contenente intestazione e grafici a barre (o grafico a barre)
   int yPosition;
   QClipboard *clipboard = QApplication::clipboard();
@@ -268,20 +269,20 @@ void CFourWin::copyOrPrint(EOutType type){
   headText1="MC's PlotXY - Fourier chart(s). Copied on "+ dateStr.mid(4);
   headText2="File: "+myData.fileName +"; Variable: "+myData.varName+"\n";
   headText2+=QString("t1: %1; ").arg(double(myData.opt.initialTime),0,'g',5);
-  headText2+=QString("t2: %1\n").arg(double(myData.opt.finalTime),0,'g',5);
+  headText2+=QString("t2: %1      -  ").arg(double(myData.opt.finalTime),0,'g',5);
   switch (myData.opt.amplUnit){
 //enum EAmplUnit {peak, rms, puOf0, puOf1};
   case  peak:
-    headText2+= "Unit of amplitude: peak value";
+    headText2+= "Amplitude: peak value";
       break;
   case  rms:
-    headText2+= "Unit of amplitude: rms value";
+    headText2+= "Amplitude: rms value";
     break;
   case puOf0:
-    headText2+= "Unit of amplitude: p.u. of 0-order component";
+    headText2+= "Amplitude: p.u. of 0-order value";
     break;
   case puOf1:
-    headText2+= "Unit of amplitude: p.u. of 1-order component";
+    headText2+= "Amplitude: p.u. of 1-order value";
     break;
   }
 
@@ -345,7 +346,7 @@ void CFourWin::copyOrPrint(EOutType type){
        MB.exec();
     return;
   } else{   //Ora non sono più in numerical data ma in stampa dei plot
-      // Calcolo lo spazio necessario al tracciamento di HeadText, e lo metto in boundRect
+      // Calcolo lo spazio necessario al tracciamento di HeadText, e lo metto in dummyRect
       QPainter * painter;
       painter = new QPainter(&dummyImage);
       QFont font=painter->font();
@@ -357,7 +358,11 @@ void CFourWin::copyOrPrint(EOutType type){
   }
 
   //ora che ho le dimensioni della parte testuale posso allocare lo spazio alla combinedImage.
-  imageHeight=headRect1.height()+headRect2.height();
+
+  if(avoidBoldRow)
+    imageHeight=headRect2.height();
+  else
+    imageHeight=headRect1.height()+headRect2.height();
   imageWidth=qMax(headRect1.width(),headRect2.width());
   if(fourOutInfo->amplChart){
       amplImg=ui->amplChart->giveImage();
@@ -379,17 +384,24 @@ void CFourWin::copyOrPrint(EOutType type){
    QFont font=painter->font();
    font.setBold(true);
    painter->setFont(font);
-   painter->drawText(combinedImage->rect(),0,headText1);
+   if(!avoidBoldRow)
+     painter->drawText(combinedImage->rect(),0,headText1);
    //le altre righe sono a spessore normale:
    font.setBold(false);
    painter->setFont(font);
-   yPosition=headRect1.height();
+   if(avoidBoldRow)
+     yPosition=0;
+   else
+     yPosition=headRect1.height();
    rect=combinedImage->rect();
    rect.moveTop(yPosition);
    painter->drawText(rect,0,headText2);
 
    if(fourOutInfo->amplChart){
-     yPosition=headRect1.height()+headRect2.height();
+     if(avoidBoldRow)
+        yPosition=headRect2.height();
+     else
+        yPosition=headRect1.height()+headRect2.height();
      rect=amplImg->rect();
      rect.moveTop(yPosition);
      painter->drawImage(rect,*amplImg);
@@ -403,6 +415,7 @@ void CFourWin::copyOrPrint(EOutType type){
      painter->drawImage(rect,*phImg);
    }
    QMessageBox MB;
+   bool criticalMB=false;
    if(type==otCopy){
      clipboard->setImage(*combinedImage);
    //Con la precedente riga si è passata la ownership di Image alla clipboard. Quando verrà copiato in essa nuovo materiale il contenuto verrà liberato. E' pertanto vietata la seguente riga (ora commentata):
@@ -415,10 +428,6 @@ void CFourWin::copyOrPrint(EOutType type){
          pdfFileName = QFileDialog::getSaveFileName(this, "Save File", QDir::currentPath(),
                "PDF  (*.pdf)");
 
-  /*         pdfFileName= QInputDialog::getText(this, "pdf File Name",
-               "File name (without \".pdf\"):", QLineEdit::Normal,"pdfFile" , &ok);
-           if (ok && !pdfFileName.isEmpty()){
-  */
          if (pdfFileName=="") return;
          myPrinter.setOutputFileName(pdfFileName);
          QFileInfo FI(pdfFileName);
@@ -435,10 +444,14 @@ void CFourWin::copyOrPrint(EOutType type){
        else{
          MB.setIcon(QMessageBox::Critical);
          MB.setText("Unable to open the default system printer");
+         criticalMB=true;
        }
    }
    delete painter;
-   MB.exec();
+   // Originally I wanted to always issue MB.exec(). In pcarctice it si annoying, so I decide to issue it only in case of a critical message:
+   if(criticalMB)
+     MB.exec();
+
 }
 
 void CFourWin::focusInEvent(QFocusEvent *){

@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     int i;
     QApplication a(argc, argv);
 
-    // The information in the following two lines is used laer to write on the registry the data recorded using the "QSettings" object.
+    // The information in the following two lines is used later to write on the registry the data recorded using the "QSettings" object.
     // The name of the organization is different from that of the old PlotXY, in order to maintain independence of the two on the register. The deletion of the keys under "University of Pisa" will not delete the keys  under "University of Pisa - MC's" and vice versa.
     // In Linux, the data is stored in $HOME/.config/University of Pisa - MC's/MC's PlotXY.conf
     QCoreApplication::setOrganizationName("University of Pisa - MC's");
