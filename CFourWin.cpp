@@ -204,15 +204,19 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
       ui->phaseChart->setVisible(false);
     }
     computeTHD();
-    QString msg0, msg1;
-    msg0.setNum(THD0,'g',4);
-    msg1.setNum(THD1,'g',4);
-    //La seguente thdString viene poi visualizzata alla pressione del bottone "?"
-    thdString="";
+    QString msgRMS, msg0, msg1;
+    msgRMS.setNum(RMS,'g',5);
+    msg0.setNum(THD0,'g',5);
+    msg1.setNum(THD1,'g',5);
+
+    //La seguente infoString viene poi visualizzata alla pressione del bottone "?"
+    infoString="";
     if(myData.opt.harm1==0)
-       thdString= "THD0: "+msg0+"%; THD1: "+msg1+"%";
+       infoString= "RMS: "+msgRMS+"; THD0: "+msg0+"%; THD1: "+msg1+"%";
     if(myData.opt.harm1==1)
-       thdString= "THD1: "+msg1+"%";
+       infoString= "RMS: "+msgRMS+"; THD1: "+msg1+"%";
+    if(myData.opt.harm1>1)
+       infoString= "RMS: "+msgRMS;
     return ret;
 }
 
@@ -531,7 +535,7 @@ void CFourWin::on_copyBtn_clicked()
 void CFourWin::on_infoBtn_clicked()
 {
     QString msg="File: "+myData.fileName+"\n"+"Variable: "+myData.varName+"\n";
-    msg=msg+thdString;
+    msg=msg+infoString;
     QMessageBox::information(this,"Fourier chart info",msg);
 }
 
@@ -641,8 +645,7 @@ int CFourWin::performDFT(){
 
     harmOrders[harm]=harm;
   }
-  //Calcolo della componente continua (va comunque calcolata per poter fare
-  //l'eventuale p.u.):
+  //Computation of DC component. It is always computed because is used to express harmonics as ratio to it, and to evaluate signal RMS:
   dft0=0;
   for (sample=0; sample<nSamples; sample++)
       dft0+=double(y1[sample]);
@@ -653,15 +656,22 @@ int CFourWin::performDFT(){
   }
   //Calcolo della componente di ordine 1 (va comunque calcolata per poter fare
    //l'eventuale p.u.):
-   if(harm1<2){
+  if(harm1<2){
      ampl01[1]=ampl[1];
-   }else{
-     dft=0;
-     for (sample=0; sample<nSamples; sample++){
-       dft+=dcmplx(double(y1[sample]))*exp(-auxC1*dcmplx(sample));
-     }
-     ampl01[1]=2*float(abs(dft))/nSamples;
-   }
+  }else{
+    dft=0;
+    for (sample=0; sample<nSamples; sample++){
+      dft+=dcmplx(double(y1[sample]))*exp(-auxC1*dcmplx(sample));
+    }
+    ampl01[1]=2*float(abs(dft))/nSamples;
+  }
+  //Calcolo RMS
+  if(harm1==0)
+    RMS=ampl01[0]*ampl01[0];
+  for(harm=qMax(harm1,1); harm<=harm2; harm++){
+    RMS+=ampl[harm]*ampl[harm]/2.f;
+  }
+  RMS=sqrtf(RMS);
   QApplication::restoreOverrideCursor();
   return ret;
 }
@@ -752,6 +762,12 @@ int CFourWin::performNuDFT(){
   ampl01[0]=ampl[0];
   ampl01[1]=ampl[1];
 
+  if(harm1==0)
+    RMS=ampl01[0]*ampl01[0];
+  for(harm=qMax(harm1,1); harm<=harm2; harm++){
+    RMS+=ampl[harm]*ampl[harm]/2.f;
+  }
+  RMS=sqrtf(RMS);
   QApplication::restoreOverrideCursor();
   return ret;
 }

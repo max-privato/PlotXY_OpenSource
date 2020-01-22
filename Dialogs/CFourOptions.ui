@@ -127,7 +127,7 @@
          <item>
           <widget class="QRadioButton" name="rmsTo1Btn">
            <property name="text">
-            <string>|rms/harm 1|</string>
+            <string>|rms/rms1|</string>
            </property>
           </widget>
          </item>
