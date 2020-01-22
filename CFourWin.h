@@ -21,7 +21,7 @@
 #define CFOURWIN_H
 
 #define DEFAULTHARM1 0
-#define DEFAULTHARM2 30
+#define DEFAULTHARM2 40
 
 #include <QDialog>
 #include "CLineChart.h"
