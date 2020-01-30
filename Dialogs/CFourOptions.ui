@@ -120,14 +120,14 @@
          <item>
           <widget class="QRadioButton" name="rmsTo0Btn">
            <property name="text">
-            <string>|rms/harm. 0|</string>
+            <string>|100 x rms/h.0|</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="rmsTo1Btn">
            <property name="text">
-            <string>|rms/rms1|</string>
+            <string>|100 x rms/rms1|</string>
            </property>
           </widget>
          </item>

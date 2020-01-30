@@ -164,11 +164,11 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
         amplValueTxt="<i>value (rms):</i><br>";
         break;
        case puOf0:
-        amplFactor=float((1.0/SQRT2)/fabs(double(ampl01[0])));
+        amplFactor=float((100.0/SQRT2)/fabs(double(ampl01[0])));
         amplValueTxt="<i>value (pu/h0):</i><br>";
         break;
        case puOf1:
-        amplFactor=float(1./fabs(double(ampl01[1])));
+        amplFactor=float(100./fabs(double(ampl01[1])));
         amplValueTxt="<i>value (pu/h1):</i><br>";
         break;
     }
@@ -176,7 +176,7 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
 
     amplitudes[0]=ampl[0];
     if(myData.opt.amplUnit==puOf0)
-        amplitudes[0]=1.0;
+        amplitudes[0]=100.0;
     if(myData.opt.amplUnit== puOf1)
         amplitudes[0]=fabsf(ampl[0]/ampl[1]);
     for(harm=_max(1,harm1); harm<=harm2; harm++)
