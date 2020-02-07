@@ -578,7 +578,8 @@ void CPlotWin::on_scaleTBtn_clicked(){
   //Preparazione prima della visualizzazione della scheda:
   myScaleDlg->getInfo(ui->lineChart->giveDispRect(),ui->lineChart->twinScale);
   myScaleDlg->getFullLimits(ui->lineChart->giveFullLimits(),ui->lineChart->cutsLimits);
-  myScaleDlg->xUnit=ui->lineChart->givexUnit();
+  if(!myScaleDlg->useUserUnits)
+    myScaleDlg->xUnit=ui->lineChart->givexUnit();
   //Visualizzazione della scheda fino a che non metto dati corretti o faccio Cancel:
   QString ret;
   do{
