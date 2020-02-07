@@ -81,11 +81,14 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     //
 
     for (j=0; j<TOTCOLS; j++){
-      QTableWidgetItem *newItem=new QTableWidgetItem;
+      //Setting items for the first row:
+        QTableWidgetItem *newItem=new QTableWidgetItem;
       newItem->setFont(cellFont);
       newItem->setText(hdrs[j]);
       newItem->setBackground(headerGray);
       newItem->setTextAlignment(Qt::AlignCenter);
+      for (int c=0; c<columnCount(); c++)
+        newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable+Qt::ItemIsSelectable));
       setItem(0,j,newItem);
     }
     for(i=1;i<TOTROWS;i++){
