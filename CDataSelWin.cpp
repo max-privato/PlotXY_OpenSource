@@ -245,7 +245,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
 
   QScreen *screen=QGuiApplication::primaryScreen();
   currentDPI=screen->logicalDotsPerInch();
-
+qDebug()<<"DPI: "<<currentDPI;
   int maxHeight=int(FRACTIONOOFSCREEN*screen->availableGeometry().height());
     /* Il secondo parametro che passo nella seguente chiamata a funzione è la massima altezza che posso dare alla finestra. Vorrei che la finestra restasse sempre nello spazio disponibile, inclusa la propria intestazione. Purtroppo questo mi risulta al momento impossibile in quanto i due metodi della presente finestra geometry() e frameGeometry(), che dovrebbero dare valori differenti, danno gli stessi rettangoli e coincidono con la zona utile, al netto di frame e zona del titolo, cioè con quello che secondo la documentazione dovrebbe essre geometry(), ma non frameGeometry().
     * Quindi mi accontento di passare il 95% della altezza utile sul desktop. Il risultato sarà perfetto solo se l'altezza utile di CDataSelWIn è il 95% dell'altezza totale, cioè se le parti accessorie occupano il 5% del totale

@@ -2460,7 +2460,7 @@ Pertanto è prevista l'introduzione di appositi fattori:
 - il "time multiplication factor" in ultima riga, per il tempo
 - i Factor nelle righe delle variabili.
 Naturalmente tale valore va calcolato con riferimento all'effettivo intervallo dei tempi e al campo entro cui posso variare gli int nel sistema in uso.
-Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non venivano gestiti correttamente da tale programma. Pertanto sia per le variabili che per il tempo uso interi positivi, di ampiezza tale da entrare sempre nel numero di digit ammessi dall standard, pari a 10 per il tempo e 6 per le variabili
+Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non venivano gestiti correttamente da tale programma. Pertanto sia per le variabili che per il tempo uso interi positivi, di ampiezza tale da entrare sempre nel numero di digit ammessi dallo standard, pari a 10 per il tempo e 6 per le variabili
 
   */
   iMin=0;
@@ -2470,7 +2470,8 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
    *a -32768, che sarebbe il più piccolo numero rappresentabile su due Bytes se vogliamo
    *la compatibilità con GTPPLOT.
    *E' stata fatta anche una prova a -4096 che ha dato letture scorrette. Si può pertanto
-   *ipotizzare che non sia possibile mettere qualsiasi numero negativo in IntMin, se vogliamo la compatibilità con GTTPLOT.
+   *ipotizzare che non sia possibile mettere qualsiasi numero negativo in IntMin, se
+   * vogliamo la compatibilità con GTTPLOT.
   */
 
   //Allocazione spazi:
@@ -2522,7 +2523,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
     }
     factor[index]=(max-offset[index])/float(iVarMax-iMin);
     if(factor[index]==0)
-      factor[index]=float(1.e-45); //L'es. deve essere 45: se metto 46 il risultato è portato a 0!
+      factor[index]=float(1.e-45); //L'esp. deve essere 45: se metto 46 il risultato è portato a 0!
     //An,ch_id,ph,ccbm,uu,a,b,skew,min,max,primary,secondary,PS
     // Significato delle variabili esplicitamente assetnate nel descrittore fprintf:
     //  0.0: skew
@@ -2538,12 +2539,23 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
   //Number of Sampling rates. Io voglio salvare in comtrade risutati che possono derivare da simulazioni a passo variabile, quindi i campioni sono scritti con il proprio istante, con registrazione quindi continua, priva del sample rate. Pertanto nrates=0=stamp:
   fprintf(pFile,"0\n");
   //"Sampling rate" e "end sample"
-  if(y[0][1]<=y[0][0]) return "First variable not monothonically increasing";
-  fprintf(pFile,"0.0,%d\n",numOfPoints);
+  if(y[0][1]<=y[0][0])
+    return "First variable not monotonically increasing";
+  /* Siccome ho optato per scrivere il timestamp sui dati e ho scelto nrates=0, lo
+   * standard mi consente di mettere samp=0.
+   * Purtrppo è stato osservato (messaggi con Ivanov), che strumenti Omicron non accettano
+   *  questa impostazione: presuppongono campioni equispaziati e prendono il timestap da
+   * samp anche nel caso di nrates=0.
+   * Allora, visto che non compromette alcuna funzionalità, come samp  metto comunque
+   * il passo fra i primi due campioni
+  */
+
+  fprintf(pFile,"%f,%d\n",y[0][1]-y[0][0],numOfPoints);
+//  fprintf(pFile,"0.0,%d\n",numOfPoints);
   //"Date" e "Time":
   dateTime=QDateTime::currentDateTime();
   row=dateTime.toString("dd/mm/yyyy,hh:mm:ss.zzz");
-  // Siccome i decimali di secondo devono arrivre al microsecondo, aggiungo tre zeri in fondo:
+  // Siccome i decimali di secondo devono arrivare al microsecondo, aggiungo tre zeri in fondo:
   row=row+"000\n";
   fprintf(pFile,row.toLatin1().data());
   fprintf(pFile,row.toLatin1().data());
