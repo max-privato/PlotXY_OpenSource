@@ -134,14 +134,13 @@ void CPlotWin::chartValuesChanged(SXYValues values, bool hDifference, bool vDiff
     QString msg;
 //    msg=msg.setNum(values.X[0],'g',4+exactMatch);
     msg=smartSetNum(values.X[0],5+exactMatch);
-    char buffer[17];
 
     // Qui alcuni tentativi di avere indicati i numeri di decimali giusti dopo la virgola.
     // L'idea è si scrivere sia con E e poi trattare io i digit per la rappresentazione
     // a numero di cifre significative giusto ('g' ha lo stesso problema del 'g' di setNum)
     //però dovrei provare l'algoritmo in un programmino a sé stante.
-    sprintf(buffer,"%+12.5e",double(values.X[0]));
-
+//    char buffer[17];
+//    sprintf(buffer,"%+12.5e",double(values.X[0]));
 
     if(hDifference)
       msg= "*"+msg;
@@ -171,7 +170,7 @@ Di tutti i dati passati devo creare una copia locale. Infatti CDataSelWin gestis
 Con l'occasione della creazione di queste copie locali, converto il formato dei dati che proviene da CDataSelWin, orientato alle liste (più elegante), a quello utilizzato in CLinechart, orientato ai vettori (più compatibile con la versione BCB).
 
 Per quanto riguarda x1 e y1 potrei copiare soltanto i puntatori ai vettori, visto che i dati sono allocati all'interno di mySO[]. Però questo non andrebbe bene per i grafici che sono ottenuti per elaborazione di dati di input attraverso funzioni.
-(Ultima parte a destra di y1: vedere Developer.odt per dettagli).
+(Ultima parte a destra di y1: vedere Developer.docx per dettagli).
 
 Pertanto, in analogia con quanto fatto con l'analoga funzione di BCB, preferisco allocare memoria per le complete matrici x e y, e copiare tutti i dati, con ciò effettuando una certa ridondanza di operazioni e allocazioni.
 
@@ -239,6 +238,9 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
       memcpy(x[i],x1[i],size_t(size));
       for(int j=0; j<numOfPoints[i]; j++)
         x[i][j]+=filesInfo[i].timeShift;
+      if(x1Info.timeConversion==1)  //s->h
+        for(int j=0; j<numOfPoints[i]; j++)
+          x[i][j]/=3600.0f;
     }
     numOfTotPlots=iVarTot;
     xParam.isVariableStep=true;
@@ -515,7 +517,7 @@ void CPlotWin::resizeEvent(QResizeEvent *){
     ui->xValueLbl->setFont(myFont);
     ui->yValueLbl->setFont(myFont);
     QFontMetrics fm(myFont);
-    int minimumWidth=fm.width("+#.###e+#")+3;
+    int minimumWidth=fm.width("+#.###e+##")+2;
     ui->xValueLbl->setMinimumWidth(minimumWidth);
     ui->yValueLbl->setMinimumWidth(minimumWidth);
     minimumWidth=fm.width(ui->interpolateBox->text()+"XXX")+2;

@@ -2532,7 +2532,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
 
     fprintf(pFile,"%d,%s , ,%s,%s,%e,%e,0.0,%d,%d,1.0,1.0,p\n",
         iVar,varName.toLatin1().data(),CCBM.toLatin1().data(),unit.toLatin1().data(),
-               factor[index],offset[index],iMin,iVarMax);  //a, b, min, max
+        factor[index],offset[index],iMin,iVarMax);  //a, b, min, max
   }
   //Line frequency (convenzionalmente sempre 50 Hz):
   fprintf(pFile,"50\n");
@@ -2550,7 +2550,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
    * il passo fra i primi due campioni
   */
 
-  fprintf(pFile,"%f,%d\n",y[0][1]-y[0][0],numOfPoints);
+  fprintf(pFile,"%f,%d\n",1.0f/(y[0][1]-y[0][0]),numOfPoints);
 //  fprintf(pFile,"0.0,%d\n",numOfPoints);
   //"Date" e "Time":
   dateTime=QDateTime::currentDateTime();

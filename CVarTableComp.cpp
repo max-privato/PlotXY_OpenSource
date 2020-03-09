@@ -177,8 +177,10 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
 
     //Per prima cosa gestisco la variabile x.
     for(iRow=0; iRow<rowCount(); iRow++){
-      if(item(iRow,XVARCOL)->text()!="x")continue;
+      if(item(iRow,XVARCOL)->text()!="x")
+        continue;
 
+      // valuto dati relativi alla function plots
       str=item(iRow,VARNUMCOL)->text();
       if(str[0]=='f'){
         xInfo.isFunction=true;
@@ -296,6 +298,7 @@ void CVarTableComp::myReset(bool deep) {
   funSet.clear();
   tabFileNums.clear();
   highestUsedRowIdx=1;
+  xInfo.timeConversion=0;
 }
 
 void CVarTableComp::resizeEvent(QResizeEvent *){
@@ -445,7 +448,7 @@ void CVarTableComp::filterOutVars(QList <QString> varList){
             // aggiorno il valore numerico a quello del file refreshato:
             item(iRow,VARNUMCOL)->setText(QString::number(varIndex+1));
          else
-          myClicked(iRow,VARCOL);
+          leftClicked(iRow,VARCOL);
     }
 }
 
@@ -657,7 +660,7 @@ void CVarTableComp::blankCell()  {
 //    item(TOTROWS-1,VARCOL)->setBackground(Qt::white);
 }
 
-void CVarTableComp::myClicked(int r, int c){
+void CVarTableComp::leftClicked(int r, int c){
 /*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima
  * gestisce il click destro e per il click sinistro rimanda qui.
 */
@@ -826,7 +829,7 @@ void CVarTableComp::myClicked(int r, int c){
           commonXSet=false;
         }
       }
-      // If I chose as x a function plot I mustn-t have other function plots, otherwise system crashes (reasons not analysed yet):
+      // If I chose as x a function plot I mustn't have other function plots, otherwise system crashes (reasons not analysed yet):
       if(item(r,VARNUMCOL)->text()[0]=='f'){
         bool manyFunctionPlots=false;
         for (int i=0; i<rowCount(); i++){
@@ -841,14 +844,16 @@ void CVarTableComp::myClicked(int r, int c){
           return;
         }
       }
-      if(item(r,XVARCOL)->text()!="")return;
-      if(item(r,VARCOL)->text()=="")return;
+      if(item(r,XVARCOL)->text()!="")
+        return;
+      if(item(r,VARCOL)->text()=="")
+        return;
      /* The table colours must stay stable unless the user changes them.
       * Therefore, if the x variable is already different from the one on the first row,
       *  WITH THE NEXT ROW I first set again the first row as the x variable, then do che
       *  requested change */
       if(xVarRow!=1 && r!=1)
-         myClicked(1,c);
+         leftClicked(1,c);
 
       for(j=0;j<TOTCOLS;j++){
         item(xVarRow,j)->setForeground(item(r,j)->foreground());
@@ -863,7 +868,7 @@ void CVarTableComp::myClicked(int r, int c){
       // Now I unselect time variable. I do this only if it's in the first row and only once after each reset. In this way the user can add again time, if he wants so, and let it be plotted.
       if(!timeVarReset){
         timeVarReset=true;
-        myClicked(oldXVarRow,VARCOL);
+        leftClicked(oldXVarRow,VARCOL);
       }
       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
         allowSaving=false;
@@ -893,20 +898,46 @@ bool CVarTableComp::isEmpty(){
   return empty;
 }
 void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
-    int r=indexAt(event->pos()).row();
-    int c=indexAt(event->pos()).column();
-    if(c<0 || r<0)
-       return;
-    if(event->button()!=Qt::RightButton){
-        myClicked(r,c);
-        return;
-    }
-    if(item(r,VARCOL)->text()=="")
+  /* Questa funzione gestisce il click destro; per il click sinistro rimanda alla funzione
+   *  leftClicked().
+   * Il click destro ha effetti diversi a seconda se sia fatto sulla variabile x o su una
+   * delle variabili di asse verticale: nel primo caso al momento causa la conversione del
+   *  tempo da secondi in ore (in futuro andrà prevista la conversione anche in giorni;
+   *  o faccio una rotazione circolare dei fattori di conversione o aprirà un menù
+   * contestuale)
+*/
+  int r=indexAt(event->pos()).row();
+  int c=indexAt(event->pos()).column();
+  if(c<0 || r<0)
+     return;
+  if(event->button()!=Qt::RightButton){
+      leftClicked(r,c);
       return;
-    if(item(r,XVARCOL)->text()=="")
-      item(r,XVARCOL)->setText("r");
-    else if(item(r,XVARCOL)->text()=="r")
-        item(r,XVARCOL)->setText("");
+  }
+  if(item(r,VARCOL)->text()=="")
+    return;
+
+  if(item(r,XVARCOL)->text()=="x"){
+    QString txt=item(r,VARCOL)->text();
+    if(xInfo.name.contains(" (s->h)")){
+      txt.truncate(txt.count()-7);
+      item(r,VARCOL)->setText(txt);
+      xInfo.unitS="s"; //Non si sa perché questo valore è perso quando si fa il plot
+      xInfo.timeConversion=0; //Non si sa perché questo valore è perso quando si fa il plot
+    }else {
+      item(r,VARCOL)->setText(item(r,VARCOL)->text().append(" (s->h)"));
+      txt=item(r,VARCOL)->text();
+      xInfo.unitS="h";  //Non si sa perché questo valore è perso quando si fa il plot
+      xInfo.timeConversion=1; //Non si sa perché questo valore è perso quando si fa il plot
+      //Poi aggiungerò un qualche sistema per fare anche la conversione in giorni (timeConversion=2)
+    }
+    return;
+  }
+  // Se arrivo qui ho un right-click su una variabile da mettere su asse y
+  if(item(r,XVARCOL)->text()=="")
+    item(r,XVARCOL)->setText("r");
+  else if(item(r,XVARCOL)->text()=="r")
+      item(r,XVARCOL)->setText("");
 }
 
 

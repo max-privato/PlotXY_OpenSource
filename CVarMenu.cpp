@@ -112,14 +112,38 @@ void CVarMenu::mouseReleaseEvent(QMouseEvent *event){
     }
   }else{
     //Qui faccio una selezione semplice (click su variabile)
-    if(event->button()==Qt::RightButton)
+      // iy e ix sono gli indici di riga e colonna in cui è avvenuto il click.
+      int iy=rowAt(event->pos().y());
+      int ix=columnAt(event->pos().x());
+      if(ix<0 || iy<0)
+        return;
+    //Se c'è il modificatore Control non faccio nulla: nel seguito lo userò per convertire l'unità di misura del tempo:
+
+      /*
+      if(event->modifiers()==Qt::ControlModifier){
+          // Se sono sulla riga 0, quella del tempo, predsponsgo la conversione dai secondi alle ore, mettendo un'appendice al nome; altrimenti non faccio nulla ed esco
+        if(iy==0){
+            QString txt=item(0,1)->text();
+            // verifico di non aver già aggiunto la stringa " (s->h)" al nome della variabile nella prima riga se così è la tolgo:
+            if(txt.count()>7)
+                txt=txt.mid(txt.count()-7,7);
+            if(txt==" (s->h)"){ //A questo punto tolgo la stringa finale
+               txt=item(0,1)->text();
+               txt.truncate(txt.count()-7);
+               item(0,1)->setText(txt);
+               return;
+            }
+        }  // A questo punto posso aggiungere la stringa al nome:
+        item(0,1)->setText( item(0,1)->text().append(" (s->h)"));
+      }
+      return;
+
+      */
+
+      if(event->button()==Qt::RightButton)
       rightBtn=true;
     // Il seguente emit causa l'esecuzione di CDataSelWin::varMenuTable_cellClicked()
     // (connect in CDataSelWin::CDataSelWin()  )
-    // iy e ix sono gli indici di riga e colonna in cui è avvenuto il click.
-    int iy=rowAt(event->pos().y());
-    int ix=columnAt(event->pos().x());
-    if(ix<0 || iy<0) return;
     emit myCellClicked(iy,ix, rightBtn);
   }
 }

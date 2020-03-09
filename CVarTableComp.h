@@ -85,7 +85,7 @@ private:
     int iniVarNumColWidth; // valore iniziale di varNumCol
     int singleFileNum; //numero del file se in SingleFile
     int styleData;
-    int tabNameNum; //index of the tab containining the object: for debug purposes
+    int tabNameNum; //number (between 1 and 8) of the tab containining the object: for debug purposes
     int xVarRow;
     double myDPI; //valore del numero di DPI logici del PC: di base in win (non 4k): 96 dpi.
     float **yLine;
@@ -158,7 +158,7 @@ signals:
 
 public slots:
     void blankCell();
-    void myClicked(int r, int c); //Implementa la deselezione di variabile come SLOT di clicked()
+    void leftClicked(int r, int c); //Implementa la deselezione di variabile come SLOT di clicked()
     void setCurrFile(int fileIdx);
     int setVar(QString varName, int varNum, int giveFileNum, bool rightScale, bool monotonic_, QString unit_);
     int unselectFileVars(int fileIndex);

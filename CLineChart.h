@@ -60,6 +60,7 @@ struct SCurveParam {
     bool isMonotonic; //Nel caso essa sia true, sarà possibile effettuare le zoomate in maniera molto più veloce in quanto si sfrutta il fatto di sapere che X è monotona crescente.
 //    int fileIndex; //numero del file in base 0
     int idx; //numero della variabile all'interno del file considerato: indice di mySO[ifile]->y[num];'
+    int timeConversion; //vale 0 se non faccio conversioni, 1: s->h, 2: s->h
     QString name; //il nome della variabile; per le funzioni f1, f2, ecc.
     QString midName;  //per le funzioni la loro stringa, tipo f1v1+2*v3
     QString fullName; // per le funzioni il nome completo, tipo voltage1-voltage2/2.0

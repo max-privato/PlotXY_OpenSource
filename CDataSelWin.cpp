@@ -1867,11 +1867,10 @@ void CDataSelWin::on_plotTBtn_clicked() {
   SFileInfo myFileInfo;
   QList <SFileInfo> filesInfo; //informazioni relative ai files di cui sono richiesti plot. Contiene sia le informazioni relative ai plot diretti da dati di input (uno per file) che a funzioni di variabili (uno per funzione). Pertanto il numero di elementi che contiene è pari a numOfTotPlotFiles
 
-        // information related to the files which requested plot; it contains
-
-        // information related to thet plots generated from input data (one per file)
-        // and to variable functions (one per function).
-        // Therefore the number of elements it contains is equal to numOfTotPlotFiles
+    // information related to the files which requested plot; it contains
+    // information related to the plots generated from input data (one per file)
+    // and to variable functions (one per function).
+    // Therefore the number of elements it contains is equal to numOfTotPlotFiles
   QList <SCurveParam> y1Info[MAXFILES+MAXFUNPLOTS];
   QList <SXYNameData> funInfoLst; //una  voce della lista per ogni funzione di variabile
                                // a list item for each variable function
@@ -1879,10 +1878,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
   QString ret;
   float timeShift[MAXFILES];
 
- // fase 0: analizzo fileTable e compilo timeShift
-  //Associo il tShift al numero di file:
-
-  // step 0: I analyze fileTable and compile timeShift
+  // phase 0: I analyze fileTable and compile timeShift
   // Associate the tShift to the file number:
   for (int i=0; i<MAXFILES; i++)
       timeShift[i]=0;
@@ -1945,6 +1941,15 @@ void CDataSelWin::on_plotTBtn_clicked() {
     if(!myVarTable->xInfo.isFunction){
       x1[iFileNew]=mySO[iFile]->y[myVarTable->xInfo.idx];
     }
+    if(myVarTable->xInfo.name.contains(" (s->h)")){  //converto il tempo s->h
+      myVarTable->xInfo.unitS="h";
+      // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabilex, e invece uso la memoria dell'oggettto di input mySO.
+      myVarTable->xInfo.timeConversion=1;
+    }
+    if(myVarTable->xInfo.timeConversion==2){ //converto il tempo s->d
+      for(int i=0; i<mySO[iFile]->numOfPoints; i++)
+        x1[iFileNew][i]/=86400.f;
+    }
     myFileInfo.name=mySO[iFile]->fileInfo.fileName();
     myFileInfo.fileNum=iFile;
     myFileInfo.numOfPoints=mySO[iFile]->numOfPoints;
@@ -1997,8 +2002,8 @@ void CDataSelWin::on_plotTBtn_clicked() {
      * "conditio sine qua non" le funzioni di variabili senza cross-interpolation
      * possono essere calcolate.
 */
-    /* The management of variable functions is particularly complex if you do not have one
-     * the guarantee that all the files involved have data in correspondence
+    /* The management of variable functions is particularly complex if you do not have
+     * guarantee that all the files involved have data in correspondence
      * of the same values ​​as the time variable.
      * This type of information is provided by the PlotXY user through
      * the checkbox in the CFunStrInput dialog.
@@ -2075,7 +2080,6 @@ void CDataSelWin::on_plotTBtn_clicked() {
       int soIndex=funInfo.varNumsLst[j].fileNum-1;
       int yIndex=funInfo.varNumsLst[j].varNum-1;
        varMatrix[j]=mySO[funInfo.varNumsLst[j].fileNum-1]->y[funInfo.varNumsLst[j].varNum-1];
-
        funInfo.varUnits.append(mySO[soIndex]->sVars[yIndex].unit);
     }
     for(int j=0; j<fileNumsLst.count(); j++){

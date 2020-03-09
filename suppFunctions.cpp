@@ -160,7 +160,7 @@ QString smartSetNum(float num, int prec){
     /*  Funzione PURA che scrive su stringa i numeri con un numero prefissato di cifre
      * significative nella versione più compatta possibile, ma senza perdita di informazioni.
      *  E' stato necessario implementarla
-     * ache se esiste la funzione di stringa setNum, in quanto quest'ultima taglia gli zeri
+     * anche se esiste la funzione di stringa setNum, in quanto quest'ultima taglia gli zeri
      * finali. Pertanto, ad es. 0.1200  (o 0.12) con 4 cifre significative in setNum viene
      * 0.12, con perdita di informazione sugli ultimi due digit, mentre nella presente
      * routine, più correttamente, viene 0.1200
