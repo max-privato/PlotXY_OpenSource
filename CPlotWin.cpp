@@ -218,7 +218,7 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
     for(i=0; i<filesInfo.count(); i++){
       nVarTot+=y1Info[i].count();
     }
-    y=new float**[numOfTotPlotFiles];
+    y=new float**[numOfTotPlotFiles]; //modifica
     x=new float* [numOfTotPlotFiles];
     iVarTot=0;
     lCurveParam.clear();
@@ -241,6 +241,9 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
       if(x1Info.timeConversion==1)  //s->h
         for(int j=0; j<numOfPoints[i]; j++)
           x[i][j]/=3600.0f;
+      if(x1Info.timeConversion==2)  //s->d
+        for(int j=0; j<numOfPoints[i]; j++)
+          x[i][j]/=86400.0f;
     }
     numOfTotPlots=iVarTot;
     xParam.isVariableStep=true;

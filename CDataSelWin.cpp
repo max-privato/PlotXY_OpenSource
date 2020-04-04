@@ -1943,12 +1943,13 @@ void CDataSelWin::on_plotTBtn_clicked() {
     }
     if(myVarTable->xInfo.name.contains(" (s->h)")){  //converto il tempo s->h
       myVarTable->xInfo.unitS="h";
-      // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabilex, e invece uso la memoria dell'oggettto di input mySO.
+      // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggettto di input mySO.
       myVarTable->xInfo.timeConversion=1;
     }
-    if(myVarTable->xInfo.timeConversion==2){ //converto il tempo s->d
-      for(int i=0; i<mySO[iFile]->numOfPoints; i++)
-        x1[iFileNew][i]/=86400.f;
+    if(myVarTable->xInfo.name.contains(" (s->d)")){  //converto il tempo s->d
+      myVarTable->xInfo.unitS="d";
+      // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggettto di input mySO.
+      myVarTable->xInfo.timeConversion=2;
     }
     myFileInfo.name=mySO[iFile]->fileInfo.fileName();
     myFileInfo.fileNum=iFile;

@@ -740,8 +740,6 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   int rowNum, totSignals, analogSigs, digiSigs,
           digiCombs=0, extraDigiSigs=0;  //Initializing to zero to avoid warning message
   float *factor, *offset, skew;
-//  float triggerTime;
-//  float startTime;
   FILE *pFile;
   QString msg, extStr="???", retStr, CCBM, unit, datFileName, version;
   QString auxStr, subType;
@@ -751,7 +749,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   runType=rtUndefined;
   fileInfo=fi;
   allowsPl4Out=false;
-  /* Fase 1: Preparazione e scrittura file di estensione cfg*/
+  /* Fase 1: Preparazione e lettura file di estensione cfg*/
   //Apertura file:
   pFile=fopen(qPrintable(cfgFileName),"r");
   if(pFile==nullptr)return "Unable to open CFG file (does it exist?)";
@@ -1006,7 +1004,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
 
   fclose(pFile);
 
-  /* Fase 2: Preparazione e lettura file di estensione dat*/
+  /* Fase 2: Preparazione e lettura file di estensione dat */
   //Apertura file:
   rowNum=0;
   extStr="DAT";
@@ -1030,13 +1028,13 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   delete[] row;
   row=new char[maxLen+1];
 
-    //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
-    if(y!=nullptr)DeleteFMatrix(y);
-    y=CreateFMatrix(numOfVariables,numOfPoints);
+  //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
+  if(y!=nullptr)DeleteFMatrix(y);
+  y=CreateFMatrix(numOfVariables,numOfPoints);
   if(y==nullptr){
-        retStr="Unable to allocate memory for variables";
-        goto _return;
-    }
+    retStr="Unable to allocate memory for variables";
+    goto _return;
+  }
 
   if(subType=="ASCII"){
     for(point=0; point<numOfPoints; point++){
@@ -1057,32 +1055,36 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
       fread (&u1, 4, 1, pFile);
       //Ma se numOfRates è diverso da 0 uso quello per calcolare il tempo:
       if(numOfRates>0){
-          //Al tempo andrebbe aggiunto initialTime per avere una rappresentazione completa di quello che c'è sul file. Però PlotXY è concepito per far partire i segnali da 0 e quindi non faccio la traslazione (il decremento perché il primo campione è 1, ma il relativo istante 0):
+        //Al tempo andrebbe aggiunto initialTime per avere una rappresentazione completa di quello che c'è sul file. Però PlotXY è concepito per far partire i segnali da 0 e quindi non faccio la traslazione (il decremento perché il primo campione è 1, ma il relativo istante 0):
 //          y[0][point]=(float)--u/sampleRate;
-          y[0][point]=float(point)/sampleRate;
+        y[0][point]=float(point)/sampleRate;
       }
       else
-         y[0][point]=factor[0]*u1;
+        y[0][point]=factor[0]*u1;
       // 3) lettura variabili analogiche:
       for(var=1; var<analogSigs+1; var++){
         fread (&si, 2, 1, pFile);
         y[var][point]=factor[var]*si+offset[var];
       }
       // 4) lettura variabili digitali a canale combinato pieno:
-      for(var=analogSigs; var<analogSigs+16*digiCombs; var+=16){
-        fread (&si, 2, 1, pFile);
+
+      for(int digivar=0; digivar<digiCombs; digivar++){
+        var=analogSigs+1+16*digivar;
+        fread (&si, sizeof(short int), 1, pFile);
         for(i=0;i<16;i++){
-//          y[var+i][point]=si&(short int)(2^i);
-          y[var+i][point]=si&short(2^i);
+          bool test=(si&short(2^i))>0;
+            test=(si& (1<<i))>0;
+          y[var+i][point]=(si& (1<<i))>0;
         }
       }
       // 5) lettura variabili digitali a canale combinato parzialmente vuoto:
       if(extraDigiSigs){
-        var=analogSigs+16*digiCombs;
+        var=analogSigs+1+16*digiCombs;
         fread (&si, sizeof(short int), 1, pFile);
         for(i=0;i<extraDigiSigs;i++){
-//          y[var+i][point]=si&(short int)(2^i);
-          y[var+i][point]=si&short(2^i);
+            bool test=(si&short(2^i))>0;
+            test=(si& (1<<i))>0;
+          y[var+i][point]=(si& (1<<i))>0;
         }
       }
     }
