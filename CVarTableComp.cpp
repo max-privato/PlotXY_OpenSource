@@ -919,17 +919,28 @@ void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
 
   if(item(r,XVARCOL)->text()=="x"){
     QString txt=item(r,VARCOL)->text();
+    // Qui ho fatto un click destro sulla variabile x. Allaora faccio un ciclo di conversione delle unità di  misura: da normale a s->h, da s->h a s->d, da s->d normale
+    //Notare che qui seleziono xInfo.timeConversion ma stranamente lo trovo resettato a 0 in dataSelWin, ove lo rimetto al valore giusto. Poi questo valore è utilizzato per la conversione della variabile sull'asee x all'interno di getData di CPlotWin: il posto più giusto perché è là che si alloca spazio alla variabile asse x, autonomo rispetto a mySO.
+
     if(xInfo.name.contains(" (s->h)")){
       txt.truncate(txt.count()-7);
+      txt.append(" (s->d)");
       item(r,VARCOL)->setText(txt);
+      xInfo.name=txt;
+      xInfo.unitS="d"; //Non si sa perché questo valore è perso quando si fa il plot
+      xInfo.timeConversion=1; //Non si sa perché questo valore è perso quando si fa il plot
+    }else if(xInfo.name.contains(" (s->d)")){
+      txt.truncate(txt.count()-7);
+      item(r,VARCOL)->setText(txt);
+      xInfo.name=txt;
       xInfo.unitS="s"; //Non si sa perché questo valore è perso quando si fa il plot
       xInfo.timeConversion=0; //Non si sa perché questo valore è perso quando si fa il plot
     }else {
       item(r,VARCOL)->setText(item(r,VARCOL)->text().append(" (s->h)"));
       txt=item(r,VARCOL)->text();
+      xInfo.name=txt;
       xInfo.unitS="h";  //Non si sa perché questo valore è perso quando si fa il plot
       xInfo.timeConversion=1; //Non si sa perché questo valore è perso quando si fa il plot
-      //Poi aggiungerò un qualche sistema per fare anche la conversione in giorni (timeConversion=2)
     }
     return;
   }
