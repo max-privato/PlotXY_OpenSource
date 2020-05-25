@@ -2390,7 +2390,7 @@ QString CSimOut::saveToAdfFile(QString fileName, QString comment) {
   vars = new int[numOfVariables];
   for(i=0; i<numOfVariables; i++)vars[i]=i;
     ret=saveToAdfFile(fileName, comment, numOfVariables, vars);
-  delete vars;
+  delete [] vars;
   return ret;
 }
 
