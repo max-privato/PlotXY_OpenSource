@@ -67,7 +67,7 @@ private:
     int analyseAndShow(bool changed);
 
     void copyOrPrint(EOutType type);
-    void computeTHD();
+    void computeTHD(); //Oltre a calcolare il THD, se il numero di armoniche richiesto è 40 calcola anche il PWHC secondo IEC 61000-3-2
     bool indexesFromTimes(SFourData data);
     int performDFT();
     int performNuDFT();
@@ -87,6 +87,7 @@ private:
           *phases1, *amplitudes1, //puntatori a cui non verrà allocato spazio di memoria in quanto puntano a elementi di amplitudes e phases
           ampl01[2], //Solo le ampiezze di armonica 0 e 1 per fare l'eventuale p.u.
           THD0, THD1,  //THD relativi ad armonica 0 e 1 (in percentuale)
+          PWHC, //PWHC secondo IEC 61000-3-2, calcolato solo se le armoniche richieste sono pari a 40; anche questa è in percentuale
           RMS; //RMS considerando il range di armoniche prescelto
 };
 

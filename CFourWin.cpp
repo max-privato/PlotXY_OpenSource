@@ -204,10 +204,11 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
       ui->phaseChart->setVisible(false);
     }
     computeTHD();
-    QString msgRMS, msg0, msg1;
+    QString msgRMS, msg0, msg1, msg2;
     msgRMS.setNum(RMS,'g',5);
     msg0.setNum(THD0,'g',5);
     msg1.setNum(THD1,'g',5);
+    msg2.setNum(PWHC,'g',5);
 
     //La seguente infoString viene poi visualizzata alla pressione del bottone "?"
     infoString="";
@@ -217,16 +218,28 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
        infoString= "RMS: "+msgRMS+"; THD1: "+msg1+"%";
     if(myData.opt.harm1>1)
        infoString= "RMS: "+msgRMS;
+    if(myData.opt.harm1<=14 && myData.opt.harm2>=40)
+        infoString= infoString+"\n IEC 61000-3-2 PWHC: "+msg2+"%";
+
     return ret;
 }
 
 
 void CFourWin::computeTHD(){
-  float THD=0;
-  // Here I exclude harm1, which II'll introduce later only for THD0:
+  float THD=0, work=0;
+  if(myData.opt.harm1>2)
+      return;
+  // Here I exclude harm1, which I'll introduce later only for THD0:
   for(int harm=2; harm<=myData.opt.harm2; harm++)
     THD+=amplitudes[harm]*amplitudes[harm];
+  if (myData.opt.harm1<=14 && myData.opt.harm2>=40){
+      for(int harm=14; harm<=40; harm++)
+        work+=harm*amplitudes[harm]*amplitudes[harm];
+   PWHC=sqrtf(work);
+  }
 
+  for(int harm=2; harm<=myData.opt.harm2; harm++)
+    THD+=amplitudes[harm]*amplitudes[harm];
   // THD % relative ad armoniche 0 e 1:
   if(amplitudes[0]==0)
       return;
@@ -283,7 +296,7 @@ void CFourWin::copyOrPrint(EOutType type){
     headText2+= "Amplitude: rms value";
     break;
   case puOf0:
-    headText2+= "Amplitude: p.u. of 0-order value";
+    headText2+= "Amplitude: % of 0-order value";
     break;
   case puOf1:
     headText2+= "Amplitude: % of 1-order value";
@@ -532,8 +545,7 @@ void CFourWin::on_copyBtn_clicked()
     copyOrPrint(otCopy);
 }
 
-void CFourWin::on_infoBtn_clicked()
-{
+void CFourWin::on_infoBtn_clicked() {
     QString msg="File: "+myData.fileName+"\n"+"Variable: "+myData.varName+"\n";
     msg=msg+infoString;
     QMessageBox::information(this,"Fourier chart info",msg);
