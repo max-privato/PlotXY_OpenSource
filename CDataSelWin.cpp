@@ -1644,7 +1644,11 @@ void CDataSelWin::showEvent(QShowEvent *){
 }
 
 QPoint CDataSelWin::toInPrimaryScreen(QPoint inPoint, int pixelMargin){
-    /* serve ad assicurarsi che un punto sia all'interno della zona visibile dello schermo. Anzi, esso viene posizionato all'interno di tale zona di una quantità di pixel pari a pixelMargin. Se ad esempio inPoint è pos() di una finestra esso verrà posizionato un po' dentro lo schermo in modo che l'utente possa vedere almeno un angolo della finestra */
+   /* serve ad assicurarsi che un punto sia all'interno della zona visibile dello schermo.
+    *  Anzi, esso viene posizionato all'interno di tale zona di una quantità di pixel
+    * pari a pixelMargin. Se ad esempio inPoint è pos() di una finestra esso verrà
+    * posizionato un po' dentro lo schermo in modo che l'utente possa vedere almeno un
+    * angolo della finestra */
 
     /* is used to make sure that a point is within the visible area of ​​the screen.
      * On the contrary, it is positioned within this zone by a quantity of pixels

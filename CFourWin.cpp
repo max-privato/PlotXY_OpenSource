@@ -286,7 +286,7 @@ void CFourWin::copyOrPrint(EOutType type){
     headText2+= "Amplitude: p.u. of 0-order value";
     break;
   case puOf1:
-    headText2+= "Amplitude: p.u. of 1-order value";
+    headText2+= "Amplitude: % of 1-order value";
     break;
   }
 
