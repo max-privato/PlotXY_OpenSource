@@ -517,13 +517,52 @@ void CFourWin::getData(struct SFourData data_){
 }
 
 bool CFourWin::indexesFromTimes(SFourData data){
-/* Il calcolo degli indici di DFT dai tempi viene fatto sia al FormShow che dopo il click sulle opzioni di Fourier.
-Siccome viene fatto in due punti indipendenti lo incapsulo qui, per essere sicuro che l'algoritmo sia sempre esattamente lo stesso.
-Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcolo dopo il click sul bottone Opzioni di Fourier, prima di fare il performDFT(), che può essere un'operazione lenta, verifico che con le opzioni non siano soltanto cambiate delle opzioni di visualizzazione (e quindi il calcolo non va rifatto). Questo check comporta anche la verifica se gli indici di calcolo sono cambiati oppure no.
+/* Funzione che calcola gli indici delle variabili corrisponsenti agli istanti del calcolo
+ * della DFT specificati dall'utente o determinati automaticamente.
+ * A parire dal 2020 la DFT è calcolata con un algoritmo che consente di avere cmpioni
+ * non equispaziati. Pertanto anche il calcolo degli indici deve considerare questa
+ *  possibilità.
+ *
+ * il calcolo prende come campioni quelli compresi, estremi inclusi, fra quello
+ * immediatamente oltre t1, e quello immediatamente oltre t2 se esiste, altrimenti
+ * l'ultimo. Gli estremi inclusi sono caratterizzati da indexLeft e indexRight.
+ * Questa scelta dipende dal fatto che l'implicita periodicità assutnta per il calcolo
+ * dei polinomi di Fourier fa sì che se il calcolo è fra t1 e t2, il valore in t2 è
+ * implicitamente assunto pari a quello in t1.
+ *
+ * Il calcolo degli indici di DFT dai tempi viene fatto sia al FormShow che dopo il click
+ *  sulle opzioni di Fourier.
+ * Siccome viene fatto in due punti indipendenti lo incapsulo qui, per essere sicuro che
+ *  l'algoritmo sia sempre esattamente lo stesso.
+ * Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcolo dopo
+ * il click sul bottone Opzioni di Fourier, prima di fare il performDFT(), che può essere
+ *  un'operazione lenta, verifico che con le opzioni non siano soltanto cambiate delle
+ *  opzioni di visualizzazione (e quindi il calcolo non va rifatto).
+ * Questo check comporta anche la verifica se gli indici di calcolo sono cambiati oppure
+ *  no.
 */
   bool changed=false;
-  int i, stepsPerSecond;
   int nearInt(float);
+   //Gli indici indexLeft e indexRight definiscono il più ampio set di campioni **interni** a t1 e t2. Per il calcolo, come specificato sopra, il valore della funzione in t1 verrà calcolato con intepolazione lineare fra quello in indexLeft-1 e in indexLeft, mentre quello di destra sarà in indexRight. Se indexLeft=0, ovviamente, prenderò come primo campione proprio quello indexLeft.
+  bool indexLeftDefined=false;
+  indexLeft=0;
+  indexRight=data.numOfPoints-1;
+  for(int sample=1; sample<data.numOfPoints; sample++){
+    if(data.x[sample]>data.opt.initialTime && !indexLeftDefined ){
+        indexLeft=sample;
+        indexLeftDefined=true;
+    }
+    if(data.x[sample]>data.opt.finalTime){
+        indexRight=sample-1;
+        break;
+    }
+  }
+
+  // NOTA: indexLeft viene sempre >0. Questo è sfruttato nel calcolo di period in performNuDFT()
+
+  //Vecchio calcolo valido per campioni equispaziati:
+  /*
+  int i, stepsPerSecond;
   stepsPerSecond=int((data.numOfPoints-1) / (data.x[data.numOfPoints-1]-data.x[0]));
   i= nearInt( (data.opt.initialTime-data.x[0])*stepsPerSecond)+1;
   if(i!=indexLeft){
@@ -535,6 +574,7 @@ Non lo metto all'interno di performDFT() in quanto quando effettuo questo calcol
       indexRight=i;
       changed=true;
   }
+  */
   fourOptions->getHMax((indexRight-indexLeft+1)/2);
   return changed;
 }
@@ -603,7 +643,7 @@ int CFourWin::performDFT(){
  *  ampl01[2], //Solo le ampiezze di armonica 0 e 1 per fare l'eventuale p.u.
 */
   int ret=0;
-  int harm, sample, nSamples=indexRight-indexLeft;
+  int harm, sample, nSamples=indexRight-indexLeft+1;
   int harm1=myData.opt.harm1, harm2=myData.opt.harm2;
   const double pi=3.14159265358979;
   float *y1=myData.y+indexLeft;
@@ -689,16 +729,63 @@ int CFourWin::performDFT(){
 }
 
 int CFourWin::performNuDFT(){
-/* Variante di performDFT che consente la DFT anche per campioni non equispaziati (non-uniform-DFT)
+/* Variante di performDFT che consente la DFT anche per campioni non equispaziati (non-
+ * uniform-DFT)- Si ricorda che indexLeft e indexRight definiscono gli indici da
+ * considerare per il calcolo ESTREMI INCLUSI, con la DFT equispaziata. Dettagli in
+ * indexesFromTimes().
+ * Per il calcolo della DFT non equispaziata la situazione è più complicata, in quanto
+ * occorrerebbe fare gli integrali dei trapezi esattamente fra t1 e t2, mentre indexLeft
+ * è a destra di t1. Per ora faccio una formulazione approssimata che in caso di spaziatura
+ *  uniforme dà risultati uguali alla DFT uniforme ma può avere un piccolo errore sulla
+ * non uniforme in quanto assume che esattamente in indexLeft-1 c'è un campione il cui
+ * valore è pari a quello presente in t2.
+ * Questa assunzione è implicita nel modo con cui è calcolato period.
+ *
 */
+
+
+    // NON VA PIU' HO FATTO DEL LAVORO PERCHé LA VERSIONE PUBBLICATA AVEVA ERRORI, SOPRATTUTTO NEL CALCOLO DEGLI INDICI SINISTRO E DESTRO.
+  /*La versione attuale di performDFT() funziona perfettamente con  dati semplicissimi ti siompleDFT.xcv:
+    "time","x"
+     0,3.23205
+     0.004,1.08418
+     0.008,-0.489044
+     0.012,0.686527
+     0.016,2.98629
+     0.02,3.23205
+
+   ottenuta con OM, eseguendo fra 0 e 0.02, con Interval pari a 0.004:
+
+   model tinyHarmo
+     constant Real pi = Modelica.Constants.pi;
+     Real x = 1.5 + 2 * cos(2 * pi * 50 * time + pi/6);
+   end tinyHarmo;
+
+    ==> e togliendo la riga finale dal file, in quanto OM alla fine metteva due campioni con lo stesso valore.
+   Correttamente performDFT() non tiene in considerazioen il campione all'istante 0, replicato in quello all'istante 0.02 (in alternativa avremmo potuto scartare il campione all'istante finale)
+
+    la performNuDFT() qui presente, più curata di quella pubblicata, in questo caso semplice non va.
+
+    VERIFICARE IL CASO PROPOSTO DA Jovan Mrvic, e infine su casi più complessi.
+
+    */
+
   int ret=0;
-  int harm, nSamples=indexRight-indexLeft;
+  int harm, nSamples=indexRight-indexLeft+1;
   int harm1=myData.opt.harm1, harm2=myData.opt.harm2;
   const float pi=3.14159265358979f;
-  float *x1=myData.x+indexLeft;
-  float *y1=myData.y+indexLeft;
-  float period=x1[nSamples]-x1[0];
+  float *x1=myData.x+indexLeft-1;
+  float *y1=myData.y+indexLeft-1;
+  float period;
   float  ak, bk;
+
+  if(indexLeft<1){
+    QMessageBox::critical(this,"CFourWin","Internal error \"indexLeft\"");
+    return 2;
+  }
+//  period=x1[nSamples]-x1[-1];
+  period=myData.x[indexRight]-myData.x[indexLeft-1];
+
   QGuiApplication::setOverrideCursor(Qt::WaitCursor);
   if(harm2<2){
       QMessageBox::critical(this,"CFourWin","Maximum harmonic order must be at least 2");
@@ -721,17 +808,21 @@ int CFourWin::performNuDFT(){
   dftDone=true;
 
   for(harm=harm1; harm<=harm2; harm++){
-    //La seguente formula è ricavata con la regola dei trapezi dalla definizione dei coefficienti del polinomio della scomposizione in serie di Fourier, fatta da me. La cosa interessante è che se viene applicata a campioni equispaziati fornisce, una voltra che i coefficienti di seno e coseno sono combinati fra diloro attraverso i numeri complessi,  esattamente la formula  usata in performDFT(), di letteratura
+    //La seguente formula è ricavata con la regola dei trapezi dalla definizione dei coefficienti del polinomio della scomposizione in serie di Fourier, fatta da me. La cosa interessante è che se viene applicata a campioni equispaziati fornisce, una volta che i coefficienti di seno e coseno sono combinati fra di loro attraverso i numeri complessi,  esattamente la formula  usata in performDFT(), di letteratura
     ak=0;
     bk=0;
     float Om=2*pi/period;
-    int n; //  n is sample
-    for (n=0; n<nSamples; n++){
-      ak+=(y1[n]*cosf(harm*Om*x1[n])+y1[n+1]*cosf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
-      bk+=(y1[n]*sinf(harm*Om*x1[n])+y1[n+1]*sinf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
+    int sample;
+    for (sample=0; sample<nSamples; sample++){
+      ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+      bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+      float aux1=y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]);
+      float aux2=x1[sample+1]-x1[sample];
+      aux1=0;
     }
+
     if(harm==0)
-      ampl[harm]=1.f/period*ak;
+      ampl[harm]=ak/period;  //verrà divisa per 0 più sotto
     else
       ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
     phases[harm]= atan2f(ak,bk)*180.f/pi;
@@ -744,19 +835,21 @@ int CFourWin::performNuDFT(){
       ak=0;
       bk=0;
       float Om=2*pi/period;
-      int n; //  n is sample
-      for (n=0; n<nSamples; n++){
-        ak+=(y1[n]*cosf(harm*Om*x1[n])+y1[n+1]*cosf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
-        bk+=(y1[n]*sinf(harm*Om*x1[n])+y1[n+1]*sinf(harm*Om*x1[n+1]))*(x1[n+1]-x1[n]);
+      int sample;
+      for (sample=0; sample<nSamples; sample++){
+        ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+        bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
       }
       if(harm==0)
-        ampl[harm]=1.f/period*ak;
+        ampl[harm]=ak/period;
       else
         ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
       phases[harm]= atan2f(ak,bk)*180.f/pi;
       harmOrders[harm]=harm;
     }
   ampl[0]/=2.f;
+  //La fase della componente 0 è indefinita e può venire qualunque numero Pertanto pongo:
+  phases[0]=0;
 
 /*
   //Calcolo della componente continua (va comunque calcolata per poter fare
