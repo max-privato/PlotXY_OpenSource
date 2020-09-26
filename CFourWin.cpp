@@ -145,7 +145,8 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     //Eventuale ricalcolo.
     if(changed){
         indexesFromTimes(myData);
-        ret=performDFT();
+        // La seguente riga è funzionante e può essere riattivata in qualunque momento. Ovvio che non ha senso calcolare due volte i coefficienti di fourier, prima con l'algoritmo a campioni equispaziati e poi a campioni non equispaziati, pertanto nella versione release il calcolo per campioni equispaziati (prossima riga) va diattivato.
+//        ret=performDFT();
         ret=performNuDFT();
         if (ret>0)
           return ret;
@@ -296,7 +297,7 @@ void CFourWin::copyOrPrint(EOutType type){
     headText2+= "Amplitude: rms value";
     break;
   case puOf0:
-    headText2+= "Amplitude: % of 0-order value";
+    headText2+= "Amplitude: rms % of 0-order value";
     break;
   case puOf1:
     headText2+= "Amplitude: % of 1-order value";
