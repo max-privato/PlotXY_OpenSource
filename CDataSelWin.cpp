@@ -3549,7 +3549,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   2) recupero del nome, corredato di informazione, di data e orario, dei files
      salvati, e loro caricamento eliminando contestualmente quelli già in memoria
   3) recupero i dati di fourWin
-  4) Recupero il testo delle celle delle tableComp, e le invio loro.
+  4) Recupero il testo delle celle delle tableComp, e lo invio loro.
      Quando tableComp riceve le stringhe ricostruisce gli altri dati interni che ne
      completano lo stato. Faccio i grafici
   5) operazioni finali

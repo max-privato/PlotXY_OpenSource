@@ -2806,7 +2806,7 @@ Questo un quanto queste due caratteristiche non sono in alcuno modo necessarie p
     for(iVar=0; iVar<nVars; iVar++)
       fwrite(&y[vars[iVar]][iPoint],sizeof(float),1,fp);
 
-    if(fclose (fp))
+  if(fclose (fp))
     return "Error closing file";
   else
     return "";

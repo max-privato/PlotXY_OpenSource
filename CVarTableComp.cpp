@@ -27,7 +27,6 @@
 CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     int i,j;
     Qt::ItemFlags flags;
-    QBrush myBrush;
     QScreen *screen=QGuiApplication::primaryScreen();
     myDPI=screen->logicalDotsPerInch();
     horizontalHeader()->setVisible(false);
@@ -46,6 +45,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     singleFileNum=0;
     neCellBkColor.setRgb(240,240,240);
     headerGray.setRgb(210,210,210);
+
     hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
     setColumnWidth(VARNUMCOL,fontMetrics().width(hdrs[VARNUMCOL]));
@@ -58,10 +58,12 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     //Il seguente connect è inutile in quanto la presenza di mouseReleaseEvent lo rende inattivo; pertanto myClicked viene richiamato esplicitamente dall'interno di mouseReleaseEvent.
 //    connect(this, SIGNAL(cellClicked(int,int)), this, SLOT(myClicked(int,int)));
 
+    colors[0]=Qt::black;
+    colors[1]=Qt::black;
     for(i=0;i<=TOTROWS-8;i+=8){
       colors[2+i]=Qt::blue;
       colors[3+i]=Qt::red;
-      colors[4+i]=Qt::green;  colors[4+i]=colors[4+i].darker(145);  //0xff00b0
+      colors[4+i]=Qt::green;  colors[4+i]=colors[4+i].darker(145);  //0xff00b000
       colors[5+i]=Qt::darkBlue;
       colors[6+i]=Qt::darkRed;
       colors[7+i]=Qt::darkGreen;
@@ -92,8 +94,11 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
       setItem(0,j,newItem);
     }
     for(i=1;i<TOTROWS;i++){
+      QBrush myBrush;
       myBrush.setColor(colors[i]);
-      if(i>8)myBrush.setStyle(Qt::VerPattern);
+
+      if(i>8)
+        myBrush.setStyle(Qt::VerPattern);
       for(j=0;j<TOTCOLS;j++){
         QTableWidgetItem *newItem=new QTableWidgetItem;
         newItem->setFont(cellFont);
@@ -101,6 +106,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
         newItem->setForeground(myBrush);
         newItem->setBackground(QBrush(neCellBkColor));
         newItem->setFlags(flags);
+
         setItem(i,j,newItem);
         if(j==0)
           newItem->setBackground(QBrush(colors[i]));
@@ -110,6 +116,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
       item(i,COLORCOL)->setForeground(Qt::white);
       if(i>8)
          item(i,COLORCOL)->setText("-");
+
     }
     //Sul mac il font del numero di variabile può essere un po' più piccolo:
 #if defined(Q_OS_MAC)
@@ -325,7 +332,7 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
 //        qDebug()<<"width: "<<fontMetrics().width(item(i,VARNUMCOL)->text());
 //      }
     }
-    wi[VARNUMCOL]=int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL])));
+    wi[VARNUMCOL]= int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL])));
     wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().width("X"));
     setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
 
@@ -507,6 +514,20 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
     for(c=1;c<TOTCOLS; c++){
       i++;
       item(r,c)->setText(list[i]);
+/*******************************************
+Correzione 25/11/2020
+Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazine del colore del testo, correttamente fissata al momento della creazione della tabella.
+Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
+*** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
+ *******************************************/
+       QBrush brush_=item(r,0)->background();
+       item(r,1)->setForeground(brush_);
+       item(r,2)->setForeground(brush_);
+       item(r,3)->setForeground(brush_);
+/*******************************************
+FINE Correzione 25/11/2020
+*******************************************/
+
     }
     if(item(r,XVARCOL)->text()=="x")
         xVarRow=r;
@@ -1007,6 +1028,21 @@ int CVarTableComp::setCommonX(QString str){
   item(1,XVARCOL)->setText("x");
   item(1,FILENUMCOL)->setText("a");
   item(1,VARNUMCOL)->setText("1");
+
+  /*******************************************
+  Correzione 25/11/2020
+   Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazine del colore del testo, correttamente fissata al momento della creazione della tabella.
+  Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
+  *** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
+  *******************************************/
+        QBrush brush_=item(1,0)->background();
+        item(1,1)->setForeground(brush_);
+        item(1,2)->setForeground(brush_);
+        item(1,3)->setForeground(brush_);
+  /*******************************************
+  FINE Correzione 25/11/2020
+  *******************************************/
+
   commonXSet=true;
   numOfTotVars++;
     // nel momento che ho qualche variabile selezionata posso attivare la possibilità di fare variabili-funzione. Pertanto rendo chiare le celle della colonna f che sono divenute "cliccabili";
@@ -1066,6 +1102,33 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
   if(i==TOTROWS)
       return 3;
   item(i,VARCOL)->setText(varName);
+
+/*
+  QBrush  brush_=item(i,VARCOL)->foreground();
+      QColor myColor=brush_.color();
+      unsigned int colorInt=myColor.rgb();
+      brush_=item(i,0)->background();
+      myColor=brush_.color();
+      colorInt=myColor.rgb();
+      item(i,1)->setForeground(brush_);
+      item(i,2)->setForeground(brush_);
+      item(i,3)->setForeground(brush_);
+*/
+
+/*******************************************
+Correzione 25/11/2020
+ Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazine del colore del testo, correttamente fissata al momento della creazione della tabella.
+Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
+*** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
+*******************************************/
+      QBrush brush_=item(i,0)->background();
+      item(i,1)->setForeground(brush_);
+      item(i,2)->setForeground(brush_);
+      item(i,3)->setForeground(brush_);
+/*******************************************
+FINE Correzione 25/11/2020
+*******************************************/
+
   item(i,VARCOL)->setToolTip(varName);
   highestUsedRowIdx=qMax(i,highestUsedRowIdx);
 
@@ -1087,6 +1150,7 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
       item(ii,FILENUMCOL)->setBackground(Qt::white);
   }
   item(i,FILENUMCOL)->setBackground(neCellBkColor);
+
   item(i,XVARCOL)->setToolTip(unit_);
   if(numOfTotVars>1)
     allowSaving=true;
