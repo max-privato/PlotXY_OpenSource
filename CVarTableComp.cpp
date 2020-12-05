@@ -516,7 +516,7 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
       item(r,c)->setText(list[i]);
 /*******************************************
 Correzione 25/11/2020
-Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazine del colore del testo, correttamente fissata al momento della creazione della tabella.
+Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazione del colore del testo, correttamente fissata al momento della creazione della tabella.
 Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
 *** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
  *******************************************/
@@ -690,6 +690,7 @@ void CVarTableComp::leftClicked(int r, int c){
   int j, nextFun, oldXVarRow=xVarRow;
   QString str, ret;
   CLineCalc myLineCalc;
+  QBrush brush_;
   // Chiedo a CDataSelWin informazioni sui files e le passo a myLineCalc:
   emit queryFileInfo(allFileNums,allFileNames,varMaxNumsLst);
   myLineCalc.getFileInfo(allFileNums,allFileNames,varMaxNumsLst);
@@ -765,7 +766,24 @@ void CVarTableComp::leftClicked(int r, int c){
        * Faccio anche una verifica sintattica per evitare di accettare una funzione inammissibile.
        * Il calcolo effettivo della funzione avverrà in risposta al click sul bottone di plot().
       */
-      if(item(r,FILENUMCOL)->background().color()!=Qt::white) break;
+
+
+/*******************************************
+Correzione 25/11/2020
+Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazione del colore del testo, correttamente fissata al momento della creazione della tabella.
+Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
+*** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
+*******************************************/
+       brush_=item(r,0)->background();
+       item(r,1)->setForeground(brush_);
+       item(r,2)->setForeground(brush_);
+       item(r,3)->setForeground(brush_);
+/*******************************************
+FINE Correzione 25/11/2020
+*******************************************/
+
+      if(item(r,FILENUMCOL)->background().color()!=Qt::white)
+        break;
       while(1){
         int inpRet=funStrInput->exec();
         if (inpRet==QDialog::Rejected) return;
@@ -1031,7 +1049,7 @@ int CVarTableComp::setCommonX(QString str){
 
   /*******************************************
   Correzione 25/11/2020
-   Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazine del colore del testo, correttamente fissata al momento della creazione della tabella.
+   Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazione del colore del testo, correttamente fissata al momento della creazione della tabella.
   Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
   *** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
   *******************************************/
@@ -1117,7 +1135,7 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
 
 /*******************************************
 Correzione 25/11/2020
- Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazine del colore del testo, correttamente fissata al momento della creazione della tabella.
+ Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazione del colore del testo, correttamente fissata al momento della creazione della tabella.
 Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
 *** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
 *******************************************/

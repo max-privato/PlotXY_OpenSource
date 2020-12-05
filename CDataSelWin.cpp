@@ -1931,7 +1931,18 @@ void CDataSelWin::on_plotTBtn_clicked() {
   /* Attribuzione alle matrici dei rispettivi valori. */
   //Nella copiatura su Y devo anche rendere contigui gli indici di files che possono essere sparpagliati:
 
-  /* Attribution to the matrices of the respective values. */
+  if(myVarTable->xInfo.name.contains(" (s->h)")){  //converto il tempo s->h
+    myVarTable->xInfo.unitS="h";
+    // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
+    myVarTable->xInfo.timeConversion=1;
+  }
+  if(myVarTable->xInfo.name.contains(" (s->d)")){  //converto il tempo s->d
+    myVarTable->xInfo.unitS="d";
+    // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà all'interno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
+    myVarTable->xInfo.timeConversion=2;
+  }
+
+    /* Attribution to the matrices of the respective values. */
   // When copying to Y I also have to make the indexes of files that can be scattered contiguous:
   filesInfo.clear();
   iFileNew=-1;
@@ -1944,16 +1955,6 @@ void CDataSelWin::on_plotTBtn_clicked() {
 //      x1[iFileNew]=mySO[iFile]->y[0];
     if(!myVarTable->xInfo.isFunction){
       x1[iFileNew]=mySO[iFile]->y[myVarTable->xInfo.idx];
-    }
-    if(myVarTable->xInfo.name.contains(" (s->h)")){  //converto il tempo s->h
-      myVarTable->xInfo.unitS="h";
-      // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggettto di input mySO.
-      myVarTable->xInfo.timeConversion=1;
-    }
-    if(myVarTable->xInfo.name.contains(" (s->d)")){  //converto il tempo s->d
-      myVarTable->xInfo.unitS="d";
-      // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggettto di input mySO.
-      myVarTable->xInfo.timeConversion=2;
     }
     myFileInfo.name=mySO[iFile]->fileInfo.fileName();
     myFileInfo.fileNum=iFile;
