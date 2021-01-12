@@ -166,11 +166,11 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
         break;
        case puOf0:
         amplFactor=float((100.0/SQRT2)/fabs(double(ampl01[0])));
-        amplValueTxt="<i>value (pu/h0):</i><br>";
+        amplValueTxt="<i>value (%/h0):</i><br>";
         break;
        case puOf1:
         amplFactor=float(100./fabs(double(ampl01[1])));
-        amplValueTxt="<i>value (pu/h1):</i><br>";
+        amplValueTxt="<i>value (%/h1):</i><br>";
         break;
     }
     ui->harmValLbl->setText(amplValueTxt);
