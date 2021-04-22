@@ -176,7 +176,7 @@ class CLineCalc{
 
     bool * pUnaryMinus; //mi dice se una variabie deve essere peceduta da un '-' unario
     float * pConst; //vettore di puntatori alle costanti in line
-    float (*(*pFun))(float x); //vettore di puntatori alle funzioni
+    float (**pFun)(float x); //vettore di puntatori alle funzioni
     float ** pVar; //vettore di puntatori ai primi valori di ogni variabile-funzione
     QString *pUnit; //vettore dei puntatori a unità di misura, contenuti nella stringlist mUnits
     SXYNameData nameData;

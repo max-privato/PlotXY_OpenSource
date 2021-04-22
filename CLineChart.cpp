@@ -4716,7 +4716,13 @@ int CLineChart::writeAxisLabel(int X, int Y, SAxis &axis, bool _virtual ){
  * Si tratta di un'etichetta che può contenere una potenza di 10 (se necessaria per numeri
  * molto grandi o piccoli)  ovvero, fra parentesi, l'unità di misura con prefisso.
  * Se autoLabelXY=true, si usano le unità di misura attribuite alle variabili attraverso
- * xVarParam e curveParam e passate con getData()
+ * xVarParam e curveParam e passate con getData().
+ * Il valore locale AutolabelXY_ partedal valore della variabile globale del grafico,
+ * ma viene riconvertita in false se il numero è talmente piccolo o grande che non c'è un
+ * prefix adatto per rappresentarlo. Il set di 'prefix' che uso è minore di quello completo
+ * del SI, inquanto alcuni pprefissi quali yootto oyotta non li conosce nessuno e sono per
+ * me più dannosi che utili.
+ *
  * Naturalmente esse potranno essere usate solo se le unità relative ai vari plot del
  * medesimo asse sono uguali.
  * Se però useUserUnits=true, vengono usate le unità passate attraverso getUserUnits()
@@ -4730,7 +4736,7 @@ int CLineChart::writeAxisLabel(int X, int Y, SAxis &axis, bool _virtual ){
  * l'ampiezza della label, che viene ritornata dalla funzione.
  * Se Virtual=false il valore di ritorno è indeterminato.
  */
-  char prefix[]={'p','n','u','m','0','k','M','G','T'};
+  char prefix[]={'f','p','n','u','m','0','k','M','G','T','P'};
   int iTotPlot;
   EadjustType hAdjust, vAdjust;
   QString unitS=""; //E' l'unità di misura dell'asse corrente, valutata considerando i valori di autoLabelXY e useUserUnits (v. spiegazione inizio funzione).
@@ -4756,22 +4762,22 @@ int CLineChart::writeAxisLabel(int X, int Y, SAxis &axis, bool _virtual ){
   * autoLabelXY, useUserUnits, useSmartUnits (dettagli in Developer.odt|Gestione delle
   * etichette di asse.
  ***/
-
+  bool autoLabelXY_=autoLabelXY;
  // 2.1: analizzo casi speciali
  if(axis.scaleType==stDB){
    unitS="dB";
-//   autoLabelXY=false;  //Questa riga va commentata percé posso volere l'etichetta su uno degli assi e dB sull'altro, ementre autoLabelXY agisce su tutti gli assi
+//   autoLabelXY_=false;  //Questa riga va commentata perché posso volere l'etichetta su uno degli assi e dB sull'altro, mentre autoLabelXY_ agisce su tutti gli assi
    goto Escape;
  }
 
- if(!autoLabelXY && ! useUserUnits){
+ if(!autoLabelXY_ && ! useUserUnits){
    unitS="";
    goto Escape;
  }
 
- if(abs(axis.scaleExponent)>12){  //caso speciale in cui decvo forzare l'uso delle potenze di 10
+ if(abs(axis.scaleExponent)>18){  //caso speciale in cui devo forzare l'uso delle potenze di 10
      useUserUnits=false;
-     autoLabelXY=false;
+     autoLabelXY_=false;
      unitS="";
      goto Escape;
  }
@@ -4786,10 +4792,18 @@ int CLineChart::writeAxisLabel(int X, int Y, SAxis &axis, bool _virtual ){
 
  if(axis.scaleType==stLog){
    unitS="";
-   autoLabelXY=false;
+   autoLabelXY_=false;
    goto Escape;
  }
 
+ if(axis.scaleExponent/3+5<0){
+    autoLabelXY_=false;
+    goto Escape;
+ }
+ if(axis.scaleExponent/3+5>=int(sizeof(prefix))){
+    autoLabelXY_=false;
+    goto Escape;
+ }
 
 //2.2: info da file. Se arrivo qui devo interpretare le unità in funzione di informazioni prelevate da metadati o dal nome di variabile prelevati dal file di input
 if(axis.type==atX)
@@ -4824,7 +4838,7 @@ Per avere compatibilità con entrambe le funzioni uso tre variabili testuali: ms
 */
 Escape:
   QString msgBase="", msgExp="";
-  bool useWriteText2= (!autoLabelXY && !useUserUnits) || (useUserUnits && unitS=="");
+  bool useWriteText2= (!autoLabelXY_ && !useUserUnits) || (useUserUnits && unitS=="");
   if(axis.scaleType==stDB)
       useWriteText2=false; //necessario perché "dB" è in unitS che non è usato da writetext2()
   if(useWriteText2){
@@ -4836,8 +4850,8 @@ Escape:
           msgExp="";
       }
   }else{
-    if(prefix[axis.scaleExponent/3+4]!='0' && axis.scaleType!=stDB)
-      unitS.prepend(prefix[axis.scaleExponent/3+4]);
+    if(prefix[axis.scaleExponent/3+5]!='0' && axis.scaleType!=stDB)
+      unitS.prepend(prefix[axis.scaleExponent/3+5]);
   }
 
 //Write:
