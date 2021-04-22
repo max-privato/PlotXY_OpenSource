@@ -900,16 +900,21 @@ Se il nome è di tipo v# il filenum è defaultFileNum*/
     switch(varStr.at(0).toLatin1()){
       case 'f':
         j=rxNotDigit.indexIn(varStr,1); //j dovrebbe contenere il primo carattere dopo il numero dopo f
-        if(j<0) goto errorReturn;
+        if(j<0)
+            goto errorReturn;
         fileNum=varStr.mid(1,j-1).toInt(&ok);
-        if(ok==false) goto errorReturn;
-        if(varStr[j]!='v') goto errorReturn;
+        if(ok==false)
+            goto errorReturn;
+        if(varStr[j]!='v')
+            goto errorReturn;
       [[clang::fallthrough]]; case 'v':
 //        if(varStr[0]=='v') j=0;
         k=rxNotDigit.indexIn(varStr,j+2); //k dovrebbe contenere il primo carattere dopo il numero dopo v. Siccome tale carattere non deve esistere, mi attendo k=-1
-        if(k>=0) goto errorReturn;
+        if(k>=0)
+            goto errorReturn;
         varNNum=varStr.remove(0,j+1).toInt(&ok);
-        if(ok==false) goto errorReturn;
+        if(ok==false||varNNum<1)
+            goto errorReturn;
         varNums.fileNum=fileNum;
         varNums.varNum=varNNum;
         break;
