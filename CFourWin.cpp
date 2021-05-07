@@ -520,14 +520,14 @@ void CFourWin::getData(struct SFourData data_){
 bool CFourWin::indexesFromTimes(SFourData data){
 /* Funzione che calcola gli indici delle variabili corrisponsenti agli istanti del calcolo
  * della DFT specificati dall'utente o determinati automaticamente.
- * A parire dal 2020 la DFT è calcolata con un algoritmo che consente di avere cmpioni
+ * A partire dal 2020 la DFT è calcolata con un algoritmo che consente di avere campioni
  * non equispaziati. Pertanto anche il calcolo degli indici deve considerare questa
  *  possibilità.
  *
  * il calcolo prende come campioni quelli compresi, estremi inclusi, fra quello
  * immediatamente oltre t1, e quello immediatamente oltre t2 se esiste, altrimenti
  * l'ultimo. Gli estremi inclusi sono caratterizzati da indexLeft e indexRight.
- * Questa scelta dipende dal fatto che l'implicita periodicità assutnta per il calcolo
+ * Questa scelta dipende dal fatto che l'implicita periodicità assunta per il calcolo
  * dei polinomi di Fourier fa sì che se il calcolo è fra t1 e t2, il valore in t2 è
  * implicitamente assunto pari a quello in t1.
  *
@@ -543,6 +543,7 @@ bool CFourWin::indexesFromTimes(SFourData data){
  *  no.
 */
   bool changed=false;
+  int oldIndexLeft=indexLeft, oldIndexRight=indexRight;
   int nearInt(float);
    //Gli indici indexLeft e indexRight definiscono il più ampio set di campioni **interni** a t1 e t2. Per il calcolo, come specificato sopra, il valore della funzione in t1 verrà calcolato con intepolazione lineare fra quello in indexLeft-1 e in indexLeft, mentre quello di destra sarà in indexRight. Se indexLeft=0, ovviamente, prenderò come primo campione proprio quello indexLeft.
   bool indexLeftDefined=false;
@@ -566,6 +567,7 @@ bool CFourWin::indexesFromTimes(SFourData data){
   int i, stepsPerSecond;
   stepsPerSecond=int((data.numOfPoints-1) / (data.x[data.numOfPoints-1]-data.x[0]));
   i= nearInt( (data.opt.initialTime-data.x[0])*stepsPerSecond)+1;
+
   if(i!=indexLeft){
       indexLeft=i;
       changed=true;
@@ -576,6 +578,10 @@ bool CFourWin::indexesFromTimes(SFourData data){
       changed=true;
   }
   */
+  if(indexLeft!=oldIndexLeft)
+    changed=true;
+  if(indexRight!=oldIndexRight)
+    changed=true;
   fourOptions->getHMax((indexRight-indexLeft+1)/2);
   return changed;
 }
@@ -629,7 +635,7 @@ void CFourWin::on_optionsBtn_clicked(){
     if(newOpts.harm1!=myData.opt.harm1 ||newOpts.harm2!=myData.opt.harm2)
         changed=true;
     myData.opt=newOpts;
-    //Il seguente changed va una verifica se è necessario ricalcolare una DFT, per evitare di rifare un lento calcolo inutile
+    //Il seguente changed fa una verifica se è necessario ricalcolare una DFT, per evitare di rifare un lento calcolo inutile
     changed=changed||indexesFromTimes(myData);
     analyseAndShow(changed);
 }
