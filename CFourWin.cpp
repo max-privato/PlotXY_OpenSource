@@ -220,7 +220,7 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     if(myData.opt.harm1>1)
        infoString= "RMS: "+msgRMS;
     if(myData.opt.harm1<=14 && myData.opt.harm2>=40)
-        infoString= infoString+"\n IEC 61000-3-2 PWHC: "+msg2+"%";
+        infoString= infoString+"\n IEC 61000-3-2 PWHC: "+msg2;
 
     return ret;
 }
