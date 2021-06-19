@@ -543,6 +543,7 @@ int tooltipMargin; //distanza  in pixel dal punto per visualizzare il tootip dei
 
   // *************  8)   SIGNALS
   signals:
+  void chartClickedOn(void);;
   void chartResizeStopped(void);
   void valuesChanged(SXYValues values, bool hDifference, bool vDifference);
 

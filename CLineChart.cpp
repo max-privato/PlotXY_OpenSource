@@ -55,7 +55,7 @@ CLineChart::CLineChart(QWidget * parent):QLabel(parent,nullptr)
 /*
 La reimplementazione della funzione virtual resizeEvent in questo file contiene la chiamata a plot().
 */
-    myTimer = new QTimer(this);
+     myTimer = new QTimer(this);
     tooltipTimer = new QTimer(this);
     connect(tooltipTimer, SIGNAL(timeout()), this, SLOT(checkTooltip()));
     myTimer->setSingleShot(true);
@@ -2655,10 +2655,12 @@ Questo per me è inaccettabile. Meglio lasciare un titolo bianco, che è quello 
 void CLineChart::mousePressEvent(QMouseEvent *event){
 /* Quando mi sposto con il mouse, se entro nel raggio d'azione di un dataCursor il puntatore del mouse diviene la doppia freccetta orizontale ed un eventuale click aggancia il dataCursor attivo alla posizione del mouse.
 Questo aggancio viene comandato nella funzione mouseMoveEvent(), attraverso la selezione del valore opportuno per la variabile dataCursSelecting, la quale vale 0 se quando non siamo nel raggio d'azione di alcun cursore dati, altrimenti vale il numero del cursore dati: 1 per quello base, 2 per quello con le differenze.
-
   Pertanto la routine ha un comportamento che va distinto in funzione del valore della variabile dataCursSelecting.
-
 */
+    /* Il seguente emit serve per evitare che se l'utente clicca nell'area LineChart di una PlotWin, dopo i primi click, non avviene più lo switch automatico della tab. Infatti l'evento focusInEvent, si attiva solo se il click avviene sulla riga di intestazione della finestra plotWIN,  o la prima volta che si clicca sull'area di LineChart. Le volte successive non si attiva; per fare lo switch della tab anche in questo caso, catturo dentro LineChart il comando mousePressEvent():
+*/
+
+    emit chartClickedOn();
     int Ret=0, x1=event->pos().x()-1;
 
     if(dataCursSelecting>0){  //sono nel raggio d'azione di un qualche cursore dati

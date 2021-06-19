@@ -30,12 +30,17 @@
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
+void CPlotWin::lineChatClickedOn(void){
+  QFocusEvent *e=nullptr;
+    focusInEvent(e);
+}
 
 CPlotWin::CPlotWin(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CPlotWin)
 {
     ui->setupUi(this);
+
     setWindowFlags(windowFlags() | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint);
     QScreen *screen=QGuiApplication::primaryScreen();
     exactMatch=false;
@@ -93,6 +98,11 @@ CPlotWin::CPlotWin(QWidget *parent) :
     connect(ui->lineChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(chartValuesChanged(SXYValues,bool,bool)));
     connect(ui->lineChart,SIGNAL(chartResizeStopped()),this,
                             SLOT(XYchartResizeStopped()));
+
+    /* Il seguente connect serve per evitare che se l'utente clicca nell'area LineChart di una PlotWin, dopo i primi click, non avviene più lo switch automatico della tab. Infatti l'evento focusInEvent, si attiva solo se il click avviene sulla riga di intestazione della finestra plotWIN,  o la prima volta che si clicca sull'area di LineChart. Le volte successive non si attiva; per fare lo switch della tab anche in questo caso, catturo dentro LineChart il comando mousePressEvent():
+*/
+    connect(ui->lineChart,SIGNAL(chartClickedOn()),this, SLOT(lineChatClickedOn()));
+
     ui->xValueLbl->setVisible(false);
     ui->yValueLbl->setVisible(false);
     ui->interpolateBox->setVisible(false);

@@ -39,6 +39,8 @@ class CPlotWin : public QWidget
     Q_OBJECT
 
 public:
+
+
     bool dataTBtnChecked;
     bool lastWinIsCut; //Assume il valore di windowIsCut dell'ultimo grafico tracciato
     explicit CPlotWin(QWidget *parent = nullptr);
@@ -65,6 +67,8 @@ private slots:
     void on_printTBtn_clicked();
 
 public slots:
+    void lineChatClickedOn(void);
+
     void XYchartResizeStopped(void);
     void chartValuesChanged(SXYValues values, bool hDifference, bool vDifference);
     void on_dataTBtn_clicked(bool checked);
