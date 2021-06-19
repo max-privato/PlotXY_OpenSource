@@ -47,6 +47,8 @@ public:
 signals:
     void winActivated(int);
 public slots:
+    void lineChatClickedOn(void);
+
     void updateChartOptions(SOptions opts);
     void valChangedAmp(SXYValues values, bool, bool);
     void valChangedPh(SXYValues values, bool, bool);

@@ -38,6 +38,11 @@
 typedef std::complex <double>dcmplx;
 
 
+void CFourWin::lineChatClickedOn(void){
+  QFocusEvent *e=nullptr;
+    focusInEvent(e);
+}
+
 CFourWin::CFourWin(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CFourWin)
@@ -80,6 +85,13 @@ CFourWin::CFourWin(QWidget *parent) :
   ui->saveSetLbl->setVisible(false);
   connect(ui->amplChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(valChangedAmp(SXYValues,bool,bool)));
   connect(ui->phaseChart,SIGNAL(valuesChanged(SXYValues,bool,bool)),this, SLOT(valChangedPh(SXYValues,bool,bool)));
+
+  /* I seguenti due connect servono per evitare che se l'utente clicca nell'area LineChart di una FourWin, dopo i primi click, non avviene più lo switch automatico della tab. Infatti l'evento focusInEvent, si attiva solo se il click avviene sulla riga di intestazione della finestra FourWin,  o la prima volta che si clicca sull'area di LineChart. Le volte successive non si attiva; per fare lo switch della tab anche in questo caso, catturo dentro LineChart il comando mousePressEvent():
+*/
+  connect(ui->amplChart,SIGNAL(chartClickedOn()),this, SLOT(lineChatClickedOn()));
+  connect(ui->phaseChart,SIGNAL(chartClickedOn()),this, SLOT(lineChatClickedOn()));
+
+
   fourOptions= new CFourOptions(this);
   fourOutInfo= new CFourOutputInfo(this);
   QScreen *screen=QGuiApplication::primaryScreen();
