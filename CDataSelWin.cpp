@@ -453,7 +453,7 @@ qDebug()<<"DPI: "<<currentDPI;
    * If I am moving a window from outside to inside I will issue a MessageBox only if the
    * window is visible
   */
-    bool someWinDisplaced=false, isDisplacedVisible=false, secScreenIsRight=false;
+    bool someWinDisplaced=false, secScreenIsRight=false;
 
     QPoint posPoint;
     QRect allScreensGeom, primaryScreenGeom, primaryScreenAvailableGeom;
@@ -519,8 +519,6 @@ qDebug()<<"DPI: "<<currentDPI;
          someWinDisplaced=true;
          posPoint.setX(primaryScreenAvailableGeom.left()+5);
       }
-      if(plotWin[win]->isVisible())
-        isDisplacedVisible=true;
 
       plotWin[win]->move(posPoint);
 
@@ -536,7 +534,10 @@ qDebug()<<"DPI: "<<currentDPI;
          someWinDisplaced=true;
          posPoint.setX(primaryScreenAvailableGeom.left()+5);
       }
+      fourWin[win]->move(posPoint);
     }
+
+
 
     if (someWinDisplaced){
       QMessageBox::warning(this, "MC's PlotXY",
