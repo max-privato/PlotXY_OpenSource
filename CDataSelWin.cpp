@@ -425,6 +425,17 @@ qDebug()<<"DPI: "<<currentDPI;
    * 2) mi devo assicurare che la posizione delle finestre non copra le barre
    *    di sistema. Questo accadrebbe ad es. sul mac nella posizione default
    *    delle finestre, cioè (0,0)
+   * NOTA Occorre osservare che lo schermo secondario si può trovare a destra di quello
+   * primario (pixel orizzontali tutti di valore superiore ai pixel orizzontali dello
+   * schermo primari) oppure alla sua sinistra (pixel orizzontali negativi).
+   * Esempio con uno schermo primario di available geometry che va da 95 a 1919 (con
+   * taskbar orizzontale, come è al momento in cui scrivo il portatile Asus)
+   * ed uno schermo secondario, se a destra, che ha available geometry che va da 1920 a
+   * 3839 come valore della x o, se a sinistra può avere le coordinate orizzontali che
+   * vanno da -1920 a -1
+   * Nel caso di due schermi lo schermo primario ha indice 0, il secondario  1.
+   * **** IL SW è PENSATO PER GESTIRE AL PIU' UNO SCHERMO PRIMARIO E UNO SECONDARIO (non
+   * **** valutato su due schermi secondari)
    *
    * Se sto spostando una finestra da fuori a dentro emetto un MessageBox solo se la
    * finestra è visibile
@@ -442,57 +453,89 @@ qDebug()<<"DPI: "<<currentDPI;
    * If I am moving a window from outside to inside I will issue a MessageBox only if the
    * window is visible
   */
-    bool someWinDisplaced=false, isDisplacedVisible=false;
+    bool someWinDisplaced=false, isDisplacedVisible=false, secScreenIsRight=false;
 
     QPoint posPoint;
+    QRect allScreensGeom, primaryScreenGeom, primaryScreenAvailableGeom;
     int screenCount=QGuiApplication::screens().count();
-    QScreen *firstScreen=QGuiApplication::primaryScreen();
-    QScreen *lastScreen=QGuiApplication::screens()[screenCount-1];
-    QRect firstScrAvGeometry=firstScreen->availableGeometry();
-    QRect lastScrAvGeometry=lastScreen->availableGeometry();
-    int firstScrAvRight=firstScrAvGeometry.right();
-    int lastScrAvRight=lastScrAvGeometry.right();
 
-    posPoint=settings.value("dataSelWin/pos").toPoint();
+    // Prima di tutto devo trovare l'estensione dei pixel orizzontali e verticali tenendo conto di tutti gli screen disponibili:
+    allScreensGeom.setLeft(0);
+    allScreensGeom.setRight(0);
+    allScreensGeom.setTop(0);
+    allScreensGeom.setBottom(0);
+    for(i=0; i<screenCount; i++){
+      QRect geometry=QGuiApplication::screens()[i]->geometry();
+      allScreensGeom.setLeft(qMin(allScreensGeom.left(),geometry.left()));
+      allScreensGeom.setRight(qMax(allScreensGeom.right(),geometry.right()));
+      allScreensGeom.setTop(qMin(allScreensGeom.top(),geometry.top()));
+      allScreensGeom.setBottom(qMax(allScreensGeom.bottom(),geometry.bottom()));
+    }
+    primaryScreenGeom=QGuiApplication::screens()[0]->geometry();
+    primaryScreenAvailableGeom=QGuiApplication::screens()[0]->availableGeometry();
 
-    // First step: bring in if the horizontal space available
-    // has been reduced, e.g. because I no longer have the secondary screen:
-    if(posPoint.x()+0.5*this->width()>lastScrAvRight){
+    /*La gestione smart della posizione delle finestre salvate la faccio così:
+     * - per ogni finestra devo valutare sia la posizione orizzontal che verticale
+     * - se una finestra salvata ci sta nella allScreensGeom la uso e visualizzo
+     *   la finestra. Di conseguenza la finestra verrà posizionata nello schermo giusto
+     *   e nella finestra giusta
+     * - se la finestra è per più di metà a destra della massima estensione orizzontale
+     *   la posiziono al bordo destro della availableGeometry dello screen predefinito
+     * - se la finestra è per più di metà a sinistra della massima estensione orizzontale
+     *   la posiziono al bordo sinistro della availableGeometry dello screen predefinito
+     * - se la finestra è per più di metà a più in basso della massima estensione verticale
+     *   la posiziono al bordo inferiore della availableGeometry dello screen predefinito
+     * - se la finestra è per più di metà più in alto della massima estensione verticale
+     *   la posiziono al bordo sinistro della availableGeometry dello screen predefinito
+     * NOTA IMPORTANTE come prima implementazione della logica di qui sopra implemento per
+     * ora solo gli spostamenti orizzontali in quanto è molto raro che uno metta uno schermo
+     * sopra l'altro.
+*/
+
+    // Smart Position della finestra dataSelWin
+     posPoint=settings.value("dataSelWin/pos").toPoint();
+    if(posPoint.x()+0.5*this->width()>allScreensGeom.right()){
        someWinDisplaced=true;
-       posPoint.setX(lastScrAvRight-this->width()-5);
+       posPoint.setX(primaryScreenAvailableGeom.right()-this->width()-5);
+    }
+    if(posPoint.x()+0.5*this->width()<allScreensGeom.left()){
+       someWinDisplaced=true;
+       posPoint.setX(primaryScreenAvailableGeom.left()+5);
     }
     this->move(posPoint);
-    //Secondo passaggio: se sono nello schermo primario devo evitare di andare
-    // a finire nelle zone riservate dalle barre di sistema
 
-    // Second passage: if I'm on the primary screen, I have to avoid going
-    // to finish in the areas reserved by the system bars
-    if (posPoint.x()+this->width()<firstScrAvRight)
-        this->move(toInPrimaryScreen(posPoint));
-
-
+    // *** Smart Position delle finestre plotWins e fourWins
     for (int win=0; win<MAXPLOTWINS; win++){
       QString value;
+      // Prima la plotWin di indice win:
       value.setNum(win+1);
       value="plotWin"+value+"/pos";
       posPoint=settings.value(value).toPoint();
-      if(posPoint.x()+0.5*plotWin[win]->width()>lastScrAvRight){
+      if(posPoint.x()+0.5*this->width()>allScreensGeom.right()){
          someWinDisplaced=true;
-         posPoint.setX(lastScrAvRight-plotWin[win]->width()-5);
-         if(plotWin[win]->isVisible())
-           isDisplacedVisible=true;
+         posPoint.setX(primaryScreenAvailableGeom.right()-this->width()-5);
       }
+      if(posPoint.x()+0.5*this->width()<allScreensGeom.left()){
+         someWinDisplaced=true;
+         posPoint.setX(primaryScreenAvailableGeom.left()+5);
+      }
+      if(plotWin[win]->isVisible())
+        isDisplacedVisible=true;
+
       plotWin[win]->move(posPoint);
-      if (posPoint.x()+plotWin[win]->width()<firstScrAvRight)
-        plotWin[win]->move(toInPrimaryScreen(posPoint));
+
+      // Ora la fourWin di indice win:
       value.setNum(win+1);
       value="fourWin"+value+"/pos";
       posPoint=settings.value(value).toPoint();
-
-      // for the time being non smart management of fourier windows:
-      fourWin[win]->move(posPoint);
-      if(posPoint.x()+fourWin[win]->width()<firstScrAvRight)
-        fourWin[win]->move(toInPrimaryScreen(posPoint));
+      if(posPoint.x()+0.5*this->width()>allScreensGeom.right()){
+         someWinDisplaced=true;
+         posPoint.setX(primaryScreenAvailableGeom.right()-this->width()-5);
+      }
+      if(posPoint.x()+0.5*this->width()<allScreensGeom.left()){
+         someWinDisplaced=true;
+         posPoint.setX(primaryScreenAvailableGeom.left()+5);
+      }
     }
 
     if (someWinDisplaced){

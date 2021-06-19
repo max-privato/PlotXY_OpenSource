@@ -156,8 +156,10 @@ void CPlotWin::chartValuesChanged(SXYValues values, bool hDifference, bool vDiff
 void CPlotWin::focusInEvent(QFocusEvent *){
     /* Quando entro in una certa istanza della finestra devo fare in modo che la corrispondente tabella varSel venga evidenziata. Pertanto prelevo il digit che caratterizza il numero della finestra considerata, che è nel titolo, lo metto nell'int "i" e emetto sul segnale che verrà utilizzato da dataSelWin per attivare la corrispondente pagina del TabSheet.
   */
-    QChar c=windowTitle()[windowTitle().count()-1];
-//    QChar c=windowTitle()[5];
+
+//    La seguente riga non va bene perché con l'opzione /set nel titolo ci va anche il tempo di esecuzione
+    //    QChar c=windowTitle()[windowTitle().count()-1];
+    QChar c=windowTitle()[5];
     QString s=QString(c);
     int i=s.toInt();
     emit winActivated(i);

@@ -63,7 +63,8 @@ int main(int argc, char *argv[])
     GV.PO.defaultFreq=settings.value("defaultFreq",DEFAULTFREQ).toDouble();
     settings.endGroup();
     GV.multiFileMode =settings.value("multifileMode",true).toBool();
-    for(int i=0;i<MAXFILES; i++)GV.varNumsLst.append(0);
+    for(int i=0;i<MAXFILES; i++)
+      GV.varNumsLst.append(0);
 
     QStringList optLst={"/dtXY","/dtQtF","/dtQtI","/dtQtP","/sff","/uml","/set"};
     GV.PO.drawType=0;  // filtraggio grafici XY
