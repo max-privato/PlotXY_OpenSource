@@ -4821,8 +4821,8 @@ if(axis.type==atX)
         break;
       }
       // Tutte le variabili sul medesimo asse devono avere la stessa unità. Pertanto una volta definita la unit per una variabile dell'asse corrente anche le altre devono avere la stessa oppure non metto niente sull'asse.
-      //devo però tener conto della regola, illustrata anche in Tutorial, che non si mette come unità automatica "f" o "s" sugli assi y e yr. Questo perché si intende che il tempo e la frequenza di norma debbano stare sull'asse orizzontale e solo in casi particolari su quello verticale. Inoltre questo evita che in ATP tutte le variabili TACS prendano come unità "s"
-      if(unitS=="" && curveParamLst[iTotPlot].unitS!="s" && curveParamLst[iTotPlot].unitS!="Hz"){
+      //devo però tener conto della regola, illustrata anche in Tutorial, che non si mette come unità automatica "s" sugli assi y e yr, anche per evitare he tutte le variabili TACS predano questa unità in modo improprio.
+      if(unitS=="" && curveParamLst[iTotPlot].unitS!="s"){
         unitS=curveParamLst[iTotPlot].unitS;
       }else if(unitS!=curveParamLst[iTotPlot].unitS){
         unitS="";

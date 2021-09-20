@@ -538,7 +538,6 @@ qDebug()<<"DPI: "<<currentDPI;
     }
 
 
-
     if (someWinDisplaced){
       QMessageBox::warning(this, "MC's PlotXY",
        "Some plot window(s) saved outside current available space.\n"
@@ -3425,7 +3424,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     2) saving the name, accompanied by information, date and time, files currently loaded in memory, fourWin visibility
     3) saving the contents of the varTable# tables
     4) saving the currently displayed table-plot index
-    5) saving the index of the current file (important also for theinterpretation of the strings definign function plots, when they are written as v# (not f#v#).
+    5) saving the index of the current file (important also for the interpretation of the strings defining function plots, when they are written as v# (not f#v#).
     */
     QSettings settings;
     int iSheet, i,j, r, filesSaved;
@@ -3591,7 +3590,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     /*
     Fasi delle operazioni di caricamento stato:
   1) recupero il multifileMode e sua attivazione corretta
-  2) recupero del nome, corredato di informazione, di data e orario, dei files
+  2) recupero del nome, corredato di informazione di data e orario, dei files
      salvati, e loro caricamento eliminando contestualmente quelli già in memoria
   3) recupero i dati di fourWin
   4) Recupero il testo delle celle delle tableComp, e lo invio loro.
@@ -3602,12 +3601,13 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 /*
     Stages of the status loading operations:
   1) retrieve the multifileMode and its correct activation
-  2) recovery of the name, accompanied by information, date and time, files
+  2) recovery of the name, accompanied by date and time information, files
      saved, and uploading them by simultaneously deleting those already in memory
-  3) Recover the text of the tableComp cells, and send them to them.
+  3) recovery of fourWin data
+  4) Recover the text of the tableComp cells, and send them to them.
      When tableComp receives the strings it reconstructs the other internal data that it contains
      complete the state. Make plots
-  4) final operations
+  5) final operations
 */
 
   int filesStored;
@@ -3739,7 +3739,6 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     QString str="fourWin"+QString::number(iSheet+1)+"Visible";
     fourWinVisible[iSheet]=settings.value(str,false).toBool();
   }
-
 
 
   // Phase 4: Retrieve text, color palette and cell styles of tableComp's, and send to them.

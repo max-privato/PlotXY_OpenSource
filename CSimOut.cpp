@@ -96,7 +96,7 @@ QString CSimOut::giveAutoUnits(QChar c){
     int ic=c.toLatin1();
     switch (ic){
     case 't': return "s";
-    case 'f': return "s";
+    case 'f': return "Hz";
     case 'v': return "V";
     case 'c': return "A";
     case 'i': return "A";
