@@ -2233,7 +2233,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
                "Offending operation at "+sampleIndex+ " sample.\n"
                "The horizontal variable (possibly time) value is " + timeValue+ "\n";
           if(myLineCalc.domainError)
-              msg= "Domain error in sqrt() in function plot; plot impossible.\n"
+              msg= "Domain error in asin(), acos() or sqrt() in function plot; plot impossible.\n"
                  "Offending operation at "+sampleIndex+ " sample.\n"
                  "The horizontal variable (possibly time) value is " + timeValue+ "\n";
          QMessageBox::warning(this, "PlotXY",msg);
