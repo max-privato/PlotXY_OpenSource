@@ -3008,7 +3008,12 @@ void CDataSelWin::on_loadTBtn_clicked(){
 }
 
 void CDataSelWin::on_refrTBtn_clicked(){
-  /*Per trovare il nome del file completo del percorso parto dal tooltip, che lo contiene.
+  /* Ricarico il file corrente da disco e aggiorno tutti i plot già visualizzati.
+   * La line scelta è quella di cliccare su plot() e, se del caso four() su tutti gli sheet,
+   * aggiornando quindi i plot, senza andare a guardare su quale sheet sono presenti
+   * variabili prelevate dal file corrente.
+   *
+   * Per trovare il nome del file completo del percorso parto dal tooltip, che lo contiene.
    * Il tooltip è fatto così:
    *   fileTooltip="<p><B>Full name:</B> "+ fullName+"</p>";
    *  cui è aggiunta poi altra roba.
@@ -3044,10 +3049,9 @@ void CDataSelWin::on_refrTBtn_clicked(){
   
 /*
     Qui devo:
- 1) selezionare in sequenza i vari sheet (come se facessi un click, e non direttamente da  ui->tabWidget->setCurrentIndex(0); Questo è importante perché se uno sheet non ha variabili in questo modo il pulsante plot non è attivo
+ 1) selezionare in sequenza i vari sheet (come se facessi un click, e non direttamente da  ui->tabWidget->setCurrentIndex(); Questo è importante perché se uno sheet non ha variabili in questo modo il pulsante plot non è attivo
  2) se il pulsante plot è attivo lo clicco
  3) ripristino currentShIndex
-
 */
 
 /*
@@ -3059,28 +3063,16 @@ void CDataSelWin::on_refrTBtn_clicked(){
  3) restore currentShIndex
 
 */
- int currentTabIndex=ui->tabWidget->currentIndex();
-    for(int iTab=0; iTab<actualPlotWins; iTab++){
-      on_tabWidget_currentChanged(iTab);
-      if(ui->plotTBtn->isEnabled())
-          on_plotTBtn_clicked();
-      // Può capitare che si faccia il refresh da un file nel quale non sono presenti variabili precedentemente visualizzate. In questo caso non eseguo il plot e neanche il Four (il quale al suo interno comanderebbe comunque un plot causando un segfault)
-      if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
-          on_fourTBtn_clicked();
-    }
-    /* La seguente riga commentata fa un sempice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
-    on_tabWidget_currentChanged(currentTabIndex);
-    //ui->tabWidget->setCurrentIndex(currentTabIndex);
-    myVarTable=varTable[currentTabIndex];
-
-    //Aggiorno la finestra dei parametri, se visibile
-    // Update the parameter window, if visible
-    if(myParamWin->isVisible())
-        myParamWin->fillTable();
-    updatingPlot=false;
-    if(myFourWin->isVisible() && ui->fourTBtn->isEnabled()){
+//  int currentTabIndex=ui->tabWidget->currentIndex();
+  for(int iTab=0; iTab<actualPlotWins; iTab++){
+    on_tabWidget_currentChanged(iTab);
+    if(ui->plotTBtn->isEnabled())
+        on_plotTBtn_clicked();
+    // Può capitare che si faccia il refresh da un file nel quale non sono presenti variabili precedentemente visualizzate. In questo caso non eseguo il plot e neanche il Four (il quale al suo interno comanderebbe comunque un plot causando un segfault)
+    if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
         on_fourTBtn_clicked();
-    }
+  }
+
 }
 
 
