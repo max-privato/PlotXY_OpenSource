@@ -251,8 +251,6 @@ void CFourWin::computeTHD(){
    PWHC=sqrtf(work);
   }
 
-  for(int harm=2; harm<=myData.opt.harm2; harm++)
-    THD+=amplitudes[harm]*amplitudes[harm];
   // THD % relative ad armoniche 0 e 1:
   if(amplitudes[0]==0)
       return;
