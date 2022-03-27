@@ -3063,7 +3063,7 @@ void CDataSelWin::on_refrTBtn_clicked(){
  3) restore currentShIndex
 
 */
-//  int currentTabIndex=ui->tabWidget->currentIndex();
+  int currentTabIndex=ui->tabWidget->currentIndex();
   for(int iTab=0; iTab<actualPlotWins; iTab++){
     on_tabWidget_currentChanged(iTab);
     if(ui->plotTBtn->isEnabled())
@@ -3072,6 +3072,7 @@ void CDataSelWin::on_refrTBtn_clicked(){
     if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
         on_fourTBtn_clicked();
   }
+  on_tabWidget_currentChanged(currentTabIndex);
 
 }
 
