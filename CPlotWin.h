@@ -39,8 +39,6 @@ class CPlotWin : public QWidget
     Q_OBJECT
 
 public:
-
-
     bool dataTBtnChecked;
     bool lastWinIsCut; //Assume il valore di windowIsCut dell'ultimo grafico tracciato
     explicit CPlotWin(QWidget *parent = nullptr);
@@ -48,6 +46,7 @@ public:
 //    void enterEvent(QEvent *) override;
     void getData(float **x1, float*** y1, SCurveParam &x1Info, QList <SCurveParam> *y1Info, QList <SFileInfo> filesInfo);
     struct SFourData giveFourData();
+    void getOption(bool useCopiedDialog_); //per ora un'unica opzione possibile; in futuro potrebbe divenire "getOptions" e ricevere una struttura)
     void plot(bool update=false);
     void setDrawType(int drawType_);
     ~CPlotWin() override;
@@ -75,7 +74,7 @@ public slots:
     void updateChartOptions(SOptions programOptions);
 private:
     bool exactMatch;
-    bool *variableStep, wasResizing;
+    bool *variableStep, useCopiedDialog, wasResizing;
     int drawType; //numero che corrisponde all'indice dell'enum EDrawtyupe in LineChart: 0, default, è la mia routine filterClip, 1 è QtF, 2 QtI, 3 QtPoly.
     int numOfTotPlotFiles, //Numero dei files da cui si fanno grafici. Ogni funzione vale come un file.
         numOfTotPlots; //contiene il numero di grafici totali, sommando quelli dei vari files eccetto.

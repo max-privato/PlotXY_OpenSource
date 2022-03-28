@@ -43,6 +43,7 @@
 #define LARGERFONTS false
 #define MAXSPEED false
 #define ONLYPOINTSINPLOTS false
+#define USECOPIEDDIALOG true
 #define USEOLDCOLORS false
 //La seguente variabile contiene il valore di
 //enum EPlotPenWidth {pwThin, pwThick, pwAuto};
@@ -75,6 +76,7 @@ struct SOptions{
     showElapsTime, //chiede di visualizzare il tempo di esecuzione nella sbarra del titolo
     showFullFilelist, // in multifile mostra l'intera lista di 8 file nella fileTable
     trimQuotes, //elimina caratteri virgolette a inizio e fine dei nomi (utile per CSV di Modelica)
+    useCopiedDialog, // ussa un dialog per indicare che il grafico è stato copiato nella clipboard
     useGrids, //per default aggiunge le gridlines ai plot
     useMatLib, //usa la libreria matlab., se presente nella lettura dei files mat
     useOldColors, //usa i primi tre colori con logica RGB

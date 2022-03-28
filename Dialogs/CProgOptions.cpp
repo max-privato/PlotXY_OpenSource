@@ -36,6 +36,7 @@ CProgOptions::CProgOptions(QWidget *parent) :
 void CProgOptions::getData(struct SOptions PO){
     ui->autoUnitCkb->setChecked(PO.autoLabelXY);
     ui->commasCkb->setChecked(PO.commasAreSeparators);
+    ui->clpbrdDlgCkb->setChecked(PO.useCopiedDialog);
     ui->CompactMMCkb->setChecked(PO.compactMMvarMenu);
     ui->largeFCkb->setChecked(PO.largerFonts);
     ui->onlyPointsCkb->setChecked(PO.onlyPoints);
@@ -64,6 +65,7 @@ SOptions CProgOptions::giveData(){
     opt.autoLabelXY         =ui->autoUnitCkb->isChecked();
     opt.barChartForFS       =ui->useBarCkb->isChecked();
     opt.commasAreSeparators =ui->commasCkb->isChecked();
+    opt.useCopiedDialog     =ui->clpbrdDlgCkb->isChecked();
     opt.compactMMvarMenu    =ui->CompactMMCkb->isChecked();
     opt.largerFonts         =ui->largeFCkb->isChecked();
     opt.onlyPoints          =ui->onlyPointsCkb->isChecked();
@@ -101,6 +103,7 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     GV.PO.largerFonts           =LARGERFONTS;
     GV.PO.useBrackets           =USEBRACKETS;
     GV.PO.useGrids              =USEGRIDS;
+    GV.PO.useCopiedDialog       =USECOPIEDDIALOG;
     GV.PO.useOldColors          =USEOLDCOLORS;
     GV.PO.onlyPoints            =ONLYPOINTSINPLOTS;
     GV.PO.trimQuotes            =TRIMQUOTES;
@@ -127,6 +130,7 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     settings.setValue("useBrackets", GV.PO.useBrackets);
     settings.setValue("useGrids", GV.PO.useGrids);
     settings.setValue("useOldColors", GV.PO.useOldColors);
+    settings.setValue("useCopiedDialog", GV.PO.useCopiedDialog);
     settings.setValue("onlyPoints", GV.PO.onlyPoints);
     settings.setValue("trimQuotes", GV.PO.trimQuotes);
 

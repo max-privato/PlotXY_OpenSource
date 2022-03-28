@@ -2343,6 +2343,8 @@ void CDataSelWin::on_plotTBtn_clicked() {
   // through the ui, also of the lineChart managed by the designer inside
   // the window. Therefore the plot () must follow the show ().
   myPlotWin->getData(x1, y1, myVarTable->xInfo, y1Info, filesInfo);
+  myPlotWin->getOption(GV.PO.useCopiedDialog);  //Per ora l'unica opsione definita per la plotWin
+  //In futuro potrebbe diventare una struttura di opzioni (e il nome cambiare in getOptions)
 
   /* Le matrici y1[i] e i vettori x[i], con i a partire da plotFiles, erano stati allocati più sopra e quindi qui disalloco, ora che myPlotWin ne ha fatto copia locale:*/
 

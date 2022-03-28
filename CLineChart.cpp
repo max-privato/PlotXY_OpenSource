@@ -93,6 +93,7 @@ La reimplementazione della funzione virtual resizeEvent in questo file contiene 
     plotDone=false;
     printing=false;
     rectTTVisible=false;
+    showPlotCopiedDlg=true;
     strongFilter=false;
     twinScale=false;
     useBrackets=true;
@@ -3302,7 +3303,8 @@ void CLineChart::paintEvent(QPaintEvent *ev)
 void CLineChart::copy(){
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setImage(*myImage);
-    QMessageBox::information(this,"CLineChart",tr("plot copied as an image into the system clipboard."));
+    if(showPlotCopiedDlg)
+      QMessageBox::information(this,"CLineChart","plot copied as an image into the system clipboard.");
 }
 
 QImage *  CLineChart::giveImage(){
