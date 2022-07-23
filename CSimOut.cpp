@@ -96,7 +96,7 @@ QString CSimOut::giveAutoUnits(QChar c){
     int ic=c.toLatin1();
     switch (ic){
     case 't': return "s";
-    case 'f': return "s";
+    case 'f': return "Hz";
     case 'v': return "V";
     case 'c': return "A";
     case 'i': return "A";
@@ -394,6 +394,15 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
  * che ho definito per l'estensione ADF (Ascii Data File) La sua descrizione completa è
  *  nel file "Input formats and naming conventions".
 */
+
+
+ /* NOTA IMPORTANTE
+  * questa routine si renderebbe molto più semplice e leggibile se usassi QString.
+  * Invece dei strtok c'è l'ottima funzione "split" di QString. per fare lo split con
+  * la possibilità di avere uno o più separatori basta mettere come argomento una
+  * regular expression, ad esempio QRregExp([ \t,]).
+  */
+
   char  *str=nullptr, //Stringa per contenere le prime due righe del file.
         *str1, *pStr, *pBuffer,
       *fStr,  //Stringa che stabilisce il formato di lettura dei numeri
@@ -627,9 +636,18 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
       y[0][iL]=y[0][iL-1]+autoStepValue;
   }
   //Soltanto la prima riga di valori la leggo con conteggio del numero di dati presenti. Questo mi consente di intercettare l'errore più frequente nei files ADF, ovvero numero di variabili specificate nella seconda riga incongruente con il numero di dati per riga presenti.
-  delete str;
-  str=new char[rowLength[2]];
-  fgets(str,rowLength[2],fpIn);
+  delete[] str;
+
+  //La prima riga di valori è la sceconda riga nei CSV, la terza negli Adf:
+
+  if(csv){
+    str=new char[rowLength[1]];
+    fgets(str,rowLength[1],fpIn);
+  }else{
+    str=new char[rowLength[2]];
+    fgets(str,rowLength[2],fpIn);
+  }
+
 /*** In Mac a fine riga leggo "\r\n" invece di "\n".
    Pertanto (Sept 2012) modifico il codice in modo da considerare questa eventualità.  */
   pStr=str;
@@ -662,7 +680,10 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
     QString iStr, nVarStr;
      iStr.setNum(i);
     nVarStr.setNum(numOfVariables);
-    retStr="The number of numerical values in row 3 is " +iStr+ ";\n instead, it must be equal to "+nVarStr+", the number of variable names read from row 2.";
+    if(csv)
+      retStr="The number of numerical values in row 2 is " +iStr+ ";\n instead, it must be equal to "+nVarStr+", the number of variable names read from row 1.";
+    else
+      retStr="The number of numerical values in row 3 is " +iStr+ ";\n instead, it must be equal to "+nVarStr+", the number of variable names read from row 2.";
     goto Return;
   }
 

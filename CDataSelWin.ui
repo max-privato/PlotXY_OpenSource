@@ -114,6 +114,9 @@
           <pointsize>9</pointsize>
          </font>
         </property>
+        <property name="toolTip">
+         <string>Refresh current file and all Fourier and Plot diagrams</string>
+        </property>
         <property name="text">
          <string>Refresh</string>
         </property>

@@ -538,7 +538,6 @@ qDebug()<<"DPI: "<<currentDPI;
     }
 
 
-
     if (someWinDisplaced){
       QMessageBox::warning(this, "MC's PlotXY",
        "Some plot window(s) saved outside current available space.\n"
@@ -2234,7 +2233,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
                "Offending operation at "+sampleIndex+ " sample.\n"
                "The horizontal variable (possibly time) value is " + timeValue+ "\n";
           if(myLineCalc.domainError)
-              msg= "Domain error in sqrt() in function plot; plot impossible.\n"
+              msg= "Domain error in asin(), acos() or sqrt() in function plot; plot impossible.\n"
                  "Offending operation at "+sampleIndex+ " sample.\n"
                  "The horizontal variable (possibly time) value is " + timeValue+ "\n";
          QMessageBox::warning(this, "PlotXY",msg);
@@ -2344,6 +2343,8 @@ void CDataSelWin::on_plotTBtn_clicked() {
   // through the ui, also of the lineChart managed by the designer inside
   // the window. Therefore the plot () must follow the show ().
   myPlotWin->getData(x1, y1, myVarTable->xInfo, y1Info, filesInfo);
+  myPlotWin->getOption(GV.PO.useCopiedDialog);  //Per ora l'unica opsione definita per la plotWin
+  //In futuro potrebbe diventare una struttura di opzioni (e il nome cambiare in getOptions)
 
   /* Le matrici y1[i] e i vettori x[i], con i a partire da plotFiles, erano stati allocati più sopra e quindi qui disalloco, ora che myPlotWin ne ha fatto copia locale:*/
 
@@ -3009,7 +3010,12 @@ void CDataSelWin::on_loadTBtn_clicked(){
 }
 
 void CDataSelWin::on_refrTBtn_clicked(){
-  /*Per trovare il nome del file completo del percorso parto dal tooltip, che lo contiene.
+  /* Ricarico il file corrente da disco e aggiorno tutti i plot già visualizzati.
+   * La line scelta è quella di cliccare su plot() e, se del caso four() su tutti gli sheet,
+   * aggiornando quindi i plot, senza andare a guardare su quale sheet sono presenti
+   * variabili prelevate dal file corrente.
+   *
+   * Per trovare il nome del file completo del percorso parto dal tooltip, che lo contiene.
    * Il tooltip è fatto così:
    *   fileTooltip="<p><B>Full name:</B> "+ fullName+"</p>";
    *  cui è aggiunta poi altra roba.
@@ -3045,10 +3051,9 @@ void CDataSelWin::on_refrTBtn_clicked(){
   
 /*
     Qui devo:
- 1) selezionare in sequenza i vari sheet (come se facessi un click, e non direttamente da  ui->tabWidget->setCurrentIndex(0); Questo è importante perché se uno sheet non ha variabili in questo modo il pulsante plot non è attivo
+ 1) selezionare in sequenza i vari sheet (come se facessi un click, e non direttamente da  ui->tabWidget->setCurrentIndex(); Questo è importante perché se uno sheet non ha variabili in questo modo il pulsante plot non è attivo
  2) se il pulsante plot è attivo lo clicco
  3) ripristino currentShIndex
-
 */
 
 /*
@@ -3060,28 +3065,17 @@ void CDataSelWin::on_refrTBtn_clicked(){
  3) restore currentShIndex
 
 */
- int currentTabIndex=ui->tabWidget->currentIndex();
-    for(int iTab=0; iTab<actualPlotWins; iTab++){
-      on_tabWidget_currentChanged(iTab);
-      if(ui->plotTBtn->isEnabled())
-          on_plotTBtn_clicked();
-      // Può capitare che si faccia il refresh da un file nel quale non sono presenti variabili precedentemente visualizzate. In questo caso non eseguo il plot e neanche il Four (il quale al suo interno comanderebbe comunque un plot causando un segfault)
-      if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
-          on_fourTBtn_clicked();
-    }
-    /* La seguente riga commentata fa un sempice switch della table. Non va bene perché non aggiusta lo stato enabled dei vari bottoni.*/
-    on_tabWidget_currentChanged(currentTabIndex);
-    //ui->tabWidget->setCurrentIndex(currentTabIndex);
-    myVarTable=varTable[currentTabIndex];
-
-    //Aggiorno la finestra dei parametri, se visibile
-    // Update the parameter window, if visible
-    if(myParamWin->isVisible())
-        myParamWin->fillTable();
-    updatingPlot=false;
-    if(myFourWin->isVisible() && ui->fourTBtn->isEnabled()){
+  int currentTabIndex=ui->tabWidget->currentIndex();
+  for(int iTab=0; iTab<actualPlotWins; iTab++){
+    on_tabWidget_currentChanged(iTab);
+    if(ui->plotTBtn->isEnabled())
+        on_plotTBtn_clicked();
+    // Può capitare che si faccia il refresh da un file nel quale non sono presenti variabili precedentemente visualizzate. In questo caso non eseguo il plot e neanche il Four (il quale al suo interno comanderebbe comunque un plot causando un segfault)
+    if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
         on_fourTBtn_clicked();
-    }
+  }
+  on_tabWidget_currentChanged(currentTabIndex);
+
 }
 
 
@@ -3425,7 +3419,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     2) saving the name, accompanied by information, date and time, files currently loaded in memory, fourWin visibility
     3) saving the contents of the varTable# tables
     4) saving the currently displayed table-plot index
-    5) saving the index of the current file (important also for theinterpretation of the strings definign function plots, when they are written as v# (not f#v#).
+    5) saving the index of the current file (important also for the interpretation of the strings defining function plots, when they are written as v# (not f#v#).
     */
     QSettings settings;
     int iSheet, i,j, r, filesSaved;
@@ -3591,7 +3585,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     /*
     Fasi delle operazioni di caricamento stato:
   1) recupero il multifileMode e sua attivazione corretta
-  2) recupero del nome, corredato di informazione, di data e orario, dei files
+  2) recupero del nome, corredato di informazione di data e orario, dei files
      salvati, e loro caricamento eliminando contestualmente quelli già in memoria
   3) recupero i dati di fourWin
   4) Recupero il testo delle celle delle tableComp, e lo invio loro.
@@ -3602,12 +3596,13 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 /*
     Stages of the status loading operations:
   1) retrieve the multifileMode and its correct activation
-  2) recovery of the name, accompanied by information, date and time, files
+  2) recovery of the name, accompanied by date and time information, files
      saved, and uploading them by simultaneously deleting those already in memory
-  3) Recover the text of the tableComp cells, and send them to them.
+  3) recovery of fourWin data
+  4) Recover the text of the tableComp cells, and send them to them.
      When tableComp receives the strings it reconstructs the other internal data that it contains
      complete the state. Make plots
-  4) final operations
+  5) final operations
 */
 
   int filesStored;
@@ -3739,7 +3734,6 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     QString str="fourWin"+QString::number(iSheet+1)+"Visible";
     fourWinVisible[iSheet]=settings.value(str,false).toBool();
   }
-
 
 
   // Phase 4: Retrieve text, color palette and cell styles of tableComp's, and send to them.

@@ -38,7 +38,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="genTab">
       <attribute name="title">
@@ -257,6 +257,36 @@
           </item>
          </layout>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="miscTab">
+      <attribute name="title">
+       <string>Misc</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QCheckBox" name="clpbrdDlgCkb">
+         <property name="text">
+          <string>Show dialog when copying plots</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </widget>

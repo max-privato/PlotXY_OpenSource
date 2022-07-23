@@ -46,22 +46,31 @@ CLineCalc::CLineCalc(bool allowMathFunctions_){
     pointersPrepared=false;
     unitCharLstFilled=false;
     varListsReceived=false;
-    funStr[0]="sin";   fun1[0]=sinf;
-    funStr[1]="cos";   fun1[1]=cosf;
-    funStr[2]="tan";   fun1[2]=tanf;
-    funStr[3]="sinh";  fun1[3]=sinhf;
-    funStr[4]="cosh";  fun1[4]=coshf;
-    funStr[5]="tanh";  fun1[5]=tanhf;
-    funStr[6]="exp";   fun1[6]=expf;
-    funStr[7]="sqrt";  fun1[7]=sqrtf;  //unica funzione accettata in PlotXY che necessita verifica di dominio
-    funStr[8]="asin";  fun1[8]=asinf;
-    funStr[9]="acos";  fun1[9]=acosf;
-    funStr[10]="atan"; fun1[10]=atanf;
+    /* NOTA IMPORTANTE Le funzioni asin, acos, atan devono precedere sin, cos, tan.
+     * Infatti se analizzo prima "sin", iper come è fatto il codice il carattere 'a'
+     * di "asin" viene preco come testo prima di nome di funzione senza operatore
+     * interposto
+     */
+#define ASININDEX 0
+#define ACOSINDEX 1
+#define SQRTINDEX 10
+    funStr[ASININDEX]="asin";  fun1[ASININDEX]=asinf; //funzione che necessita verifica di dominio
+    funStr[ACOSINDEX]="acos";  fun1[ACOSINDEX]=acosf; //funzione che necessita verifica di dominio
+    funStr[2]="atan";  fun1[2]=atanf;
+    funStr[3]="sin";   fun1[3]=sinf;
+    funStr[4]="cos";   fun1[4]=cosf;
+    funStr[5]="tan";   fun1[5]=tanf;
+    funStr[6]="sinh";  fun1[6]=sinhf;
+    funStr[7]="cosh";  fun1[7]=coshf;
+    funStr[8]="tanh";  fun1[8]=tanhf;
+    funStr[9]="exp";   fun1[9]=expf;
+    funStr[SQRTINDEX]="sqrt"; fun1[SQRTINDEX]=sqrtf;  //funzione che necessita verifica di dominio
     funStr[11]="log";  fun1[11]=logf;
     funStr[12]="abs";  fun1[12]=fabsf;
 
-    // In PlotXY ammetto solo alcune funzioni:
-    allowedFunIndexes<<0<<1<<6<<7<<12;
+    // In PlotXY ammettoevo solo alcune funzioni:
+    // allowedFunIndexes<<0<<1<<6<<7<<12;
+    allowedFunIndexes<<0<<1<<2<<3<<4<<5<<6<<7<<8<<9<<10<<11<<12;
 
     fun2[0]=power;
     fun2[1]=prod;
@@ -269,15 +278,21 @@ QString CLineCalc::computeFun1(int start, int iVal){
     while(intLine[j]==' ')j++;
     //A questo punto l'argomento della funzione può essere una costante (carattere '#') o una variabile (carattere '@')
     if(intLine[j]=='#'){
-//      if(pFun[i]==sqrt && pConst[j]<0)
-        if(pFun[i]==fun1[7] && pConst[j]<0)
+        if(pFun[i]==fun1[ASININDEX] && abs(pConst[j])>1)
+          ret="Domain error when evaluating asin()";
+        if(pFun[i]==fun1[ACOSINDEX] && abs(pConst[j])>1)
+          ret="Domain error when evaluating acos()";
+        if(pFun[i]==fun1[SQRTINDEX] && pConst[j]<0)
           ret="Domain error when evaluating sqrt()";
       y=pFun[i](pConst[j]);
     }
     if(intLine[j]=='@'){
-//      if(pFun[i]==sqrt && pVar[j][iVal]<0)
-        if(pFun[i]==fun1[7] && pVar[j][iVal]<0)
-        ret="Domain error when evaluating sqrt()";
+        if(pFun[i]==fun1[ASININDEX] && abs(pConst[j])>1)
+          ret="Domain error when evaluating asin()";
+        if(pFun[i]==fun1[ACOSINDEX] && abs(pConst[j])>1)
+          ret="Domain error when evaluating acos()";
+        if(pFun[i]==fun1[SQRTINDEX] && pConst[j]<0)
+          ret="Domain error when evaluating sqrt()";
       y=pFun[i](pVar[j][iVal]);
     }
     intLine[i]='#';

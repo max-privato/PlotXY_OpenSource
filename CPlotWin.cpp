@@ -282,6 +282,11 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
     valuesWin->setUp(numOfTotPlotFiles, numOfPlots, lCurveParam, filesInfo);
 }
 
+
+void CPlotWin::getOption(bool useCopiedDialog_){
+    useCopiedDialog=useCopiedDialog_;
+}
+
 struct SFourData CPlotWin::giveFourData(){
     /* returns data needed to perform a four chart: when this is called we are sure that PlotWin is displaying a single curve.*/
     int indexLeft, indexRight;
@@ -317,6 +322,7 @@ void CPlotWin::plot(bool update){
     if(!update)
       ui->lineChart->useUserUnits=false;
     //Nella seguente chiamata devo passare autoScale, che sarà true <=> update è false
+    ui->lineChart->showPlotCopiedDlg=useCopiedDialog;
     ui->lineChart->plot(!update);
     //La seguente chiamata se del caso aggiorna le informazioni sul tnmpo di esecuzione e sul numero dipunti tracciati sulla barra del titolo:
     XYchartResizeStopped();

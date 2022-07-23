@@ -502,6 +502,7 @@ int drawTimeUs; //drawing time in microseconds
 int fixedFontPx; //default pixel size of text font, when "fsFixed" is selected by the user
 int pointsDrawn; //Numero di punti utilizzati per il tracciamento
 int tooltipMargin; //distanza  in pixel dal punto per visualizzare il tootip dei valori
+bool showPlotCopiedDlg; //mostra il dialog "plot copied as an image into the system clipboard"
 
 // *************  6) FUNZIONI PUBBLICHE (in ordine alfabetico)
   CLineChart(QWidget * parent);
