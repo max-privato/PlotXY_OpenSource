@@ -413,14 +413,17 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
 
 
 void CVarTableComp::getFileNums(QList <int> fileNums, QList <int> varNums) {
-    /* Quasi sempre fileNumsLst vengono chieste da CVarTableComp::queryFileNums all'esterno, in quanto esse servono a seguito di azioni dell'utente.
-     * Però vi è un caso in cui il processo è inverso. Questo accade quando soto facendo il load state, e devo caricare i valori di queste liste per consentire a CLineCalc di fare la verifica sintattica.
+    /* Quasi sempre fileNumsLst vengono chieste da CVarTableComp::queryFileNums
+     * all'esterno, in quanto esse servono a seguito di azioni dell'utente.
+     * Però vi è un caso in cui il processo è inverso. Questo accade quando sto facendo
+     * il load state, e devo caricare i valori di queste liste per consentire a CLineCalc
+     * di fare la verifica sintattica.
      * In questo caso CDataSelQin chiamerà la presente funzione
      *
 */
     allFileNums=fileNums;
     varMaxNumsLst=varNums;
-    // Se ho selezionato un unico file il calore di sinfleFileNum deve prender eil numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzion equando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
+    // Se ho selezionato un unico file il valore di singleFileNum deve prendere il numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzion equando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
     //Ma quando carico lo stato questa variabile rimarrebbe a 0 e essa viene testata in CVarTable::Analyse(). Se quindi sto caricando uno stato che ha informazioni sia in plot1 che in plot2, e singlefileNum non è scelto, al secondo plot analyse() non mette il valore corretto di yFile e alle fine il programma va in crash.
     int numOfFiles=0, numOfSingleFile=-1;
 
@@ -568,11 +571,15 @@ FINE Correzione 25/11/2020
       tabFileNums.append(item(r,FILENUMCOL)->text().toInt());
     if(item(r,VARNUMCOL)->text().left(1) =="f")
       funSet.insert(item(r,VARNUMCOL)->text().mid(1,1).toInt());
-  }
-  if(numOfTotVars>1)
-    allowSaving=true;
-  else
+  } 
+
+  //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
+  QSet <int> mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+  if(funSet.size()>0 || mySet.count()>1)
     allowSaving=false;
+  else
+    allowSaving=true;
+
   //Ora faccio lo scambio di colori di riga se la x non è in prima riga
   if(xVarRow!=0){
     QColor color=item(1,0)->background().color();
