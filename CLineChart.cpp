@@ -2542,10 +2542,10 @@ void CLineChart::mouseMoveEvent(QMouseEvent *event)
 2) nella seconda gestisce la selezione dell'area di zoom
 3) nella terza gestisce i cursori di dati
 */
-    int nearX;
-    static SXYValues values;
-    int posX=event->pos().x();
-if(dataCursDragging)
+  int nearX;
+  static SXYValues values;
+  int posX=event->pos().x();
+  if(dataCursDragging)
     hovVarRect=QRect(0,0,0,0);
     //La seguente sezione 1 è stata trasferita all'interno della funzione event (che cestisce anche lo snap to grid)
     /*
@@ -2564,12 +2564,12 @@ if(dataCursDragging)
  */
 
 //2) selezione dell'area di zoom
-    if(zoomSelecting){  //sono in fase di selezione del rettangolo di zoom
-      //endPos è la posizione finale per il rettangolo delle zoomate
-      endZoomRectPos=event->pos();
-      update();
-      return;
-    }
+  if(zoomSelecting){  //sono in fase di selezione del rettangolo di zoom
+    //endPos è la posizione finale per il rettangolo delle zoomate
+    endZoomRectPos=event->pos();
+    update();
+    return;
+  }
 
 //3) gestione dei cursori di dati
    //A questo punto non sto selezionando il rettangolo di zoom. Adesso se sono in un'azione di dataRectDragging aggiorno i valori numerici e la posizione del cursore dati; altrimenti valuto se il mouse è nel raggio di azione di uno dei tre cursori dati. La cosa viene ripetuta tre volte, una per ogni cursore dati.
