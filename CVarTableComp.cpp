@@ -400,8 +400,13 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
         event->acceptProposedAction();
         numOfTotVars++;
         allowSaving=true;
-        if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-          allowSaving=false;
+
+       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
+        QSet <int>mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+        if(funSet.size()>0 || mySet.count()>1)
+       //      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+           allowSaving=false;
+
         emit contentChanged();
     }
 }
@@ -582,7 +587,7 @@ FINE Correzione 25/11/2020
 }
 
 int CVarTableComp::givehighestUsedRowIdx(){
-  int i=rowHeight(0);
+//  int i=rowHeight(0);
     return highestUsedRowIdx;
 }
 
@@ -686,8 +691,8 @@ void CVarTableComp::leftClicked(int r, int c){
 /*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima
  * gestisce il click destro e per il click sinistro rimanda qui.
 */
-
-//    QSet <int> testSet;
+int iii2;
+  QSet <int> mySet;
   int j, nextFun, oldXVarRow=xVarRow;
   QString str, ret;
   CLineCalc myLineCalc;
@@ -752,10 +757,14 @@ void CVarTableComp::leftClicked(int r, int c){
             highestUsedRowIdx=i;
       }
       allowSaving=true;
-//      testSet=tabFileNums.toSet();
-//      j=tabFileNums.toSet().size();
-      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+      //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
+      mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+      iii2=mySet.count();
+      if(funSet.size()>0 || mySet.count()>1)
+// La seguente riga è commentata perché marcata obsoleta in Qt 5.15, e elkiminata in Qt 6:
+//       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
           allowSaving=false;
+
       // Chiedo a CDataSelWin di aggiornare le informazioni sulla tabella myLineCalc.
       // Gestisce solo l'attivazione dei bottoni sotto la varTable stessa
       emit contentChanged();
@@ -845,8 +854,15 @@ FINE Correzione 25/11/2020
       item(r,VARCOL)->setText(str);
       fillNames(str,currFileIdx+1);
       allowSaving=true;
-      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-        allowSaving=false;
+
+
+      //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
+      mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+      iii2=mySet.count();
+      if(funSet.size()>0 || mySet.count()>1)
+//      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+          allowSaving=false;
+
       emit contentChanged();
       break;
     case VARNUMCOL: //colonna del "#"
@@ -910,8 +926,13 @@ FINE Correzione 25/11/2020
         timeVarReset=true;
         leftClicked(oldXVarRow,VARCOL);
       }
-      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-        allowSaving=false;
+
+      //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
+      mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+      iii2=mySet.count();
+      if(funSet.size()>0 || mySet.count()>1)
+//      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+          allowSaving=false;
       //Se la variabile su cui si è cliccato è una funzione di variabile devo prendere l'indice a partire dal secondo carattere;
        str=item(r,VARNUMCOL)->text();
       if(str[0]=='f'){
@@ -1093,6 +1114,7 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
 */
   int i;
   QResizeEvent * event;
+  QSet <int> mySet;
 
   //se in multiFile è richiesta la selezione di variabile senza aver prima selezionato l'x comune con setCommonX ritorno un errore:
 //  if(multiFile && !commonXSet) return 1;
@@ -1173,8 +1195,14 @@ FINE Correzione 25/11/2020
   item(i,XVARCOL)->setToolTip(unit_);
   if(numOfTotVars>1)
     allowSaving=true;
-  if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-    allowSaving=false;
+
+
+  //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
+  mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+  if(funSet.size()>0 || mySet.count()>1)
+//      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+      allowSaving=false;
+
   emit contentChanged();
   resizeEvent(event=nullptr);
    return 0;
