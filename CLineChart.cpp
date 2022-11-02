@@ -642,7 +642,6 @@ Pertanto l'indice di file è sempre 0 e l'indice della variabile è sempre 0.
           yZero; //Coordinata pixel Y della retta y=0 (scale lineari) e logy=0 (scale log)
   float minXStep, fAux;
   QBrush redBrush, grayBrush;
-  QString XText;
 
   plotPen.setColor(Qt::black);
   myPainter->setPen(plotPen);
@@ -2391,14 +2390,12 @@ int CLineChart::giveNearValue(QPoint mouseP , QPoint &nearP, QPointF &valueP){
     /* Prima di tutto trovo index che è l'indice del valore sull'asse x più vicino al cursore*/
     if(filesInfo[iFile].variableStep){
       indexSX=qMax(0,pixelToIndexDX[VSFile][netMouseP.x()]-1);
-      deltaX=px[iFile][indexSX+1]-px[iFile][indexSX];
       if(fMouseX-px[iFile][indexSX]<px[iFile][indexSX+1]-fMouseX)
         index=indexSX;
       else
         index=indexSX+1;
     }else{
       deltaX=px[iFile][1]-px[iFile][0];
-      indexSX=int((fMouseX-px[iFile][0])/deltaX);
       index=NearInt((fMouseX-px[iFile][0])/deltaX);
       //Può accadere che fra l'ultimo e il penultimo punto non si abbia la stessa distanza
       //che fra gli altri. Questo perché se Tmax supera TOld+DeltaT, vengono registrati
@@ -2823,11 +2820,6 @@ void  CLineChart::drawAllLabelsAndGrid(SAxis axis){
     if(axis.type==atX){
       initialPix=Y0;
       finalPix=Y1;
-      if(axis.scaleMin*axis.scaleMax>0)
-        zeroPosition=-1;
-      else{
-        zeroPosition=NearInt(-axis.scaleMin/(axis.scaleMax-axis.scaleMin)*(X1-X0)+X0);
-      }
     }else{
       initialPix=X0;
       finalPix=X1;
@@ -3115,7 +3107,7 @@ void CLineChart::drawAllLabelsAndGridLog(SAxis axis){
   switch(numTicType){
    case 1:
       pos[1]=pos0;
-      decInterval=pos[0]-pos[1];
+//      decInterval=pos[0]-pos[1];
       break;
     case 2:
       decInterval= float(pos10+1)/(axis.eMax-axis.eMin);
@@ -3657,7 +3649,7 @@ QString CLineChart::plot(bool autoScale){
   resetMarkData();
   designPlot();
   lastAutoScale=autoScale;
-  iRet=0;
+//  iRet=0;
   if(autoScale){
     bool someLeftScale=false, someRightScale=false;
     /*Gestione eventuale scala destra. La metto se sono verificate due condizioni:
@@ -4064,7 +4056,8 @@ QString CLineChart::print(QPrinter * printer, bool thinLines){
     QMessageBox::critical(this,"",ret);
     return ret;
   }
-  QRect prnRect=printer->pageRect();
+  QRect prnRect=printer->pageLayout().paintRectPixels(printer->resolution());
+
   if(prnRect.width()<20 || prnRect.height()<20 ){
     ret=tr("Unable to get valid information from the selected printer");
     QMessageBox::critical(this,"",ret);
@@ -4972,7 +4965,6 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
       }else{
         iTotPlot--;
         numRows++;
-        xPosition=0;
         yPosition+=textHeight;
         xPosition=0;
         if(numRows==4){
