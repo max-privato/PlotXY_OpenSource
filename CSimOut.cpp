@@ -1096,9 +1096,8 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         var=analogSigs+1+16*digivar;
         fread (&si, sizeof(short int), 1, pFile);
         for(i=0;i<16;i++){
-//          bool test=(si&short(2^i))>0;
-            bool test;
-            test=(si& (1<<i))>0;
+//            bool test;
+//            test=(si& (1<<i))>0;
           y[var+i][point]=(si& (1<<i))>0;
         }
       }
@@ -1108,8 +1107,8 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         fread (&si, sizeof(short int), 1, pFile);
         for(i=0;i<extraDigiSigs;i++){
 //            bool test=(si&short(2^i))>0;
-            bool test;
-            test=(si& (1<<i))>0;
+//            bool test;
+//            test=(si& (1<<i))>0;
           y[var+i][point]=(si& (1<<i))>0;
         }
       }
@@ -2322,7 +2321,7 @@ QString CSimOut::namesComtradeToMat(bool mat){
     varNames[var]=QString(prefix)+varNames[var];
   }
 
-  delete [] pToken;
+  free(pToken);
   return "";
 }
 

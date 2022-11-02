@@ -8,6 +8,7 @@ QT       += core gui svg printsupport
 # QTPLUGIN += qico
 
 # QT       += core gui svg
+# DEFINES= += QT_DISABLE_DEPRECATED_BEFORE=0x050f00
 
 win32{
 #   QTPLUGIN += windowsprintersupport

@@ -85,10 +85,10 @@ CPlotWin::CPlotWin(QWidget *parent) :
     labelFontBasePoints=ui->interpolateBox->font().pointSize();
 #endif
     QFontMetrics fm(myFont);
-    int minimumWidth=fm.width("+#.##e+#")+3;
+    int minimumWidth=fm.horizontalAdvance("+#.##e+#")+3;
     ui->xValueLbl->setMinimumWidth(minimumWidth);
     ui->yValueLbl->setMinimumWidth(minimumWidth);
-    minimumWidth=fm.width(ui->interpolateBox->text()+"XXX")+2;
+    minimumWidth=fm.horizontalAdvance(ui->interpolateBox->text()+"XXX")+2;
     ui->interpolateBox->setMinimumWidth(minimumWidth);
 
     plotOpsWin = new CPlotOptions(this);
@@ -463,12 +463,22 @@ In mac non si riescono a sopprimere i bottoni di sistema, che sprecano spazio, e
 void CPlotWin::updateChartOptions(SOptions opts_){
   programOptions=opts_;
   EPlotPenWidth eppw;
+
+  if(programOptions.plotPenWidth==0)
+    eppw=pwThin;
+  else if(programOptions.plotPenWidth==1)
+    eppw=pwThick;
+  else
+    eppw=pwAuto;
+/*
+ * Il codice segunente è peggiore perché dà come warning variabile eppw non inizializzata
   if(programOptions.plotPenWidth==0)
     eppw=pwThin;
   if(programOptions.plotPenWidth==1)
     eppw=pwThick;
   if(programOptions.plotPenWidth==2)
     eppw=pwAuto;
+*/
   ui->lineChart->setPlotPenWidth(eppw);
   ui->lineChart->autoLabelXY=programOptions.autoLabelXY;
   ui->lineChart->useBrackets=programOptions.useBrackets;
@@ -538,10 +548,10 @@ void CPlotWin::resizeEvent(QResizeEvent *){
     ui->xValueLbl->setFont(myFont);
     ui->yValueLbl->setFont(myFont);
     QFontMetrics fm(myFont);
-    int minimumWidth=fm.width("+#.###e+##")+2;
+    int minimumWidth=fm.horizontalAdvance("+#.###e+##")+2;
     ui->xValueLbl->setMinimumWidth(minimumWidth);
     ui->yValueLbl->setMinimumWidth(minimumWidth);
-    minimumWidth=fm.width(ui->interpolateBox->text()+"XXX")+2;
+    minimumWidth=fm.horizontalAdvance(ui->interpolateBox->text()+"XXX")+2;
     ui->interpolateBox->setMinimumWidth(minimumWidth);
 
 }
@@ -638,12 +648,13 @@ void CPlotWin::on_printTBtn_clicked()
     */
 //  bool ok;
   QPrinter myPrinter;
-  QRect prnRect=myPrinter.pageRect();
+  QRect prnRect;
   QString pdfFileName, fullFileName, ret;
   /* A differenza di BCB non ho una stampante generale di sistema. Creo quindi qui un oggetto printer in quanto alcune opzioni (ad esempio l'orientazione, l'hardware fisico da usare, ecc.) possono essere selezionati all'interno di printWOptsDlg*/
   printWOptsDlg->setPrinter(&myPrinter);
   printWOptsDlg->exec();
-  prnRect=myPrinter.pageRect();
+  prnRect=myPrinter.pageLayout().paintRectPixels(myPrinter.resolution());
+//  prnRect=myPrinter.pageRect();
   if(printWOptsDlg->doPrint){
     myPrinter.setDocName("MC's PlotXY - Plot Print");
     ui->lineChart->blackWhite=printWOptsDlg->bwPrint;

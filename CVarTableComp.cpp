@@ -48,8 +48,8 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
 
     hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
-    setColumnWidth(VARNUMCOL,fontMetrics().width(hdrs[VARNUMCOL]));
-    iniVarNumColWidth=2*fontMetrics().width(hdrs[VARNUMCOL]);
+    setColumnWidth(VARNUMCOL,fontMetrics().horizontalAdvance(hdrs[VARNUMCOL]));
+    iniVarNumColWidth=2*fontMetrics().horizontalAdvance(hdrs[VARNUMCOL]);
     hdrs[FILENUMCOL]="f";
     hdrs[VARCOL]=" Variable name ";
     hdrs[XVARCOL]="X";
@@ -326,20 +326,20 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
     //Purtroppo resizeColumnToContents(VARNUMCOL); ha un comportamento insoddisfacente, quindi faccio il calcolo manuale.
     wi[VARNUMCOL]=0;
     for (i=1; i<rowCount(); i++){
-      wi[VARNUMCOL]=qMax(wi[VARNUMCOL],fontMetrics().width(item(i,VARNUMCOL)->text()));
+      wi[VARNUMCOL]=qMax(wi[VARNUMCOL],fontMetrics().horizontalAdvance(item(i,VARNUMCOL)->text()));
 //      if(i<4){
 //        qDebug()<<"item text: "<<item(i,VARNUMCOL)->text();
 //        qDebug()<<"width: "<<fontMetrics().width(item(i,VARNUMCOL)->text());
 //      }
     }
-    wi[VARNUMCOL]= int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL])));
-    wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().width("X"));
+    wi[VARNUMCOL]= int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().horizontalAdvance(hdrs[VARNUMCOL])));
+    wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().horizontalAdvance("X"));
     setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
 
     i=0;
     for(j=0;j<TOTCOLS;j++){
         if(j!=VARNUMCOL)
-            wi[j]=fontMetrics().width(hdrs[j]);
+            wi[j]=fontMetrics().horizontalAdvance(hdrs[j]);
         if(j!=VARCOL)
             i+=wi[j];
     }
@@ -638,7 +638,7 @@ NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
       if(varName[0]=='f'){
         QString shortName=varName, fileNumStr=varName;
         fileNumStr.remove(0,1); //tolgo la "f" a inizio nome
-        fileNumStr.truncate(fileNumStr.indexOf("v")); //tolgo quello che c'è a destra del nuumero
+        fileNumStr.truncate(fileNumStr.indexOf("v")); //tolgo quello che c'è a destra del numero
         int file=fileNumStr.toInt();
         if (file!=currFileIdx+1) break;  //se il numero di file non è quello del file corrente non vi sono duplicazioni da rimuovere, e quindi passo alla successiva variabile
         shortName.remove(0,shortName.indexOf('v')); //tolgo la f e il relativo numero

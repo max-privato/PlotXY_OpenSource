@@ -67,21 +67,23 @@ void CVarMenu::mouseMoveEvent(QMouseEvent *event)
      mimeData->setData("MC's PlotXY/var", varData);
      drag->setMimeData(mimeData);
      dragging=true;
-     backgroundColor=itemAt(event->pos())->backgroundColor();
-     itemAt(event->pos())->setBackgroundColor(Qt::yellow);
+     backgroundColor=itemAt(event->pos())->background().color();
+     itemAt(event->pos())->setBackground(Qt::yellow);
      drag->exec(Qt::MoveAction);
      /* Non sono riuscito in alcun modo a trovare la maniera di deselezionare il giallo di sfondo nella tabella di destinazione se l'operazione di drop non è effettuata e se l'utente esce direttamente dall'ultima riga (gialla), senza passare da altre righe.
     DETTAGLIO TECNICO: La soluzione naturale per togliere il giallo dallo sfondo della cella sarebbe di utilizzare il "leaveEvent" di CLineChart. Però esso, stranamente (per me è un BUG), non si attiva se la fuoriuscita dal widget avviene con il tasto sinistro premuto, quindi durante una operazione di drop.
 Pertanto, anche se non è bello, faccio l'azione di sistemazione dello sfondo della varTable mediante una coppia Signal/Slot!!.*/
      emit draggingDone();
      dragging=false;
-     itemAt(event->pos())->setBackgroundColor(backgroundColor);
+
+     itemAt(event->pos())->setBackground(backgroundColor);
+//     itemAt(event->pos())->setBackgroundColor(backgroundColor);
   }
 
 
 void CVarMenu::keyReleaseEvent(QKeyEvent *)  {
     groupBeginRow=-1;
-    itemAt(groupBeginPos)->setBackgroundColor(neCellBkColor);
+    itemAt(groupBeginPos)->setBackground(neCellBkColor);
  }
 
 
@@ -98,12 +100,12 @@ void CVarMenu::mouseReleaseEvent(QMouseEvent *event){
     if(groupBeginRow==-1){
       groupBeginRow=rowAt(event->pos().y());
       groupBeginPos=event->pos();
-      itemAt(event->pos())->setBackgroundColor(Qt::gray);
+      itemAt(event->pos())->setBackground(Qt::gray);
       return;
     }else{
       //A questo punto sto selezionando la cella terminale di un blocco e comandando la selezione multipla. Per prima cosa lancio un task che mantiene sul grigio la seconda cella del blocco grigia, e poi emetto un segnale di comando della selezione multipla.
       QTimer::singleShot(500, this, SLOT(timerEnd()));
-      itemAt(event->pos())->setBackgroundColor(Qt::gray);
+      itemAt(event->pos())->setBackground(Qt::gray);
       groupEndPos=event->pos();
       groupEndRow=rowAt(groupEndPos.y());
       emit groupSelected(groupBeginRow,groupEndRow);
@@ -150,5 +152,5 @@ void CVarMenu::mouseReleaseEvent(QMouseEvent *event){
 
 
  void CVarMenu::timerEnd(){
-     itemAt(groupEndPos)->setBackgroundColor(neCellBkColor);
+     itemAt(groupEndPos)->setBackground(neCellBkColor);
 }

@@ -58,12 +58,14 @@ void CPrintWOptions::on_printBtn_clicked()
     doPrint=false;
 */
   doPrint=true;
-  QRect prnRect=myPrinter->pageRect();
+//  QRect prnRect=myPrinter->pageRect();
+  QRect prnRect=myPrinter->pageLayout().paintRectPixels(myPrinter->resolution());
   if(portrait)
-    myPrinter->setOrientation(QPrinter::Portrait);
+    myPrinter->setPageOrientation(QPageLayout::Portrait);
   else
-    myPrinter->setOrientation(QPrinter::Landscape);
-  prnRect=myPrinter->pageRect();
+    myPrinter->setPageOrientation(QPageLayout::Landscape);
+//  prnRect=myPrinter->pageRect();
+  prnRect=myPrinter->pageLayout().paintRectPixels(myPrinter->resolution());
   close();
 }
 
