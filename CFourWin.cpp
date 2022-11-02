@@ -166,7 +166,6 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     //Eventuale correzione con amplFactor
     harm1=myData.opt.harm1;
     harm2=myData.opt.harm2;
-    amplFactor=1.0; //evita un warning in quanto nel case succcessivo non ho la voce default
     switch(myData.opt.amplUnit){
        case peak:
         amplFactor=1.0;
@@ -833,9 +832,9 @@ int CFourWin::performNuDFT(){
     for (sample=0; sample<nSamples; sample++){
       ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
       bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
-      float aux1=y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]);
-      float aux2=x1[sample+1]-x1[sample];
-      aux1=0;
+//      float aux1=y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]);
+//      float aux2=x1[sample+1]-x1[sample];
+//      aux1=0;
     }
 
     if(harm==0)

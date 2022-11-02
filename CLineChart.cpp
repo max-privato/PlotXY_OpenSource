@@ -2837,7 +2837,7 @@ void  CLineChart::drawAllLabelsAndGrid(SAxis axis){
     // Tacche e numeri.
     //Per prima cosa vedo se devo rimuovere una tacca.
     int axisLabelLen=writeAxisLabel(0,0,axis,true);
-    //rimuovo euristicamente la tacca se lla larghezza di ticinterval.x non è almeno pari alla larghezza in pixel della aaxislabel aumentata del 50%. Altrimento divrei fare calcolimolto articolati per un fatto tutto sommato secondario.
+    //rimuovo euristicamente la tacca se la larghezza di ticinterval.x non è almeno pari alla larghezza in pixel della axislabel aumentata del 50%. Altrimento dovrei fare calcoli molto articolati per un fatto tutto sommato secondario.
     if(axisLabelLen*1.5f>axis.ticIntervalPix)
       removeOneNumLbl=true;
 

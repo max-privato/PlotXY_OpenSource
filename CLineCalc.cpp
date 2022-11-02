@@ -260,8 +260,6 @@ Ogni volta che compute() è chiamata dall'esterno ricopio line in intLine, mentr
      if(unaryMinus)pConst[d1]=-pConst[d1];
       result=pConst[d1];
     }
-   unary=false;
-   unaryMinus=false;
    return result;
 }
 
@@ -620,7 +618,7 @@ La costruzione di lineFullNames segue la seguente logica:
     //aggiungo il primo carattere alla lista dei caratteri che serve per le unità di misura:
     unitCharLst.append(namesFullList[fileIndex][varIndex][0]);
 
-    int pos=lineFullNames.indexOf(name);
+    int pos;
     //Ora procedo con la sostituzione dei nomi completi
     while ((pos=lineFullNames.indexOf(name)) >= 0){
       QString insertVar, myNum;
@@ -1030,7 +1028,7 @@ QString CLineCalc::substVarsWithPointers(float ** y_){
       unaryMinus=false;
       i=rxLetter.indexIn(line,i);
       if(i<0){
-          eol=true;
+//          eol=true;
           break;
       }
       j=rxNotLetterDigit.indexIn(line,i+1);

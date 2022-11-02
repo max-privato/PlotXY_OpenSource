@@ -209,7 +209,6 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
     // locale in ubuntu is not the standard C.
      setlocale(LC_NUMERIC,"C");
   int i;
-  QString ret;
 
   // Fase A1: setupUI e personalizzazione DPI-aware dei font dei widget e dimensioni di CDataSelWin
   // Phase A1: setupUI and DPI-aware customization of widgets font and CDataSelWin dimensions
@@ -267,9 +266,9 @@ qDebug()<<"DPI: "<<currentDPI;
 
   QFont font8Pt=QFont("arial",8);
   QFont font9Pt=QFont("arial",9);
-  QFont font10Pt=QFont("arial",10);
-  QFont font11Pt=QFont("arial",11);
-  QFont font12Pt=QFont("arial",12);
+//  QFont font10Pt=QFont("arial",10);
+//  QFont font11Pt=QFont("arial",11);
+//  QFont font12Pt=QFont("arial",12);
  if (GV.PO.largerFonts)
    myFont=font9Pt;
  else
@@ -453,7 +452,8 @@ qDebug()<<"DPI: "<<currentDPI;
    * If I am moving a window from outside to inside I will issue a MessageBox only if the
    * window is visible
   */
-    bool someWinDisplaced=false, secScreenIsRight=false;
+//    bool someWinDisplaced=false, secScreenIsRight=false;
+    bool someWinDisplaced=false;
 
     QPoint posPoint;
     QRect allScreensGeom, primaryScreenGeom, primaryScreenAvailableGeom;
@@ -1184,7 +1184,6 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   // I find the line on fileTable to write on and put it in selectedFileRow
   // (if refresh is true selectedFileRow and selectedFileIdx should not be changed):
   if(!refresh && !updatingFile){
-    freeGridRow=-1;
     if(GV.multiFileMode){
       for(i=1; i<=MAXFILES; i++)
         if(ui->fileTable->item(i,FILENAMECOL)->text()=="")break;
@@ -1607,12 +1606,8 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
   if (!myVarTable->isVisible())
       return;
   QRegion region=myVarTable->visibleRegion();
-  QVector <QRect> rects=region.rects();
-  int maxRectHeight=0;
-  for (int i=0; i<rects.count(); i++){
-    maxRectHeight=max(maxRectHeight,rects[i].height());
-  }
-  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>maxRectHeight+1)
+
+  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>region.boundingRect().height())
     ui->moreLbl->setVisible(true);
   else
     ui->moreLbl->setVisible(false);
@@ -2014,7 +2009,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
       y1Info[iFileNew]=myVarTable->yInfo[iFile];
 
       for(int iCurve=0; iCurve<y1Info[iFileNew].count(); iCurve++){
-        QString thisUnit=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
+//        QString thisUnit=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
 //        int sVarIndex=y1Info[iFileNew][iCurve].idx;
         y1Info[iFileNew][iCurve].unitS=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
       }
