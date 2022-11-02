@@ -50,7 +50,7 @@ static bool isEven(int i)  {
   }
 
 
-CLineChart::CLineChart(QWidget * parent):QLabel(parent,nullptr)
+CLineChart::CLineChart(QWidget * parent):QLabel(parent)
 {
 /*
 La reimplementazione della funzione virtual resizeEvent in questo file contiene la chiamata a plot().
@@ -617,14 +617,14 @@ Oltre che al momento della costruzione di CLineChart, e ad ogni suo ridimensiona
    lgdFont.setPixelSize(fontPxSize);
   }
   QFontMetrics fm(baseFont);
-  float fSmallHSpace=0.6f*fm.width("a");
+  float fSmallHSpace=0.6f*fm.horizontalAdvance("a");
   smallHSpace=int(fSmallHSpace);
   if(fSmallHSpace<=2.0f)
     markHalfWidth=1.5f*fSmallHSpace;
   else
     markHalfWidth=qMax(1.5f*2.0f,1.00f*fSmallHSpace);
 
-  numWidth=fm.width("+0.000");
+  numWidth=fm.horizontalAdvance("+0.000");
   textHeight=fm.height();
   maxTic=int(plotRect.height()/(1.2f*textHeight)/2.f)-1;
   minYTic=qMin(4,maxTic-3);
@@ -1759,11 +1759,11 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
         wFont=baseFont;
     }
     myPainter->setFont(wFont);
-    len+=myPainter->fontMetrics().width(c);
+    len+=myPainter->fontMetrics().horizontalAdvance(c);
   }
   myPainter->setFont(baseFont);
   if(addBrackets)
-    len+=myPainter->fontMetrics().width("()");
+    len+=myPainter->fontMetrics().horizontalAdvance("()");
   if(Virtual)
   return len;
   //Il calcolo preliminare appena fatto mi serve per la gestione del punto di inizio della scrittura tenendo conto dei vari allineamenti previsti. Per ora però non lo uso e passo alla scrittura.
@@ -1778,7 +1778,7 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
     wY+=myPainter->fontMetrics().height()/2-1;
   if(addBrackets){
     myPainter->drawText(wX,wY,"(");
-    wX+=myPainter->fontMetrics().width("(");
+    wX+=myPainter->fontMetrics().horizontalAdvance("(");
   }
     for(int i=0; i<text.size(); i++){
       wFont=baseFont;
@@ -1798,11 +1798,11 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
           myPainter->setFont(wFont);
           myPainter->drawText(wX,wY,QString(c));
         }
-        wX+=myPainter->fontMetrics().width(c);
+        wX+=myPainter->fontMetrics().horizontalAdvance(c);
       } else{
         myPainter->setFont(baseFont);
         myPainter->drawText(wX,wY,QString(c));
-        wX+=myPainter->fontMetrics().width(c);
+        wX+=myPainter->fontMetrics().horizontalAdvance(c);
       }
     }
 
@@ -1856,14 +1856,14 @@ Questo ha comportato nel seguente if la sostituzione di "atLeft" con "atRight" e
   if(msg1+msg2=="")
       return 0;
   myPainter->setFont(baseFont);
-  width1=myPainter->fontMetrics().width(msg1);
+  width1=myPainter->fontMetrics().horizontalAdvance(msg1);
   H1=myPainter->fontMetrics().height();
   myPainter->setFont(expFont);
-  width2=myPainter->fontMetrics().width(msg2);
+  width2=myPainter->fontMetrics().horizontalAdvance(msg2);
   H2=myPainter->fontMetrics().height();
 
   if(addBrackets)
-    wBracket=myPainter->fontMetrics().width("(");
+    wBracket=myPainter->fontMetrics().horizontalAdvance("(");
   else
     wBracket=0;
 
@@ -4250,20 +4250,20 @@ Significato delle variabili passate (solo fino a maxVal sono usate per scale log
     myAxis.scaleMax=powf(10.,myAxis.eMax);
     if(myAxis.scaleType==stDB){
       sprintf(buffer,"%d",20*myAxis.eMin);
-      myAxis.maxTextWidth=myPainter->fontMetrics().width(buffer);
+      myAxis.maxTextWidth=myPainter->fontMetrics().horizontalAdvance(buffer);
       sprintf(buffer,"%d",20*myAxis.eMax);
-      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().width(buffer));
+      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().horizontalAdvance(buffer));
       sprintf(buffer,"dB");
       if(useBrackets)
         sprintf(buffer,"(dB)");
-      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().width(buffer));
+      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().horizontalAdvance(buffer));
     }else{// myAxis.ScaleType=stLog
-        aux=myPainter->fontMetrics().width("10");
+        aux=myPainter->fontMetrics().horizontalAdvance("10");
       sprintf(buffer,"%d",myAxis.eMin);
       myPainter->setFont(expFont);
-      myAxis.maxTextWidth=aux+myPainter->fontMetrics().width(buffer);
+      myAxis.maxTextWidth=aux+myPainter->fontMetrics().horizontalAdvance(buffer);
       sprintf(buffer,"%d",myAxis.eMax);
-      aux+=myPainter->fontMetrics().width(buffer);
+      aux+=myPainter->fontMetrics().horizontalAdvance(buffer);
       myAxis.maxTextWidth=qMax(myAxis.maxTextWidth,aux);
       myPainter->setFont(numFont);
     }
@@ -4474,9 +4474,9 @@ ComputeScaleFactor:
   sprintf(num,format,double(myAxis.scaleMax));
   sscanf(num,"%f",&YY);
   if(myAxis.done==0){
-    aux=myPainter->fontMetrics().width(num);
+    aux=myPainter->fontMetrics().horizontalAdvance(num);
     sprintf(num,format,double(myAxis.scaleMin));
-    aux=qMax(aux,myPainter->fontMetrics().width(num));
+    aux=qMax(aux,myPainter->fontMetrics().horizontalAdvance(num));
     goto Return;
   }
   aux=0;
@@ -4492,7 +4492,7 @@ ComputeScaleFactor:
     }
     sprintf(format+2,"%1df",qMax(myAxis.ticDecimals,0));
     sprintf(num,format,double(yf));
-    aux=qMax(aux,myPainter->fontMetrics().width(num));
+    aux=qMax(aux,myPainter->fontMetrics().horizontalAdvance(num));
     yf+=myAxis.ticInterval*(1+myAxis.halfTicNum);
     sprintf(num,format,double(yf));
     sscanf(num,"%f",&yy);
@@ -4942,7 +4942,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
     myPainter->setPen(Qt::black);
     msg="(file "+filesInfo[0].name + "; x-var "+xVarParam.name+")  ";
     if(!_virtual)myPainter->drawText(xPosition,yPosition,msg);
-    xPosition+=myPainter->fontMetrics().width(msg);
+    xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
     while(1){
       iTotPlot++;
       if(iTotPlot==numOfTotPlots)    break;
@@ -4955,20 +4955,20 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
       if(!blackWhite)
         myPainter->setPen(curveParamLst[iTotPlot].color);
       //Decido se devo andare a capo sulla base della stringa senza "    ", ma se poi scrivo metto la stringa con "    ":
-      if(xPosition+myPainter->fontMetrics().width(curveParamLst[iTotPlot].name)<plotRect.width()){
+      if(xPosition+myPainter->fontMetrics().horizontalAdvance(curveParamLst[iTotPlot].name)<plotRect.width()){
       if(!_virtual){
            myPainter->drawText(xPosition,yPosition,msg);
            struct SHoveringData hovData;
            hovData.rect=myPainter->boundingRect(xPosition,yPosition-textHeight,400,50,Qt::AlignLeft, msg);
            hovData.iTotPlot=iTotPlot;
            hovDataLst.append(hovData);
-           markerXPos=xPosition+myPainter->fontMetrics().width(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
+           markerXPos=xPosition+myPainter->fontMetrics().horizontalAdvance(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
            markerYPos=int(yPosition-0.8f*myPainter->fontMetrics().height()+int(markHalfWidth));
            //Posizione dei marcatori vicino ai rispettivi nomi sulla leggenda:
            markPositions[iTotPlot].setX(markerXPos);
            markPositions[iTotPlot].setY(markerYPos);
         }
-        xPosition+=myPainter->fontMetrics().width(msg);
+        xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
       }else{
         iTotPlot--;
         numRows++;
@@ -5007,7 +5007,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
         iTotPlot++;
         msg=msg+curveParamLst[iTotPlot].name+"   ";
  //Se sforo il fine riga tolgo il blocco corrente dalla riga corrente a meno che non sia l'unico blocco:
-        if(myPainter->fontMetrics().width(msg)>plotRect.width()){
+        if(myPainter->fontMetrics().horizontalAdvance(msg)>plotRect.width()){
           if(blocksPerRow[iRow]>1){
             blocksPerRow[iRow]--;
             iTotPlot=iTotPlStartBlock;
@@ -5057,7 +5057,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
         msg="  file "+ filesInfo[iFile].name+":  ";
       myPainter->drawText(xPosition,yPosition,msg);
       //Ora che ho scritto ad inizio riga il nome del file scrivo l'elenco delle corrispondenti variabili:
-      xPosition+=myPainter->fontMetrics().width(msg);
+      xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
       for(int iVar=0; iVar<nPlots[iFile]; iVar++){
         iTotPlot++;
         if(!blackWhite)
@@ -5070,9 +5070,9 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
         hovData.rect=myPainter->boundingRect(xPosition,yPosition-textHeight,400,50,Qt::AlignLeft, msg);
         hovData.iTotPlot=iTotPlot;
         hovDataLst.append(hovData);
-        markerXPos=xPosition+myPainter->fontMetrics().width(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
+        markerXPos=xPosition+myPainter->fontMetrics().horizontalAdvance(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
         markerYPos=yPosition-int(0.8f*myPainter->fontMetrics().height()+int(markHalfWidth));
-        xPosition+=myPainter->fontMetrics().width(msg);
+        xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
        //Posizione dei marcatori vicino ai rispettivi nomi sulla leggenda:
        markPositions[iTotPlot].setX(markerXPos);
        markPositions[iTotPlot].setY(markerYPos);

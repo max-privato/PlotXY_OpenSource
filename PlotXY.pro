@@ -16,7 +16,8 @@ win32{
 }
 
 # QMAKE__CXXFLAGS += -Wfloat-conversion -Wconversion
-TARGET = PlotXY
+QMAKE_CXXFLAGS+=-pg
+QMAKE_LFLAGS+=-pg
 TEMPLATE = app
 CONFIG += c++11
 

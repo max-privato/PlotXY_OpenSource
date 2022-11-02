@@ -978,22 +978,20 @@ void CDataSelWin::groupSelected(int beginRow, int endRow){
   else
     ui->fourTBtn->setEnabled(false);
 
-  //Se ho selezionato più di quante variabili possono essere visualizzate nella tabella SelectedVars rendo visibilie la label "more...", che viene poi resa nuovamente visibile se l'utente allarga la tabella al punto che non è più necessaria.
-  //rettangolo dell'ultima riga visualizzabile di myVarTable:
 
   // If I have selected more than how many variables can be displayed in the
   // SelectedVars table I make the "more ..." label visible, which is then
-  // made visible again if the user widens the table to the point where it is no longer needed.
+  // made invisible again if the user widens the table to the point where it is no longer needed.
   // rectangle of the last visible row of myVarTable:
+
+  /*Se ho selezionato più di quante variabili possono essere visualizzate nella tabella
+   * SelectedVars rendo visibile la label "more...", che viene poi resa nuovamente
+   * invisibile se l'utente allarga la tabella al punto che non è più necessaria.*/
+
   QRegion region=myVarTable->visibleRegion();
-  QVector <QRect> rects=region.rects();
-  int maxRectHeight=0;
-  for (int i=0; i<rects.count(); i++){
-    maxRectHeight=max(maxRectHeight,rects[i].height());
-  }
-  // int iii=myVarTable->givehighestUsedRowIdx();
-  // int jjj=(myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0);
-  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>maxRectHeight+1 )
+
+  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>
+                                                        region.boundingRect().height() )
     ui->moreLbl->setVisible(true);
 //  if(lastRow*myVarTable->rowHeight(0)>maxRectHeight )
 //      ui->moreLbl->setVisible(true);

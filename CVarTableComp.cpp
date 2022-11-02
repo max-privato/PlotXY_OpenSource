@@ -582,7 +582,8 @@ FINE Correzione 25/11/2020
 }
 
 int CVarTableComp::givehighestUsedRowIdx(){
-  return highestUsedRowIdx;
+  int i=rowHeight(0);
+    return highestUsedRowIdx;
 }
 
 
