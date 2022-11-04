@@ -23,6 +23,7 @@
 #include <QMessageBox>
 #include <fcntl.h>
 #include <limits.h>
+#include <QRegularExpression>
 #include "ExcludeATPCode.h"
 #include "MTLmatrix.h"
 #include "mat.h"
@@ -54,15 +55,15 @@ CSimOut::CSimOut(QWidget *){
 //----------------------------------------------------------------------
 void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
 /* questa funzione crea la prima parte del nome di variable XY a partire dalle informazioni
- *  presenti nella riga corrispondente del file cfg COMTRADE. In particolare dal parametro
- *  unit ricava eventuali fattori moltiplicativi che sono usati per trasformare le
- * rispettive grandezze in unità SI e informazioni riguardo l'unit di misura.
+ * presenti nella riga corrispondente del file cfg COMTRADE. In particolare dal parametro
+ * unit ricava eventuali fattori moltiplicativi che sono usati per trasformare le
+ * rispettive grandezze in unità SI e informazioni riguardo l'unità di misura.
 */
   QChar CCBM_1;
   if(CCBM.length()>0)
     CCBM_1=CCBM[0];
   else
-    CCBM_1=-1;  //qui sta per indefinito, e infatti verr convertito nel prefisso con '?'.
+    CCBM_1='?';
 
   //elimino eventuali spazi iniziali e finali da unit:
   unit=unit.trimmed();
@@ -85,7 +86,7 @@ void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
   else if (unit[0]=='W')   VarName="p:"+VarName;
   else if (unit[0]=='J')   VarName="e:"+VarName;
   else if (unit.left(3)=="DEG") VarName="a:"+VarName;
-  else if (CCBM_1.isLetter())  VarName=CCBM.left(1)+":"+VarName;
+  else if (CCBM_1!='?')  VarName=CCBM.left(1)+":"+VarName;
   else{
     factorUnit[Var]=1;
     VarName="?:"+VarName;
@@ -483,13 +484,13 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
       tStr=strdup(" \t");
     }
     //Ora la stringa può contenere il passo automatico il nome della variabile x e null'altro.
-    QRegExp notSeparators, separators;
+    QRegularExpression notSeparators, separators;
     if(acceptsCommas){
-      separators=QRegExp("[, \t]");
-      notSeparators=QRegExp("[^, \t]");
+      separators=QRegularExpression("[, \t]");
+      notSeparators=QRegularExpression("[^, \t]");
     }else{
-      separators=QRegExp("[ \t]");
-      notSeparators=QRegExp("[^ \t]");
+      separators=QRegularExpression("[ \t]");
+      notSeparators=QRegularExpression("[^ \t]");
     }
 
     //La stringa residua può contenere step e xVariableName (entrambi opzionali)
@@ -525,8 +526,11 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
           i=qString.indexOf("\n");
 //        i=qString.mid(i).indexOf(notSeparators);
 
-        if(i<0)
+        if(i<0){
+          free(fStr);
+          free(tStr);
           return ("Error: the first row contains invalid characters after the x variable name");
+        }
       }
     }else
       autoStep=false;
@@ -681,7 +685,7 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
   }
   if(i!=numOfVariables-autoStep){
     QString iStr, nVarStr;
-     iStr.setNum(i);
+    iStr.setNum(i);
     nVarStr.setNum(numOfVariables);
     if(csv)
       retStr="The number of numerical values in row 2 is " +iStr+ ";\n instead, it must be equal to "+nVarStr+", the number of variable names read from row 1.";
@@ -1038,10 +1042,10 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   else
     pFile=fopen(qPrintable(datFileName),"rb");
   if(pFile==nullptr){
-      delete[] min;
-      delete[] max;
-      delete[] offset;
-      delete[] factor;
+    delete[] min;
+    delete[] max;
+    delete[] offset;
+    delete[] factor;
     return "Unable to open DAT file (does it exist?)";
   }
   do{
@@ -1104,7 +1108,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         var=analogSigs+1+16*digivar;
         fread (&si, sizeof(short int), 1, pFile);
         for(i=0;i<16;i++){
-//            bool test;
+//          bool test=(si&short(2^i))>0;
 //            test=(si& (1<<i))>0;
           y[var+i][point]=(si& (1<<i))>0;
         }
@@ -1263,7 +1267,7 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
        }
     }
   }
-  headerRow=fgets(headerRow,maxHeadRowLen+1,fpIn);
+  fgets(headerRow,maxHeadRowLen+1,fpIn);
   //Il seguente if deve fare i conti con il fatto che in Windows alla fine della riga ho soltanto '\n', mentre con Mac o '\r\n'. Ad esempio per il caso di "No" con Win ho "No\n", con Mac "No\r\n". Pertanto il seguente confronto è realizzato escludendo i terminatori.
   if(xColumns.left(2)=="No"){
     numOfVariables=channels;
@@ -1334,7 +1338,7 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
       retStr="Data Error 2 when reading numerical values";
       goto Return;
     }
-    i=sscanf(pStr,"%f",&y[0][iL]);
+    sscanf(pStr,"%f",&y[0][iL]);
     for(i1=1; i1<numOfVariables; i1++){
       pStr=strtok(nullptr,separator);
       i=sscanf(pStr,"%f",&y[i1][iL]);
@@ -2528,7 +2532,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
     int index=vars[iVar];
     //Nome privo del prefisso immesso da PlotXY:
     if(fileType==PL4_1 ||fileType==PL4_2){
-      len=varNames[index].count();
+      varNames[index].count();
       if(varNames[index][1]==':')
         varName=varNames[index].mid(2);
       else
@@ -2721,7 +2725,7 @@ QString CSimOut::saveToPl4File(QString fileName) {
   for(i=0; i<numOfVariables; i++)
 	  vars[i]=i;
     msg=saveToPl4File(fileName,numOfVariables, vars);
-  delete vars;
+  delete[] vars;
   return msg;
 }
 
