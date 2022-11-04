@@ -473,6 +473,8 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
        acceptsCommas=true;
        *pStr='\0';
     }
+    free(fStr);
+    free(tStr);
     if(acceptsCommas){
       fStr=strdup("%f,");
       tStr=strdup(" \t,");
@@ -555,6 +557,8 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
 
   pBuffer=strtok(pStr,tStr);
   if(pBuffer==nullptr){
+    free(fStr);
+    free(tStr);
     retStr="Invalid file structure (invalid row of variable names)";
     goto Return;
   }
@@ -596,30 +600,29 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
   }
 
   if(csv &&trimQuotes){
-      int sc;
-      for(iName=0; iName<numOfVariables; iName++){
-          sc=-1;
-          QString str=varNames[iName];
+    int sc;
+    for(iName=0; iName<numOfVariables; iName++){
+      sc=-1;
+      QString str=varNames[iName];
 
-          //Elimino i double quotes iniziali:
-          while (++sc<str.length()){
-            if(str[sc]=='"')
-              str[sc]=' ';
-            else
-              break;
-          }
-          sc=str.length();
-     //Elimino i double quotes finali:
-          while (--sc>=0){
-            if(str[sc]=='"')
-              str[sc]=' ';
-            else
-             break;
-          }
-          str=str.trimmed();
-
-          varNames[iName]=str;
+      //Elimino i double quotes iniziali:
+      while (++sc<str.length()){
+        if(str[sc]=='"')
+          str[sc]=' ';
+        else
+          break;
       }
+      sc=str.length();
+     //Elimino i double quotes finali:
+      while (--sc>=0){
+        if(str[sc]=='"')
+          str[sc]=' ';
+        else
+          break;
+      }
+      str=str.trimmed();
+      varNames[iName]=str;
+    }
   }
   //Ora alloco spazio per la matrice dei dati ed effettuo la lettura:
   if(y!=nullptr)
@@ -638,7 +641,7 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
   //Soltanto la prima riga di valori la leggo con conteggio del numero di dati presenti. Questo mi consente di intercettare l'errore più frequente nei files ADF, ovvero numero di variabili specificate nella seconda riga incongruente con il numero di dati per riga presenti.
   delete[] str;
 
-  //La prima riga di valori è la sceconda riga nei CSV, la terza negli Adf:
+  //La prima riga di valori è la seconda riga nei CSV, la terza negli Adf:
 
   if(csv){
     str=new char[rowLength[1]];
@@ -747,7 +750,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   ********  Nomenclatura  nel caso di presenza di files binari con dati digitali *******
   - Il nome "signal" o la frazione di nome "sig" fa riferimento al numero di grandezze
     elementari nella registrazione.
-  - la frazione di nome "comb" sta ad indicare variabili entro cui piÃ¹ segnali digitali
+  - la frazione di nome "comb" sta ad indicare variabili entro cui più segnali digitali
     sono combinati
 
   *** Nel caso di file ascii, i nomi  fullDigiVars e extraDigiSigs
@@ -1034,10 +1037,15 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     pFile=fopen(qPrintable(datFileName),"r");
   else
     pFile=fopen(qPrintable(datFileName),"rb");
-  if(pFile==nullptr)
+  if(pFile==nullptr){
+      delete[] min;
+      delete[] max;
+      delete[] offset;
+      delete[] factor;
     return "Unable to open DAT file (does it exist?)";
+  }
   do{
-        c=fgetc(pFile);
+    c=fgetc(pFile);
     i++;
     if(c=='\n'){
       maxLen=max(int(i),maxLen);
@@ -1233,16 +1241,14 @@ QString CSimOut::loadFromLvmFile(QString fileName) {
   //A questo punto percorro le righe dei due header, e quando trovo un campo che devo
   //interpretare ne valuto il valore.
   for(int i=0;i<numHeadRows; i++){
-    headerRow=fgets(headerRow,maxHeadRowLen+1,fpIn);
+    fgets(headerRow,maxHeadRowLen+1,fpIn);
     //Channels
     if(strncmp("Channels",headerRow,8)==0)
         numRead=sscanf(headerRow+9,"%d",&channels);
     //DecimalSeparator
     if(strncmp("Decimal_Separator",headerRow,17)==0)
         numRead=sscanf(headerRow+18,"%c",&decimalSeparator);
-    //The variable numRead is needed only for debugging purposes.
-    //The following row has the only purpose of avoiding a "Wunused-but-set-variable warning (here is not necessary):
-//    numRead++;
+    //*** The variable numRead is needed only for debugging purposes.
 
     //XColumns
     if(strncmp("X_Columns",headerRow,9)==0){
@@ -2201,7 +2207,7 @@ CSimOut::CStrTok::CStrTok(void){
 }
 void CSimOut::CStrTok::getStr(char * Str_){
   int i;
-  delete[] string;
+  free(string);
   lastTok=endStr=false;
   string=strdup(Str_);
   //Calcolo il numero di separatori presenti sulla stringa, per supporto ad evantuale
@@ -2407,10 +2413,12 @@ QString CSimOut::namesPl4ToAdf(int addDigit){
 
 //---------------------------------------------------------------------
 QString CSimOut::saveToAdfFile(QString fileName, QString comment) {
+/* Salvo tutte le variabili, facendo uso di una funzione overlayed che ne salva solo alcune */
   int i, *vars;
   QString ret;
   vars = new int[numOfVariables];
-  for(i=0; i<numOfVariables; i++)vars[i]=i;
+  for(i=0; i<numOfVariables; i++)
+	  vars[i]=i;
     ret=saveToAdfFile(fileName, comment, numOfVariables, vars);
   delete [] vars;
   return ret;
@@ -2710,7 +2718,8 @@ QString CSimOut::saveToPl4File(QString fileName) {
     int i, *vars;
   QString msg;
   vars = new int[numOfVariables];
-  for(i=0; i<numOfVariables; i++)vars[i]=i;
+  for(i=0; i<numOfVariables; i++)
+	  vars[i]=i;
     msg=saveToPl4File(fileName,numOfVariables, vars);
   delete vars;
   return msg;
