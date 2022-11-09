@@ -129,20 +129,20 @@ Ogni volta che compute() è chiamata dall'esterno ricopio line in intLine, mentr
 
    // se vi è una parentesi aperta richiamo ricorsivamente la funzione sostituendo '(' con '['
    if((j=intLine.indexOf('('))>=0){
-       intLine[j]='[';
-       recursiveCall=true;
-       compute(iVal);
+     intLine[j]='[';
+     recursiveCall=true;
+     compute(iVal);
    }
    //adesso effettuo l'analisi fra l'ultima '[' e la prima ') che la segue
    int start=intLine.lastIndexOf('['),
-        end=intLine.indexOf(')',start);
+      end=intLine.indexOf(')',start);
    if(start==-1){
-       start=0;
-       end=intLine.length()-1;
+     start=0;
+     end=intLine.length()-1;
    }else{
-       //elimino le parentesi in quanto nel resto della funzione ne tratto il contenuto riconducendolo ad un unico '#' all'interno di spazi
-       intLine[start]=' ';
-       intLine[end]  =' ';
+     //elimino le parentesi in quanto nel resto della funzione ne tratto il contenuto riconducendolo ad un unico '#' all'interno di spazi
+     intLine[start]=' ';
+     intLine[end]  =' ';
    }
 
    // Prima valuto le chiamate a funzione
@@ -434,7 +434,7 @@ struct SXYNameData{
            nameData.varNames.append(varStr);
        i+=varStr.length();
 
-       if(i>line.count()-1)
+       if(i>line.size()-1)
            eol=true;
     }
     nameData.line=line;
@@ -518,16 +518,16 @@ QString fillNames(QString inpStr, int defaultFileNum){
     int i=-1;
     while (1) {
         i++;
-        if(i>=filledLine.count()) break;
+        if(i>=filledLine.size()) break;
         if(filledLine[i] != 'v'){
             continue;
         }
         if(i==0){
             filledLine.insert(i,fs);
-            i+=fs.count();
+            i+=fs.size();
         } else  if(!filledLine[i-1].isDigit()){
             filledLine.insert(i,fs);
-            i+=fs.count();
+            i+=fs.size();
         }
     }
     return filledLine;
@@ -626,7 +626,7 @@ La costruzione di lineFullNames segue la seguente logica:
         insertVar=namesFullList[fileIndex][varIndex];
       else
         insertVar="f"+myNum.setNum(fileIndex+1)+":"+namesFullList[fileIndex][varIndex];
-      lineFullNames.remove(pos,name.count());
+      lineFullNames.remove(pos,name.size());
       lineFullNames.insert(pos,insertVar);
     }
   }
@@ -859,7 +859,7 @@ QString CLineCalc::computeUnits(){
     // 2) verifico se ho un singolo prodotto e nel caso eseguo la valutazione dell'unità
     i=line.indexOf('*');
     // Se ho un secondo prodotto esco con unità indefinita:
-    if(i>=0 && i<line.count()-1)
+    if(i>=0 && i<line.size()-1)
       if(line.indexOf('*',i+1)>0)
         return "";
     if(i>=0){
@@ -966,7 +966,7 @@ QString CLineCalc::substFunsWithPointers(){
          index=line.indexOf(funStr[i],++index);
          if(index>-1){
            //Qui non sono ancora certo di aver trovato una stringa funzione, in quanto potrebbe essere la prima parte di un nome di variabile lungo, ad es. sinModified (contiene sin)
-           if(line[index+funStr[i].count()]!='(')
+           if(line[index+funStr[i].size()]!='(')
                continue;
 /* Ora devo verificare che non ho trovato una stringa funzione illecita per avere a SX del testo, ad es. "xsin"  invece di "sin". Devo quindi escludere lettere e digits
 */
@@ -985,7 +985,7 @@ QString CLineCalc::substFunsWithPointers(){
            if(j<1 || line[j]!='('){
              QString str;
              if(j<1)
-               str=line.mid(index,line.count()-index);
+               str=line.mid(index,line.size()-index);
              else
                str=line.mid(index,j-index+1);
              return "string "+ str +
@@ -995,7 +995,7 @@ QString CLineCalc::substFunsWithPointers(){
            }else{
              line[index]='&';
              pFun[index]=fun1[i];
-             for (j=1; j<funStr[i].count(); j++)
+             for (j=1; j<funStr[i].size(); j++)
                line[index+j]=' ';
              //do' la possibilità ad altre istanze della medesima funzione di essere presee in considerazione:
 //             break;
