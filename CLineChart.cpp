@@ -1745,8 +1745,8 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
     wFont=baseFont;
     QChar c=text[i];
     if(useSmartUnits){
-      if(c=='w') c=0x03A9; //unicode per omega maiuscolo
-      if(c=='u') c=0x03BC; //unicode per mu minuscolo
+      if(c=='w') c=QChar(0x03A9); //unicode per omega maiuscolo
+      if(c=='u') c=QChar(0x03BC); //unicode per mu minuscolo
 	}  
     if(useSmartUnits && (c.isDigit()||c=='-'||c=='+'||c=='.')){  //Vedo se questi caratteri vanno trattati come esponenti
       wFont=baseFont;
@@ -1783,8 +1783,8 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
       wFont=baseFont;
       QChar c=text[i];
       if(useSmartUnits){
-        if(c=='w') c=0x03A9; //unicode per omega maiuscolo
-        if(c=='u') c=0x03BC; //unicode per mu minuscolo
+        if(c=='w') c=QChar(0x03A9); //unicode per omega maiuscolo
+        if(c=='u') c=QChar(0x03BC); //unicode per mu minuscolo
       }
       if(useSmartUnits && (c.isDigit()||c=='-'||c=='+'||c=='.')){
         wFont=baseFont;

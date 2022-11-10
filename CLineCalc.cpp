@@ -356,86 +356,89 @@ struct SXYNameData{
     i=0;
     //Ora procedo con l'analisi considerando la ricerca di nomi validi
     while(!eol){
-       i=rxLetter.indexIn(line,i); //l'inizio della variabile dev'essere una lettera
-       if(i<0){ eol=true;  break; }
-       if(allowMathFunctions)
-         j=rxNotLetterDigitBracket.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit né parentesi chiusa (è parentesi ad es. nel caso di 'abs(v9)')
-       else
-         j=rxNotLetterDigit.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit
-       if(j>=0)
-         varStr=line.mid(i,j-i);
-       else{
-         // In questo caso posso avere una o più parentesi chiuse. Devo scegliere il primo carattere a sinistra della prima parentes chiusa.
-         if(line[line.length()-1]==')'){
-            j=rxNotLetterDigit.indexIn(line,i+1);
-            varStr=line.mid(i,j-i);
-         }else{
-            varStr=line.mid(i,line.length());
-         }
-       }
-       if(allowMathFunctions && varStr[varStr.length()-1]==')')
-           varStr.chop(1);
-       //ora varStr contiene la stringa di variabile (comincia con lettera e contiene lettere e digits).
-       if(!xyNaming){
-         if(!nameData.varNames.contains(varStr))
-             nameData.varNames.append(varStr);
-         i+=varStr.length();
-         continue;
-       }
-       //Verifico se si tratta di un nome di funzione, altrimenti procedo con la lettura della variabile:
-       if(allowMathFunctions){
-         bool isFunction=false;
-         foreach (int i,allowedFunIndexes){
-           if(varStr==funStr[i]){
-             isFunction=true;
-             break;
-          }
-         }
-         if(isFunction){
-           i+=varStr.length();
-           continue;
-         }
-       }
-       // Lettura dei numeri # in v# o f#v#:
-       varXYNums=readVarXYNums(varStr);
-       //Se varNum=-1 c'è stato un errore di lettura
-       if(varXYNums.varNum==-1){
-         if(allowMathFunctions)
-           nameData.ret=
-             "The following incorrect function or variable name "
-             "was read in the input string: \"" +varStr+"\"" ;
-         else
-           nameData.ret=
-             "The following incorrect variable name was read in the input string: \"" +varStr+"\"";
-         return nameData;
-       }
-       // Ora qui devo verificare se i numeri di file e gli indici di variabile sono validi
-       if(!fileNumsLst.contains(varXYNums.fileNum)){
-         nameData.ret=
-           "The string \""+line+"\" refers to the following non-existent file number: "   +QString::number(varXYNums.fileNum);
-         return nameData;
-       }
-       if(varXYNums.varNum > varMaxNumsLst[varXYNums.fileNum-1]){
-         nameData.ret=
-           "The string contains reference to non-existent variable number: "   + QString::number(varXYNums.varNum) +
-           "\nreferring to file number: "+ QString::number(varXYNums.fileNum) ;
-         return nameData;
-       }
-
-       if(varXYNums.varNum<0){
-           nameData.ret="Invalid variable name: \""+QString(varStr) + "\"";
-           goto errorReturn;
-       }
-       if(!nameData.fileNums.contains(varXYNums.fileNum))
-           nameData.fileNums.append(varXYNums.fileNum);
-       if(!nameData.varNumsLst.contains(varXYNums))
-           nameData.varNumsLst.append(varXYNums);
-       if(!nameData.varNames.contains(varStr))
+      i=rxLetter.indexIn(line,i); //l'inizio della variabile dev'essere una lettera
+      if(i<0){
+        eol=true;
+        break;
+      }
+      if(allowMathFunctions)
+        j=rxNotLetterDigitBracket.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit né parentesi chiusa (è parentesi ad es. nel caso di 'abs(v9)')
+      else
+        j=rxNotLetterDigit.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit
+      if(j>=0)
+        varStr=line.mid(i,j-i);
+      else{
+        // In questo caso posso avere una o più parentesi chiuse. Devo scegliere il primo carattere a sinistra della prima parentes chiusa.
+        if(line[line.length()-1]==')'){
+          j=rxNotLetterDigit.indexIn(line,i+1);
+          varStr=line.mid(i,j-i);
+        }else{
+          varStr=line.mid(i,line.length());
+        }
+      }
+      if(allowMathFunctions && varStr[varStr.length()-1]==')')
+         varStr.chop(1);
+      //ora varStr contiene la stringa di variabile (comincia con lettera e contiene lettere e digits).
+      if(!xyNaming){
+        if(!nameData.varNames.contains(varStr))
            nameData.varNames.append(varStr);
-       i+=varStr.length();
+        i+=varStr.length();
+        continue;
+      }
+       //Verifico se si tratta di un nome di funzione, altrimenti procedo con la lettura della variabile:
+      if(allowMathFunctions){
+        bool isFunction=false;
+        foreach (int i,allowedFunIndexes){
+          if(varStr==funStr[i]){
+            isFunction=true;
+            break;
+          }
+        }
+        if(isFunction){
+          i+=varStr.length();
+          continue;
+        }
+      }
+      // Lettura dei numeri # in v# o f#v#:
+      varXYNums=readVarXYNums(varStr);
+      //Se varNum=-1 c'è stato un errore di lettura
+      if(varXYNums.varNum==-1){
+        if(allowMathFunctions)
+          nameData.ret=
+            "The following incorrect function or variable name "
+            "was read in the input string: \"" +varStr+"\"" ;
+        else
+          nameData.ret=
+            "The following incorrect variable name was read in the input string: \"" +varStr+"\"";
+        return nameData;
+      }
+      // Ora qui devo verificare se i numeri di file e gli indici di variabile sono validi
+     if(!fileNumsLst.contains(varXYNums.fileNum)){
+        nameData.ret=
+          "The string \""+line+"\" refers to the following non-existent file number: "   +QString::number(varXYNums.fileNum);
+        return nameData;
+     }
+     if(varXYNums.varNum > varMaxNumsLst[varXYNums.fileNum-1]){
+       nameData.ret=
+          "The string contains reference to non-existent variable number: "   + QString::number(varXYNums.varNum) +
+          "\nreferring to file number: "+ QString::number(varXYNums.fileNum) ;
+        return nameData;
+     }
 
-       if(i>line.size()-1)
-           eol=true;
+     if(varXYNums.varNum<0){
+        nameData.ret="Invalid variable name: \""+QString(varStr) + "\"";
+        goto errorReturn;
+     }
+     if(!nameData.fileNums.contains(varXYNums.fileNum))
+         nameData.fileNums.append(varXYNums.fileNum);
+     if(!nameData.varNumsLst.contains(varXYNums))
+         nameData.varNumsLst.append(varXYNums);
+     if(!nameData.varNames.contains(varStr))
+         nameData.varNames.append(varStr);
+     i+=varStr.length();
+
+     if(i>line.size()-1)
+       eol=true;
     }
     nameData.line=line;
     nameData.lineInt=lineInt;
@@ -450,34 +453,39 @@ errorReturn:
 }
 
 QString CLineCalc::substConstsWithPointers(){
-    /* In questa funzione si sostituiscono le costanti con il carattere '#', ed in corrispondenza della sua posizione, il relativo valore viene messo nel corrispondente puntatore a float pConst[i].
-Per prima cosa si tratta l'eventuale unario che si trova a inizio stringa, e poi si procede con numeri tutti positivi */
-   bool eol=false, unary=false, unaryMinus=false, ok;
+  /* In questa funzione si sostituiscono le costanti con il carattere '#', e in corrispondenza
+   * della sua posizione, il relativo valore viene messo nel corrispondente puntatore a
+   * float pConst[i].
+   * Per prima cosa si tratta l'eventuale unario che si trova a inizio stringa, e poi si
+   * procede con numeri tutti positivi
+*/
+   bool unary=false, unaryMinus=false, ok;
    int i=0,j, k1, k2;
    QString numStr;
    i=-1;
-   while(!eol){
+   while(1){
      i++;
      i=rxNum.indexIn(line,i);
      if(i<0){
-       eol=true;
        break;
      }
      if(i>0){
-        // se immediatamente prima di i vi è un digit o una lettera il digit che ho trovato è all'interno di una variabile e non mi interessa
-        if(rxLetterDigit.indexIn(line,i-1)==i-1) continue;
-        //devo verificare se il numero è preceduto da un operatore unario ('+' o '-'). Prima di tutto cerco il più recente unario:
-        k1=max(line.lastIndexOf('+',i-1), line.lastIndexOf('-',i-1));
-        //alla posizione i vi è un unario se prima di esso, escluso al più un ' ', non vi è nulla o una parentesi aperta
-        if(k1==0 && line[1]!='(')
-            unary=true;
-        else if(k1>0){
-            k2=line.lastIndexOf('(',k1-1);
-            if(k2==k1-1 || (k2==k1-2 && line[k1-1]==' ')) unary=true;
-        }
-        if(unary && line[k1]=='-') unaryMinus=true;
-        if(unary)line[k1]=' ';
-      }
+       // se immediatamente prima di i vi è un digit o una lettera il digit che ho trovato è all'interno di una variabile e non mi interessa
+       if(rxLetterDigit.indexIn(line,i-1)==i-1) continue;
+       //devo verificare se il numero è preceduto da un operatore unario ('+' o '-'). Prima di tutto cerco il più recente unario:
+       k1=max(line.lastIndexOf('+',i-1), line.lastIndexOf('-',i-1));
+       //alla posizione i vi è un unario se prima di esso, escluso al più un ' ', non vi è nulla o una parentesi aperta
+       if(k1==0 && line[1]!='(')
+         unary=true;
+       else if(k1>0){
+         k2=line.lastIndexOf('(',k1-1);
+         if(k2==k1-1 || (k2==k1-2 && line[k1-1]==' '))
+           unary=true;
+       }
+       if(unary && line[k1]=='-')
+         unaryMinus=true;
+       if(unary)line[k1]=' ';
+     }
       j=rxNotNum.indexIn(line,i+1);
       //Se il numero era in formato esponenziale, line[j] contiene la lettera "E" o "e".
       if(j>0){
@@ -494,7 +502,8 @@ Per prima cosa si tratta l'eventuale unario che si trova a inizio stringa, e poi
          pConst[i]=-numStr.toFloat(&ok);
       else
         pConst[i]=numStr.toFloat(&ok);
-      if(!ok)return"Erroneous number substring: \""+numStr+"\"";
+      if(!ok)
+        return"Erroneous number substring: \""+numStr+"\"";
       unary=false;
       unaryMinus=false;
       line[i]='#';
@@ -824,7 +833,7 @@ lineSimple    è la stringa ottenuta da lineNoInt mediante semplificazione dei n
    }
    if(par!=0) return "The string contains unbalanced brackets";
 
-   checkAndFindNames();
+//   checkAndFindNames();  Riga commentata in quanto questo check è già comandato in analyse subito dopo myLineCalc.getLine()
    lineInt=lineNoInt;
    if(integralRequest)
      lineInt="int("+lineNoInt+")";

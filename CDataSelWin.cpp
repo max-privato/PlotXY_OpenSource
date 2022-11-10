@@ -1077,7 +1077,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   bool updatingFile=false; //true se in singleFile copio un file sopra il precedente (rimane false in caso di refresh o refresUpdate)
                            // true if in singleFile I copy a file over the previous one (remains false in case of refresh or refresUpdate)
   int i, freeGridRow;
-  QFileInfo FI=fileName;
+  QFileInfo FI=QFileInfo(fileName);
   //Il fileName passato può contenere il path oppure no. Il nome sicuramente senza path è il seguente strictName
   // The pastName file can contain the path or not. The name definitely without path is the following strictName
   QString fullName=FI.absoluteFilePath(), strictName=FI.fileName(), ext=FI.suffix();

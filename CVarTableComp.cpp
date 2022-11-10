@@ -251,7 +251,6 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
     for (int i=0; i<rowCount(); i++){
       if(item(i,VARNUMCOL)->text()[0]=='f'){
-        QString cCalcLine=item(i,VARCOL)->text();
         myLineCalc.getLine(item(i,VARCOL)->text(),currFileIdx+1);
         calcData=myLineCalc.checkAndFindNames();
         ret=calcData.ret;
@@ -451,27 +450,26 @@ void CVarTableComp::filterOutVars(QList <QString> varList){
   * varList contiene la lista delle variabili nella varMenuTable: dovrò filtrare via
   * quindi  le variabili in "this" che non sono presenti in varList
   */
-    int varIndex;
-    for (int iRow=1; iRow<rowCount(); iRow++){
-        if(item(iRow,FILENUMCOL)->text().toInt()!=currFileIdx+1)
-            continue;
-        if(item(iRow,XVARCOL)->text()=="x")
-            continue;
-        QString str=item(iRow,VARCOL)->text();
-        varIndex=varList.indexOf(item(iRow,VARCOL)->text());
-        if(varIndex>-1)
-            // aggiorno il valore numerico a quello del file refreshato:
-            item(iRow,VARNUMCOL)->setText(QString::number(varIndex+1));
-         else
-          leftClicked(iRow,VARCOL);
-    }
+  int varIndex;
+  for (int iRow=1; iRow<rowCount(); iRow++){
+    if(item(iRow,FILENUMCOL)->text().toInt()!=currFileIdx+1)
+      continue;
+    if(item(iRow,XVARCOL)->text()=="x")
+      continue;
+    varIndex=varList.indexOf(item(iRow,VARCOL)->text());
+    if(varIndex>-1)
+      // aggiorno il valore numerico a quello del file refreshato:
+      item(iRow,VARNUMCOL)->setText(QString::number(varIndex+1));
+     else
+      leftClicked(iRow,VARCOL);
+  }
 }
 
 void CVarTableComp::getFont(QFont font_){
-    cellFont=font_;
-    for(int i=0; i<rowCount(); i++)
-      for(int j=0; j<columnCount(); j++)
-         item(i,j)->setFont(cellFont);
+  cellFont=font_;
+  for(int i=0; i<rowCount(); i++)
+    for(int j=0; j<columnCount(); j++)
+      item(i,j)->setFont(cellFont);
 }
 
 void CVarTableComp::getColorScheme(bool useOldColors_){
@@ -558,7 +556,6 @@ FINE Correzione 25/11/2020
     if(item(r,VARNUMCOL)->text()!=""){
       // Se c'è qualcosa sulla riga sotto quella default della x aumento di 1 il numero di
       // variabili; la casella sotto f diviene grigia solo se non si tratta di funzione di variabile.
-      QString str=item(r,VARNUMCOL)->text();
       if(r>1)
         numOfTotVars++;
       if(r>1 &&item(r,VARNUMCOL)->text()[0]!='f')
@@ -698,7 +695,6 @@ void CVarTableComp::leftClicked(int r, int c){
 /*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima
  * gestisce il click destro e per il click sinistro rimanda qui.
 */
-int iii2;
   QSet <int> mySet;
   int j, nextFun, oldXVarRow=xVarRow;
   QString str, ret;
@@ -747,7 +743,7 @@ int iii2;
       if(item(r,c)->text()!=""){
          numOfTotVars--;
          if(item(r,VARNUMCOL)->text()[0]=='f'){
-           funSet.remove(item(r,VARNUMCOL)->text().mid(1,1).toInt());
+           funSet.remove(item(r,VARNUMCOL)->text().midRef(1,1).toInt());
          }
          if(item(r,VARNUMCOL)->text()!="")
              item(r,FILENUMCOL)->setBackground(Qt::white);
@@ -766,7 +762,6 @@ int iii2;
       allowSaving=true;
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-      iii2=mySet.count();
       if(funSet.size()>0 || mySet.count()>1)
 // La seguente riga è commentata perché marcata obsoleta in Qt 5.15, e elkiminata in Qt 6:
 //       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
@@ -865,10 +860,8 @@ FINE Correzione 25/11/2020
 
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-      iii2=mySet.count();
       if(funSet.size()>0 || mySet.count()>1)
-//      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-          allowSaving=false;
+        allowSaving=false;
 
       emit contentChanged();
       break;
@@ -936,7 +929,6 @@ FINE Correzione 25/11/2020
 
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-      iii2=mySet.count();
       if(funSet.size()>0 || mySet.count()>1)
 //      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
           allowSaving=false;
@@ -944,7 +936,7 @@ FINE Correzione 25/11/2020
        str=item(r,VARNUMCOL)->text();
       if(str[0]=='f'){
         xInfo.isFunction=true;
-        xInfo.idx=str.mid(1,1).toInt()-1;
+        xInfo.idx=str.midRef(1,1).toInt()-1;
       }else{
         xInfo.isFunction=false;
         xInfo.idx=str.toInt()-1;

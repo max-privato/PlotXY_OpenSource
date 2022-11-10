@@ -493,7 +493,7 @@ void CFourWin::focusInEvent(QFocusEvent *){
 
     // La seguente riga non va bene quando l'opzione "/set" è selezionata. perché ovviamente cambia l'ultimo carattere.
     //    QChar c=windowTitle()[windowTitle().count()-1];
-    QChar c=windowTitle()[windowTitle().count()-1];
+    QChar c=windowTitle()[windowTitle().size()-1];
     QString s=QString(c);
     int i=s.toInt();
     emit winActivated(i);
@@ -910,7 +910,7 @@ void CFourWin::showEvent(QShowEvent *){
         case 'a': curveParam.unitS[0]=char('^'); break;
         case 'p': curveParam.unitS[0]='W'; break;
         case 'e': curveParam.unitS[0]='J'; break;
-        default: curveParam.unitS[0]=0;
+        default: curveParam.unitS[0]=QChar(0);
     }
     ui->amplChart->setYZeroLine(true);
     ui->phaseChart->setYZeroLine(true);

@@ -26,7 +26,6 @@
 #include "SuppFunctions.h"
 #include "ui_CPlotWin.h"
 #include "CDataSelWin.h"  //def. di sFileInfo
-#include "CVarTableComp.h" //def di SCurveParam
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
