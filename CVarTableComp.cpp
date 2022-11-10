@@ -208,6 +208,10 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     for(iFile=0; iFile<MAXFILES; iFile++){
       //Per ogni valore di iFile percorro tutte le righe:
       for(iRow=1; iRow<rowCount(); iRow++){
+        QString str=item(iRow,VARCOL)->text();
+        //Quando arrivo alla fine delle righe con variabili sec ontinuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check:
+        if(str.size()==0)
+            break;
         QChar  c=item(iRow,VARCOL)->text()[0];
         if(item(iRow,XVARCOL)->text()=="x"){
           xInfo.unitS=giveUnits(c);
@@ -250,6 +254,10 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     funInfoLst.clear();
     myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
     for (int i=0; i<rowCount(); i++){
+      QString str=item(i,VARNUMCOL)->text();
+      //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check:
+      if(str.size()==0)
+        break;
       if(item(i,VARNUMCOL)->text()[0]=='f'){
         myLineCalc.getLine(item(i,VARCOL)->text(),currFileIdx+1);
         calcData=myLineCalc.checkAndFindNames();
@@ -669,20 +677,24 @@ NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
 }
 
 void CVarTableComp::fillFunNames(void){
-    /* Questa funzione serve per completare i nomi delle variabili nelle funzioni di
-     * variabile, con l'indicazione del file. Ad es. v23 diviene f2v23 nel caso in cui
-     * il file la cui lista di variabili visualizzata (cioè il file "default") è il 2.
-     * Questo tipo di conversione viene usata quando l'utente cammbia il file default,
-     * per non creare difficoltà di interpretazione delle stringhe di definizione delle
-     * funzioni di variabile.
+  /* Questa funzione serve per completare i nomi delle variabili nelle funzioni di
+   * variabile, con l'indicazione del file. Ad es. v23 diviene f2v23 nel caso in cui
+   * il file la cui lista di variabili visualizzata (cioè il file "default") è il 2.
+   * Questo tipo di conversione viene usata quando l'utente cammbia il file default,
+   * per non creare difficoltà di interpretazione delle stringhe di definizione delle
+   * funzioni di variabile.
 */
-    QString filled;
-    for(int r=0; r<rowCount(); r++){
-        if(item(r,VARNUMCOL)->text()[0]=='f'){
-            filled=fillNames(item(r,VARCOL)->text(),currFileIdx+1);
-            item(r,VARCOL)->setText(filled);
-        }
+  QString filled;
+  for(int r=0; r<rowCount(); r++){
+    QString str=item(r,VARNUMCOL)->text();
+    //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check:
+    if(str.size()==0)
+      break;
+    if(item(r,VARNUMCOL)->text()[0]=='f'){
+      filled=fillNames(item(r,VARCOL)->text(),currFileIdx+1);
+      item(r,VARCOL)->setText(filled);
     }
+  }
 }
 
 

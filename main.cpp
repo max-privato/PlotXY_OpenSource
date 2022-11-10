@@ -30,10 +30,37 @@
  * this structure is shared at the moment (18/1/2014) only between main and CDataSelWin !!
 */
 SGlobalVars GV;
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    const char *file = context.file ? context.file : "";
+    const char *function = context.function ? context.function : "";
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtInfoMsg:
+        fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtWarningMsg:
+        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    }
+}
 
 int main(int argc, char *argv[])
 {
     int i;
+    //La seguente riga consente di sostituire errori runTtime con chiamata alla funzione quisopra, che puòpoi essere debuggata.
+    //Va abilitata quando ci sono errori runtime, e poi disabilitata quando sono stati risolti.
+
+    qInstallMessageHandler(myMessageOutput);
     QApplication a(argc, argv);
 
     // The information in the following two lines is used later to write on the registry the data recorded using the "QSettings" object.

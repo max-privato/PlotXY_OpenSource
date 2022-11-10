@@ -3287,6 +3287,7 @@ void CDataSelWin::on_arrTBtn_clicked(){
     QRect avGeom=screen->availableGeometry();
     avGeom=avGeom.marginsRemoved(QMargins(10,10,10,10));
 */
+    int availableHeight;
     QRect win1Rect, win2Rect;
     if(plotWin[0]->isVisible())
       win1Rect=plotWin[0]->frameGeometry();
@@ -3300,12 +3301,12 @@ void CDataSelWin::on_arrTBtn_clicked(){
     QScreen * myScreen=nullptr;
     for(int i=0; i<screenCount; i++){
       myScreen=QGuiApplication::screens()[i];
+      availableHeight=myScreen->availableGeometry().height();
       int rightPix=myScreen->availableGeometry().right();
       if(this->x()<rightPix){
         break;
       }
     }
-    int availableHeight=myScreen->availableGeometry().height();
 
     //but if I have a single window, the available space is reduced, since we do not
     // have two plot windows aside each other.:
