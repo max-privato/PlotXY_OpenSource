@@ -125,7 +125,6 @@ CFourWin::CFourWin(QWidget *parent) :
   ui->harmValLbl->setFont(dummyF);
   ui->saveSetBtn->setFont(dummyF);
 #else
-  ;
   //Per ragioni misteriose sul Vaio il font delle due label vengono troppo grossi, ed in particolare più grossi di quelli del tempo iniziale e finale! Per ora faccio un aggiustamento euristico:
   /*
   if(myDPI>100){
@@ -249,7 +248,7 @@ void CFourWin::computeTHD(){
     THD+=amplitudes[harm]*amplitudes[harm];
   if (myData.opt.harm1<=14 && myData.opt.harm2>=40){
       for(int harm=14; harm<=40; harm++)
-        work+=harm*amplitudes[harm]*amplitudes[harm];
+        work+=float(harm)*amplitudes[harm]*amplitudes[harm];
    PWHC=sqrtf(work);
   }
 
@@ -722,9 +721,9 @@ int CFourWin::performDFT(){
   dft0=0;
   for (sample=0; sample<nSamples; sample++)
       dft0+=double(y1[sample]);
-  ampl01[0]=float(dft0)/nSamples;
+  ampl01[0]=float(dft0)/float(nSamples);
   if(harm1==0){
-    ampl[0]=float(dft0)/nSamples;
+    ampl[0]=float(dft0)/float(nSamples);
     phases[0]=0;
   }
   //Calcolo della componente di ordine 1 (va comunque calcolata per poter fare
@@ -736,7 +735,7 @@ int CFourWin::performDFT(){
     for (sample=0; sample<nSamples; sample++){
       dft+=dcmplx(double(y1[sample]))*exp(-auxC1*dcmplx(sample));
     }
-    ampl01[1]=2*float(abs(dft))/nSamples;
+    ampl01[1]=2*float(abs(dft))/float(nSamples);
   }
   //Calcolo RMS
   if(harm1==0)
@@ -837,8 +836,8 @@ int CFourWin::performNuDFT(){
     float Om=2*pi/period;
     int sample;
     for (sample=0; sample<nSamples; sample++){
-      ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
-      bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+      ak+=(y1[sample]*cosf(float(harm)*Om*x1[sample])+y1[sample+1]*cosf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+      bk+=(y1[sample]*sinf(float(harm)*Om*x1[sample])+y1[sample+1]*sinf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
 //      float aux1=y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]);
 //      float aux2=x1[sample+1]-x1[sample];
 //      aux1=0;
@@ -860,8 +859,8 @@ int CFourWin::performNuDFT(){
       float Om=2*pi/period;
       int sample;
       for (sample=0; sample<nSamples; sample++){
-        ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
-        bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+        ak+=(y1[sample]*cosf(float(harm)*Om*x1[sample])+y1[sample+1]*cosf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+        bk+=(y1[sample]*sinf(float(harm)*Om*x1[sample])+y1[sample+1]*sinf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
       }
       if(harm==0)
         ampl[harm]=ak/period;
@@ -957,7 +956,7 @@ void CFourWin::valChanged(SXYValues values){
   // Se visualizzo solo alcune armoniche, ad es. dalla 5 alla 30, le armoniche precedenti non devono avere alcun punto e non devono emettere il relativo valore.
   //In effetti è stato visto che questo accade correttamente, salve che in prossimità dello 0 dove può arrivare un valore.
   // In attesa di comprendere in dettaglio cosa accade, una soluzione pratica e funzionante è di uscire se l'armonica visualizzata è inferiore alla minima visualizzabile
- if (values.X[0]<myData.opt.harm1-0.5f)
+ if (values.X[0]<float(myData.opt.harm1)-0.5f)
      return;
 
   msg=msg.setNum(int(values.X[0]+0.5f));
