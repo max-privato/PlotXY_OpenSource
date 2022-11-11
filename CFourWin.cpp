@@ -143,7 +143,10 @@ CFourWin::CFourWin(QWidget *parent) :
 
 int  CFourWin::analyseAndShow(bool changed){
     /* Questa funzione analizza le opzioni e aggiorna i grafici di ampiezza e/o fase.
-Essa è richiamata sia allo show della finestre (in quel caso changed è true), che dopo il click sul bottone delle opzioni (in quel caso changed=false mi evita di rifare taluni calcoli inutili).*/
+     * Essa è richiamata sia allo show della finestre (in quel caso changed è true), che
+     * dopo il click sul bottone delle opzioni (in quel caso changed=false mi evita
+     * di rifare taluni calcoli inutili).
+*/
     int ret=0;
     int harm, harm1, harm2;
     float amplFactor;
@@ -672,10 +675,12 @@ int CFourWin::performDFT(){
       return 1;
   }
   delete[] harmOrders;
+  harmOrders=new float[harm2+1];
+  for (int i=0; i<=harm2; i++)
+    harmOrders[i]=float(i);
   delete[] ampl;  //Ampiezze delle armoniche prima della correzione con amplFactor
   delete[] amplitudes; //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
   delete[] phases;
-  harmOrders=new float[harm2+1];
   ampl=new float[harm2+1];
   amplitudes=new float[harm2+1];
   phases=new float[harm2+1];
@@ -686,7 +691,7 @@ int CFourWin::performDFT(){
   }
   auxC1=j*dcmplx(2.0*pi/nSamples);
   aux2=180./pi;
-  harmOrders[0]=0;
+//  harmOrders[0]=0;
   dftDone=true;
 
   for(harm=harm1+(harm1==0); harm<=harm2; harm++){
@@ -711,7 +716,7 @@ int CFourWin::performDFT(){
     double phase(dcmplx x);
     phases[harm]= float(aux2*phase(dcmplx(-imag(dft),real(dft))));
 
-    harmOrders[harm]=harm;
+//    harmOrders[harm]=harm;
   }
   //Computation of DC component. It is always computed because is used to express harmonics as ratio to it, and to evaluate signal RMS:
   dft0=0;
@@ -808,10 +813,12 @@ int CFourWin::performNuDFT(){
       return 1;
   }
   delete[] harmOrders;
+  harmOrders=new float[harm2+1];
+  for (int i=0; i<=harm2; i++)
+    harmOrders[i]=float(i);
   delete[] ampl;  //Ampiezze delle armoniche prima della correzione con amplFactor
   delete[] amplitudes; //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
   delete[] phases;
-  harmOrders=new float[harm2+1];
   ampl=new float[harm2+1];
   amplitudes=new float[harm2+1];
   phases=new float[harm2+1];
@@ -820,7 +827,7 @@ int CFourWin::performNuDFT(){
     QMessageBox::critical(this,"CFourWin","Internal error \"myData.indexRight\" in CFourWin");
     QApplication::closeAllWindows();
   }
-  harmOrders[0]=0;
+//  harmOrders[0]=0;
   dftDone=true;
 
   for(harm=harm1; harm<=harm2; harm++){
@@ -842,7 +849,7 @@ int CFourWin::performNuDFT(){
     else
       ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
     phases[harm]= atan2f(ak,bk)*180.f/pi;
-    harmOrders[harm]=harm;
+//    harmOrders[harm]=harm;
   }
 
   // Le componenti di ordine 0 e 1 vanno sempre calcolate per fare il p.u.
@@ -861,7 +868,7 @@ int CFourWin::performNuDFT(){
       else
         ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
       phases[harm]= atan2f(ak,bk)*180.f/pi;
-      harmOrders[harm]=harm;
+//      harmOrders[harm]=harm;
     }
   ampl[0]/=2.f;
   //La fase della componente 0 è indefinita e può venire qualunque numero Pertanto pongo:

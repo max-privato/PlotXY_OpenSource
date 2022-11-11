@@ -82,7 +82,7 @@ private:
     int indexLeft, indexRight;
     int  initialFontPoints;
     QString infoString, amplValueTxt;
-    float *harmOrders,
+    float *harmOrders, //vettore contenente come valori il float corrispondente all'indice del vettore. Costituirà l'asse orizzontale dei diagrammi di tipo Fourier
           *ampl, //Ampiezze delle armoniche prima della correzione con amplFactor (definito loocalmente in analiseAndShow).  Sono quindi valori di picco delle sinusoidi
           *amplitudes, //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
           *phases,
