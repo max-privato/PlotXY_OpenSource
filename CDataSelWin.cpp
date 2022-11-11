@@ -1974,7 +1974,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
   }
   if(myVarTable->xInfo.name.contains(" (s->d)")){  //converto il tempo s->d
     myVarTable->xInfo.unitS="d";
-    // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà all'interno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
+    // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui lo assegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà all'interno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
     myVarTable->xInfo.timeConversion=2;
   }
 

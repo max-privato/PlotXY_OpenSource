@@ -209,9 +209,9 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
       //Per ogni valore di iFile percorro tutte le righe:
       for(iRow=1; iRow<rowCount(); iRow++){
         QString str=item(iRow,VARCOL)->text();
-        //Quando arrivo alla fine delle righe con variabili sec ontinuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check:
+        //Se una riga è vuota se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Devo mettere continue e non break, perché ci possono essere righe vuote in qualsiasi posizione della tabella:
         if(str.size()==0)
-            break;
+            continue;
         QChar  c=item(iRow,VARCOL)->text()[0];
         if(item(iRow,XVARCOL)->text()=="x"){
           xInfo.unitS=giveUnits(c);
@@ -926,6 +926,8 @@ FINE Correzione 25/11/2020
       for(j=0;j<TOTCOLS;j++){
         item(xVarRow,j)->setForeground(item(r,j)->foreground());
         item(r,j)->setForeground(xVarBrush);
+        //Per ragioni non chiarite da un certo commit in poi in questo caso sulla riga r compariva come colore del testo il grigio; per ora correggo con la seguente riga:
+        item(r,j)->setForeground(Qt::black);
       }
       item(xVarRow,0)->setBackground(item(r,0)->background().color());
       item(xVarRow,c)->setText("");
@@ -940,7 +942,8 @@ FINE Correzione 25/11/2020
       }
 
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati:
-      mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+                 //mySet=tabFileNums.toSet();  //deprecata
+       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
       if(funSet.size()>0 || mySet.count()>1)
 //      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
           allowSaving=false;
@@ -991,7 +994,7 @@ void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
 
   if(item(r,XVARCOL)->text()=="x"){
     QString txt=item(r,VARCOL)->text();
-    // Qui ho fatto un click destro sulla variabile x. Allaora faccio un ciclo di conversione delle unità di  misura: da normale a s->h, da s->h a s->d, da s->d normale
+    // Qui ho fatto un click destro sulla variabile x. Allora faccio un ciclo di conversione delle unità di  misura: da normale a s->h, da s->h a s->d, da s->d normale
     //Notare che qui seleziono xInfo.timeConversion ma stranamente lo trovo resettato a 0 in dataSelWin, ove lo rimetto al valore giusto. Poi questo valore è utilizzato per la conversione della variabile sull'asee x all'interno di getData di CPlotWin: il posto più giusto perché è là che si alloca spazio alla variabile asse x, autonomo rispetto a mySO.
 
     if(xInfo.name.contains(" (s->h)")){
