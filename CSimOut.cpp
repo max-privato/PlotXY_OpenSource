@@ -218,7 +218,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
 
     for(int i=0; i<fileData.descriptionLst.count(); i++){
       int start, end;
-      if(fileData.descriptionLst[i].count()==0){
+      if(fileData.descriptionLst[i].size()==0){
         fileData.unitLst.append("");
         continue;
       }
@@ -270,7 +270,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
        //legittimazione specifica dagli standard MSL (tichet su trac.modelica.org #2142,
        // comment 7)
        if(str=="Ohm"||str=="ohm")
-           str=QString(0x03A9); //unicode per omega maiuscolo
+           str=QString(QChar(0x03A9)); //unicode per omega maiuscolo
 
        fileData.unitLst.append(str);
     }
@@ -1481,14 +1481,14 @@ Il file contiene sequenzialmente coppie header-matrice.
     //Se la prima variabile ha come nome "Aclass" si ipotizza che si tratti di un file creato con Modelica (Dymola e OM sano formati quasi identici e entrambi mettonon una prima variabile con questo nome a inizio file). Di conseguenza rimando l'interpretazione alla specifica routine.
 
     if(strcmp(pVarName,"Aclass")==0){
-        fileType=MAT_Modelica;
-        rewind(pFile);
-        if(allVars_)
-          ret=loadFromModelicaMatFile(pFile);
-        else
-          ret=loadFromModelicaMatFile(pFile,addAlias_);
-        fclose (pFile);
-        return ret;
+      fileType=MAT_Modelica;
+      rewind(pFile);
+      if(allVars_)
+        ret=loadFromModelicaMatFile(pFile);
+      else
+        ret=loadFromModelicaMatFile(pFile,addAlias_);
+      fclose (pFile);
+      return ret;
     }
 
     //Se c'è una variabile di nome "t", composta da un'unica colonna, essa verrà intesa
@@ -1550,7 +1550,10 @@ Il file contiene sequenzialmente coppie header-matrice.
         }
         if(header.nCols>1) {
             iCol++;
-            varNames[varIndex]=QString(pVarName)+"("+QString(iCol)+")";
+            QString str;
+            str.setNum(iCol);
+//            varNames[varIndex]=QString(pVarName)+"("+QString(iCol)+")";
+            varNames[varIndex]=QString(pVarName)+"("+str+")";
             if(iCol==header.nCols)iCol=0;
         }
         if(isDouble){
@@ -2135,7 +2138,7 @@ QString CSimOut::loadFromModelicaMatFile(FILE * pFile, bool addAlias_){
        if(lastIndexOf>-1 && addAlias_){  //Caso in cui un parametro è stato memorizzato e gli devo aggiungere uno o più alias
          QString curDescription=paramInfo.description[lastIndexOf];
          QString curName=paramInfo.names[lastIndexOf];
-         int lastCharIdx=curDescription.count()-1;
+         int lastCharIdx=curDescription.size()-1;
          //la seguente riga è importante perché se la riga è vuota lastCarIdx è -1
          if(lastCharIdx<0)
              continue;
@@ -2406,11 +2409,16 @@ QString CSimOut::namesPl4ToAdf(int addDigit){
     else
       varNames[var]=varNames[var].mid(0,pPos-1)+node[0]+node[1];
     //Operazioni finali:
+    QString str;
+    str.setNum(addDigit);
     if(addDigit>0)
-      varNames[var]=varNames[var]+QString(addDigit);
+      varNames[var]=varNames[var]+str;
   }
-  if(addDigit>0)
-     varNames[0]=varNames[0]+QString(addDigit);
+  QString str;
+  if(addDigit>0){
+    str.setNum(addDigit);
+    varNames[0]=varNames[0]+str;
+  }
   return "";
 }
 
@@ -2532,7 +2540,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
     int index=vars[iVar];
     //Nome privo del prefisso immesso da PlotXY:
     if(fileType==PL4_1 ||fileType==PL4_2){
-      varNames[index].count();
+      varNames[index].size();
       if(varNames[index][1]==':')
         varName=varNames[index].mid(2);
       else
@@ -2540,19 +2548,24 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
     }else
       varName=varNames[index];
     //Individuo l'unità di misura:
-    CCBM[0]=varNames[index][0];
-    CCBM[1]=0;
+    CCBM=varNames[index].mid(0,1);
+//    CCBM[0]=varNames[index][0];
+//    CCBM[1]=0;
+//    if(varNames[index][3]==':')
+//      CCBM[1]=varNames[index][1];
     if(varNames[index][3]==':')
-      CCBM[1]=varNames[index][1];
-    unit[1]=unit[2]=0;
+      CCBM=varNames[index].mid(0,2);
+
+    //    unit[1]=unit[2]=0;
+    unit="";
     switch(CCBM[0].toLatin1()){
-      case 'v': unit[0]='V'; break;
-      case 'i': unit[0]='A'; break;
-      case 'c': unit[0]='A'; break;
-      case 'p': unit[0]='W'; break;
-      case 'e': unit[0]='J'; break;
+      case 'v': unit="V"; break;
+      case 'i': unit="A"; break;
+      case 'c': unit="A"; break;
+      case 'p': unit="W"; break;
+      case 'e': unit="J"; break;
       case 'a': unit="DEG"; break;
-      default:  unit[0]='?'; break;
+      default:  unit="?"; break;
     }
     //Individuo il valore minimo e massimo:
     offset[index]=max=0;

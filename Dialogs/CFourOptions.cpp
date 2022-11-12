@@ -16,6 +16,7 @@
  * DAMAGE INCURRED BY ITS USE.
  *
  */
+#define NearInt(x) (int(x+0.5f))
 
 #include "CFourOptions.h"
 #include "ui_CFourOptions.h"
@@ -83,8 +84,8 @@ void CFourOptions::updatehMax(SFourData data){
   int stepsPerSecond, indexLeft, indexRight;
   int nearInt(float);
   stepsPerSecond=(data.numOfPoints-1) / (data.x[data.numOfPoints-1]-data.x[0]);
-  indexLeft= nearInt( (data.opt.initialTime-data.x[0])*stepsPerSecond)+1;
-  indexRight=(data.numOfPoints-1) - nearInt( (data.x[data.numOfPoints-1]-
+  indexLeft= NearInt( (data.opt.initialTime-data.x[0])*stepsPerSecond)+1;
+  indexRight=(data.numOfPoints-1) - NearInt( (data.x[data.numOfPoints-1]-
                                     data.opt.finalTime)*stepsPerSecond );
   QString msg;
    msg.setNum((indexRight-indexLeft+1)/2);

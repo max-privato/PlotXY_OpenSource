@@ -1945,7 +1945,7 @@ bool CLineChart::event(QEvent *event){
             if(hovData.rect.contains(pos)){
               if(!curveParamLst[hovData.iTotPlot].isFunction)break;
               hovVarRect= hovData.rect;
-              QString str=curveParamLst[hovData.iTotPlot].fullName;
+//              QString str=curveParamLst[hovData.iTotPlot].fullName;
               QToolTip::showText(helpEvent->globalPos(), curveParamLst[hovData.iTotPlot].fullName);
 //              setToolTip(lCurveParam[hovData.iTotPlot].fullName);
             }

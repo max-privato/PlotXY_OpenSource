@@ -16,6 +16,7 @@
  * DAMAGE INCURRED BY ITS USE.
  *
  */
+#define NearInt(x) (int(x+0.5f))
 
 #include "CFourWin.h"
 #include "ui_CFourWin.h"
@@ -555,7 +556,6 @@ bool CFourWin::indexesFromTimes(SFourData data){
 */
   bool changed=false;
   int oldIndexLeft=indexLeft, oldIndexRight=indexRight;
-  int nearInt(float);
    //Gli indici indexLeft e indexRight definiscono il più ampio set di campioni **interni** a t1 e t2. Per il calcolo, come specificato sopra, il valore della funzione in t1 verrà calcolato con intepolazione lineare fra quello in indexLeft-1 e in indexLeft, mentre quello di destra sarà in indexRight. Se indexLeft=0, ovviamente, prenderò come primo campione proprio quello indexLeft.
   bool indexLeftDefined=false;
   indexLeft=0;
@@ -976,12 +976,6 @@ CFourWin::~CFourWin()
     delete ui;
 }
 
-int nearInt(float f){
-    int i=int(f);
-    if(f-i>0.5f)
-        i++;
-    return i;
-}
 
 
 void CFourWin::on_printBtn_clicked()
