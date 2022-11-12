@@ -90,7 +90,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
       newItem->setBackground(headerGray);
       newItem->setTextAlignment(Qt::AlignCenter);
       for (int c=0; c<columnCount(); c++)
-        newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable+Qt::ItemIsSelectable));
+        newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable|Qt::ItemIsSelectable));
       setItem(0,j,newItem);
     }
     for(i=1;i<TOTROWS;i++){
@@ -755,7 +755,7 @@ void CVarTableComp::leftClicked(int r, int c){
       if(item(r,c)->text()!=""){
          numOfTotVars--;
          if(item(r,VARNUMCOL)->text()[0]=='f'){
-           funSet.remove(item(r,VARNUMCOL)->text().midRef(1,1).toInt());
+           funSet.remove(item(r,VARNUMCOL)->text().mid(1,1).toInt());
          }
          if(item(r,VARNUMCOL)->text()!="")
              item(r,FILENUMCOL)->setBackground(Qt::white);
@@ -951,7 +951,7 @@ FINE Correzione 25/11/2020
        str=item(r,VARNUMCOL)->text();
       if(str[0]=='f'){
         xInfo.isFunction=true;
-        xInfo.idx=str.midRef(1,1).toInt()-1;
+        xInfo.idx=str.mid(1,1).toInt()-1;
       }else{
         xInfo.isFunction=false;
         xInfo.idx=str.toInt()-1;
@@ -998,14 +998,14 @@ void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
     //Notare che qui seleziono xInfo.timeConversion ma stranamente lo trovo resettato a 0 in dataSelWin, ove lo rimetto al valore giusto. Poi questo valore è utilizzato per la conversione della variabile sull'asee x all'interno di getData di CPlotWin: il posto più giusto perché è là che si alloca spazio alla variabile asse x, autonomo rispetto a mySO.
 
     if(xInfo.name.contains(" (s->h)")){
-      txt.truncate(txt.count()-7);
+      txt.truncate(txt.size()-7);
       txt.append(" (s->d)");
       item(r,VARCOL)->setText(txt);
       xInfo.name=txt;
       xInfo.unitS="d"; //Non si sa perché questo valore è perso quando si fa il plot
       xInfo.timeConversion=1; //Non si sa perché questo valore è perso quando si fa il plot
     }else if(xInfo.name.contains(" (s->d)")){
-      txt.truncate(txt.count()-7);
+      txt.truncate(txt.size()-7);
       item(r,VARCOL)->setText(txt);
       xInfo.name=txt;
       xInfo.unitS="s"; //Non si sa perché questo valore è perso quando si fa il plot
