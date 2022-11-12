@@ -2606,7 +2606,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
 //  fprintf(pFile,"0.0,%d\n",numOfPoints);
   //"Date" e "Time":
   dateTime=QDateTime::currentDateTime();
-  row=dateTime.toString("dd/mm/yyyy,hh:mm:ss.zzz");
+  row=dateTime.toString("dd/MM/yyyy,hh:mm:ss.zzz");
   // Siccome i decimali di secondo devono arrivare al microsecondo, aggiungo tre zeri in fondo:
   row=row+"000\n";
   fprintf(pFile,row.toLatin1().data());
