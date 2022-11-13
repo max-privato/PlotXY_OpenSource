@@ -603,7 +603,7 @@ qDebug()<<"DPI: "<<currentDPI;
       if(i==0){
         item->setText(hdrs[j]);
         item->setBackground(headerGray);
-        item->setFlags(item->flags()&~ (Qt::ItemIsEditable+Qt::ItemIsSelectable));
+        item->setFlags(item->flags()&~ (Qt::ItemIsEditable|Qt::ItemIsSelectable));
 //Tmax e TShift devono essere a fondo leggermente più chiaro per far capire che sono cliccabili
 // Tmax and TShift must be thoroughly clearer to make it clear that they are clickable
         if(j>4)

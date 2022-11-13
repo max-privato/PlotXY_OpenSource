@@ -1110,7 +1110,7 @@ QString CLineCalc::div(float x1, float x2, float & y){
    return "";
 }
 
-bool SVarNums::operator== (const SVarNums & x){
+bool SVarNums::operator== (const SVarNums &x) const{
     return this->fileNum == x.fileNum && this->varNum == x.varNum;
 }
 
