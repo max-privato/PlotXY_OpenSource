@@ -2625,7 +2625,7 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
   /* Fase 2: Preparazione file di estensione dat*/
   //Apertura file:
   datFileName=cfgFileName;
-  len=datFileName.count();
+  len=datFileName.size();
   datFileName[len-3]='d';
   datFileName[len-2]='a';
   datFileName[len-1]='t';

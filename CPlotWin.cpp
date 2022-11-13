@@ -195,7 +195,7 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
 
 */
 
-    int i, j, iVarTot, nVarTot;
+    int i, j, iVarTot;
     int size;
     struct SXVarParam xParam;
 
@@ -224,11 +224,6 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
     variableStep=new bool[filesInfo.count()];
     numOfPoints =new int [filesInfo.count()];
 
-    // Prima di allocare curveParam devo calcolare il numero totale di variabili:
-    nVarTot=0;
-    for(i=0; i<filesInfo.count(); i++){
-      nVarTot+=y1Info[i].count();
-    }
     y=new float**[numOfTotPlotFiles]; //modifica
     x=new float* [numOfTotPlotFiles];
     iVarTot=0;
@@ -443,15 +438,15 @@ In mac non si riescono a sopprimere i bottoni di sistema, che sprecano spazio, e
 #endif
     //Il baseTitle è un titolo a cui poi posso aggiungere l'indicazione del tempo di esecuzione. Lo devo assegnare qui in quanto nella funzione CPlotWin::CPlotWin non contiene ancora il numero di istanza che è aggiunto in CDataSelWin::CDataSelWin.
     //Però devo evitare che a ogni riapertura della finestra le stringhe contenenti i tempi si accumulino. In precedenza usavo un flag con una variabile statica "baseTitleSet". E' stato però visto che la variabile statica (evitentemente come tutte le variabli statiche, ma non lo sapevo) mantiene il suo valore da un'istanza all'altra. Pertanto in quel caso dalla seconda finestra plot in poi avevo una visualizzazione scorretta.
-    // Pertanto sono passato ad individuare la necessità di scrivere basetitle sulla base della lunghezza del medesimo titolo della finestra.
-    if(windowTitle().count()<7){
+    // Pertanto sono passato a individuare la necessità di scrivere baseTitle sulla base della lunghezza del medesimo titolo della finestra.
+    if(windowTitle().size()<7){
         baseTitle=windowTitle();
     }
     // Quando si attiva questa finestra può essere che il box "interpolate" non sia allineato con lineChart, in quanto lo stato di interpolazione di lineChart può essere stato modificato agendo sulla casella di iinterpolazione di winvalues.
     //La cosa si risolve brillantemente con la seguente riga:
     ui->interpolateBox->setChecked(ui->lineChart->linearInterpolate);
 
-    valuesWinTitle[valuesWinTitle.count()-1] = windowTitle()[windowTitle().count()-1];
+    valuesWinTitle[valuesWinTitle.size()-1] = windowTitle()[windowTitle().size()-1];
     valuesWin->setWindowTitle(valuesWinTitle);
     valuesWin->move(pos().x()+frameGeometry().width()+1,  pos().y());
     //DrawType è passata a questa classe subito dopo la costruzione. Non lo posso quindi passare a lineChart nel costruttore, ma posso qui, dopo la costruzione e prima della visualizzazione.

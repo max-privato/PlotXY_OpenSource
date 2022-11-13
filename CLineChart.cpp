@@ -4863,7 +4863,7 @@ Escape:
       X+=int(2*onePixDPI);
 
   /* Si ha l'obiettivo di passare prima o poi all'unica fuzione smartWriteUnit(). Per ora vi sono ancora delle difficoltà nel calcolo delle spaziature, e quindi nel caso della sola potenza di 10 uso ancora il più vecchio drawText2.
-Notare che a drawText1 si passano separatamente base ed esponente, mentre in smartWriteUnit la potenza di 10 è automaticamente riconosciuta dalla presenza come primi tre caratteri di "10*"
+Notare che a drawText2 si passano separatamente base ed esponente, mentre in smartWriteUnit la potenza di 10 è automaticamente riconosciuta dalla presenza come primi tre caratteri di "10*"
 */
 
   if (useWriteText2){ //Caso residuo solo per le potenze di 10

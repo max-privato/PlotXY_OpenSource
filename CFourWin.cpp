@@ -170,22 +170,24 @@ int  CFourWin::analyseAndShow(bool changed){
     harm1=myData.opt.harm1;
     harm2=myData.opt.harm2;
     switch(myData.opt.amplUnit){
-       case peak:
+      case peak:
         amplFactor=1.0;
         amplValueTxt="<i>value (peak):</i><br>";
         break;
-       case rms:
+      case rms:
         amplFactor=float(1.0/SQRT2);
         amplValueTxt="<i>value (rms):</i><br>";
         break;
-       case puOf0:
+      case puOf0:
         amplFactor=float((100.0/SQRT2)/fabs(double(ampl01[0])));
         amplValueTxt="<i>value (%/h0):</i><br>";
         break;
-       case puOf1:
+      case puOf1:
         amplFactor=float(100./fabs(double(ampl01[1])));
         amplValueTxt="<i>value (%/h1):</i><br>";
         break;
+      default:
+        amplFactor=1;  //Questo caso non serve; inserito solo per evitare warning successivi riguardo all'eventualità di usare un valore non inizializzato per amplFactor
     }
     ui->harmValLbl->setText(amplValueTxt);
 
