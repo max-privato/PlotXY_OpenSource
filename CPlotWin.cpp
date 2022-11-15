@@ -191,7 +191,7 @@ Significato delle variabili passate:
  - y1Info è un vettore di liste strutture; ogni elemento del vettore è relativo ad un file di input, e in ogni elemento della lista è una struttura contenente informazioni ad un grafico relativo a quel dato file
  filesInfo è il giusto complemento di y1Info; dà le informazioni attribuibili ai singoli files: nome, indice, numero di punti, se è a passo variabile.
 
-NOTA il numero totale di plot da fare è la somma del numero di elementi contenuti y1Info[] per  ognuno dei files (il numero dei files è pari a filesInfo->count()).
+NOTA il numero totale di plot da fare è la somma del numero di elementi contenuti y1Info[] per ognuno dei files (il numero dei files è pari a filesInfo->count()).
 
 */
 
@@ -267,6 +267,12 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
                y_dbg[iVar][iPt]=y[0][iVar][iPt];
            }
     ***********  fine Software per debug ****************/
+    if(filesInfo.size()<1){
+      QString msg="Internal error #99 in CPlotWin.\n"
+              "Please contact massimo.ceraolo@unipi.it";
+        QMessageBox::information(this,"CPlotWin",msg);
+        exit(0);
+    }
     currFileInfo=filesInfo[0];
     if(numOfTotPlots==1 && currFileInfo.frequencyScan && programOptions.barChartForFS)
       ui->lineChart->plotType=ptBar;

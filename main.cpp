@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     //La seguente riga consente di sostituire errori runTtime con chiamata alla funzione qui sopra, che può poi essere debuggata.
     //Va abilitata quando ci sono errori runtime, e poi disabilitata quando sono stati risolti.
 
-//    qInstallMessageHandler(myMessageOutput);
+    qInstallMessageHandler(myMessageOutput);
     QApplication a(argc, argv);
 
     // The information in the following two lines is used later to write on the registry the data recorded using the "QSettings" object.

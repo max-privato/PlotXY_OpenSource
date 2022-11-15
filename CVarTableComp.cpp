@@ -253,11 +253,11 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     SXYNameData calcData;
     funInfoLst.clear();
     myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
-    for (int i=0; i<rowCount(); i++){
+    for (int i=1; i<rowCount(); i++){
       QString str=item(i,VARNUMCOL)->text();
-      //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check:
+      //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Non posso mettere break, in quanto una riga può essere vuota anche prima delle righe con contenuti.
       if(str.size()==0)
-        break;
+        continue;
       if(item(i,VARNUMCOL)->text()[0]=='f'){
         myLineCalc.getLine(item(i,VARCOL)->text(),currFileIdx+1);
         calcData=myLineCalc.checkAndFindNames();
@@ -648,8 +648,12 @@ SVarTableState CVarTableComp::giveState(){
 
 
 QList <SXYNameData> CVarTableComp::giveFunInfo(){
- /* La presente funzione serve per eliminare nomi apparentemente differenti, ma che puntano alla medesima variabile, quale ad esempio f1v3 se è già presente v3 e il file corrente è il n. 1
-NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f# superflui è fatta ex-ante
+ /* La presente funzione serve per eliminare nomi apparentemente differenti, ma che puntano
+  *  alla medesima variabile, quale ad esempio f1v3 se è già presente v3 e il file corrente
+  *  è il n. 1
+  *
+  *  NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
+  *       superflui è fatta ex-ante
   */
 
     return funInfoLst;  //compilata in analyse()
@@ -698,9 +702,9 @@ void CVarTableComp::fillFunNames(void){
   QString filled;
   for(int r=0; r<rowCount(); r++){
     QString str=item(r,VARNUMCOL)->text();
-    //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check:
+    //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Non posso mettere break, in quanto una riga può essere vuota anche prima delle righe con contenuti.
     if(str.size()==0)
-      break;
+      continue;
     if(item(r,VARNUMCOL)->text()[0]=='f'){
       filled=fillNames(item(r,VARCOL)->text(),currFileIdx+1);
       item(r,VARCOL)->setText(filled);

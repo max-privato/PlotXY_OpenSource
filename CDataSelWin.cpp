@@ -2026,7 +2026,7 @@ void CDataSelWin::on_plotTBtn_clicked() {
 /* FASE 3 **** Adesso aggiungo il calcolo degli elementi di y1 collegati alle funzioni di variabili. ****/
 //Nel caso in cui myVarTable.xInfo.isFunction=true una delle fun del seguente loop verrà messa come vettore delle x invece che come matrice ad una riga in y.
 
-  /* STEP 3 **** Now I add the calculation of the elements of y1 connected to the variable functions. ****/
+  /* STEP 3 **** Now I add the calculation of the elements of y1 connected to the functions. ****/
   // In the case where myVarTable.xInfo.isFunction = true one of the fun of the
   // following loop will be put as a vector of the x instead of a single row in y.
   for(int iFun=0; iFun<funInfoLst.count(); iFun++){
