@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
+    <width>358</width>
     <height>395</height>
    </rect>
   </property>
@@ -328,6 +328,9 @@
         <pointsize>8</pointsize>
        </font>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
@@ -426,6 +429,9 @@
             <pointsize>9</pointsize>
            </font>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="toolTip">
            <string>click to sort</string>
           </property>
@@ -443,6 +449,9 @@
           <width>100</width>
           <height>0</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -516,6 +525,9 @@
          <font>
           <pointsize>8</pointsize>
          </font>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
         </property>
         <property name="tabShape">
          <enum>QTabWidget::Triangular</enum>
@@ -694,23 +706,15 @@
            </spacer>
           </item>
           <item>
-           <widget class="QToolButton" name="plotTBtn">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>8</pointsize>
-             </font>
-            </property>
+           <widget class="QPushButton" name="plotBtn">
             <property name="text">
-             <string>  &amp;Plot  </string>
+             <string>&amp;Plot</string>
+            </property>
+            <property name="autoDefault">
+             <bool>true</bool>
+            </property>
+            <property name="default">
+             <bool>true</bool>
             </property>
            </widget>
           </item>

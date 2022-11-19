@@ -100,6 +100,8 @@ private slots:  //devono rimanere slot in quanto connessi sulla base del nome e 
     void on_showParTBtn_clicked(bool checked);
     void on_tool468_clicked();
 
+    void on_plotBtn_clicked();
+
 private:
   bool fileLoaded, doubleClicking, updatingPlot, refreshUpdate,
        goneToSingleFile;  //Se almeno una volta sono andato in singleFile nella presente sessione è true;
