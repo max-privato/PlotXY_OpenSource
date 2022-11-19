@@ -32,7 +32,7 @@
 #define MAXFILES 9  //numero massimo di files (le linee inizialmente visualizzate sono invece 3)
 #define MAXVARS 15  //Numero massimo di variabili nella lista (escluso il tempo)
 
-#include "SuppFunctions.h"
+//#include "SuppFunctions.h"  //commentata in quanto sia le funzioni di allocazione delle matrici, che la smartSetNum sono state definite come funzioni statiche all'interno dellala classe
 #define RATIOLIM 0.799f
 #define MAXAUTOMARKS 4
 #define MAXMANUMARKS 8

@@ -25,7 +25,6 @@
 #include <QColor>
 #include <QList>
 #include <QInputDialog>
-#include "Globals.h"
 #include "CLineChart.h"
 //#include "CLineChart.h"
 #include "Dialogs/CCustomiseCol.h"
