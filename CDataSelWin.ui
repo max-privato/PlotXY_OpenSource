@@ -94,7 +94,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Load...</string>
+         <string>&amp;Load...</string>
         </property>
        </widget>
       </item>
@@ -118,7 +118,7 @@
          <string>Refresh current file and all Fourier and Plot diagrams</string>
         </property>
         <property name="text">
-         <string>Refresh</string>
+         <string>&amp;Refresh</string>
         </property>
        </widget>
       </item>
@@ -710,7 +710,7 @@
              </font>
             </property>
             <property name="text">
-             <string>  Plot  </string>
+             <string>  &amp;Plot  </string>
             </property>
            </widget>
           </item>
@@ -967,7 +967,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Equate</string>
+              <string>&amp;Equate</string>
              </property>
             </widget>
            </item>
@@ -979,7 +979,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Arrange</string>
+              <string>&amp;Arrange</string>
              </property>
             </widget>
            </item>

@@ -216,6 +216,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   ui->moreLbl->setVisible(false);
   move(toInPrimaryScreen(QPoint(0,0)));
   ui->showParTBtn->setVisible(false);
+  ui->plotTBtn->setFocus();
 
 
   for (int tab=0; tab<MAXPLOTWINS; tab++){
