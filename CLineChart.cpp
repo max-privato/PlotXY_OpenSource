@@ -961,8 +961,8 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         if(FC.isInRect(xPlus,yPlus)){
           FC.getLine(x1,y1,xPlus,yPlus);
           FC.giveRectIntersect(I1,I2);
+          path.moveTo(NearInt(I1.X), NearInt(I1.Y));
         }
-        path.moveTo(NearInt(I1.X), NearInt(I1.Y));
       }else{
         path.moveTo(double(x1),double(y1));
       }
