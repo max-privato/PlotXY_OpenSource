@@ -1093,15 +1093,16 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 //      out<<path;
 //      file.close();
       if(makingSVG){
-          myPainter->drawPath(path);
+        myPainter->drawPath(path);
 //          qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
       }else{
 // Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fa i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
-          int i;
-          foreach(QPolygonF poly, path.toSubpathPolygons())
-              for(i=0; i<poly.size()-1; i++)
-                  myPainter->drawLine(poly.at(i),poly.at(i+1));
-//          qDebug() << "foreach operation took" << timer.elapsed() << "milliseconds";
+        int i;
+        qDebug()<<"width: "<<myPainter->pen().width();
+        foreach(QPolygonF poly, path.toSubpathPolygons())
+          for(i=0; i<poly.size()-1; i++)
+            myPainter->drawLine(poly.at(i),poly.at(i+1));
+        qDebug() << "foreach operation took" << timer.elapsed() << "milliseconds";
       }
     } //Fine tracciamento varie curve relative ad un medesimo file
   } //Fine ciclo for fra i vari files
@@ -1109,8 +1110,11 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 }
 
 int CLineChart::drawCurvesD(bool noCurves){
- /* Funzione per il tracciamento delle curve su grafici di linea.  Contiene al suo interno un algoritmo per l'eliminazione automatica dei punti visualmente ridondanti e del taglio delle curve all'esterno del rettangolo di visualizzazione.
-Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è sconsigliato modificarla se non strettamente necessario.
+ /* Funzione per il tracciamento delle curve su grafici di linea.  Contiene al suo interno
+  * un algoritmo per l'eliminazione automatica dei punti visualmente ridondanti e del
+  * taglio delle curve all'esterno del rettangolo di visualizzazione.
+  * Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
+  * sconsigliato modificarla se non strettamente necessario.
 */
   int iTotPlot=-1;
   int pointsDrawn0;
@@ -1147,10 +1151,7 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         plotPen.setColor(Qt::black);
       else
         plotPen.setColor(curveParamLst[iTotPlot].color);
-      if(iPlot>7)
-          plotPen.setStyle(Qt::DashLine);
-      else
-          plotPen.setStyle(Qt::SolidLine);
+      plotPen.setStyle(curveParamLst[iTotPlot].style);
       myPainter->setPen(plotPen);
       // Calcolo yRatio e symin, valutando se sono relativi alla scala di sinistra o a quella eventuale di destra:
       if(curveParamLst[iTotPlot].rightScale){
@@ -3861,8 +3862,9 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
     framePen.setWidth(PPlotPenWidth+1);
   }else{  //Ora sono in spessore penna automatico
     //Si ricordi che il risultato della seguente divisione è troncato, non arrotondato.
-    ticPen.setWidth((plotRect.width()+plotRect.height())/1000);
+    ticPen.setWidth(qMax(1,(plotRect.width()+plotRect.height())/1000));
     plotPen.setWidth(ticPen.width());
+    int iii=plotPen.width();
     framePen.setWidth(plotPen.width());
   }
   if(cutsLimits){
@@ -4031,6 +4033,8 @@ Se X, oltre che monotona crescente è anche costituita da campioni equispaziati 
     case ptLine:
       if(drawType==dtMC)
         drawCurves(Virtual);
+      else if(drawType==dtMcD)
+        drawCurvesD(Virtual);
       else if(drawType==dtQtF)
         drawCurvesQtF(Virtual);
       else if(drawType==dtQtI)
@@ -5032,7 +5036,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
   if(nFiles>1){
     oneFileName=true;
     for (int i=0; i<nFiles; i++){
-      QString dbgStr=filesInfo[i].name;
+//      QString dbgStr=filesInfo[i].name;
       if(filesInfo[i].name!=filesInfo[0].name){
         oneFileName=false;
         break;
@@ -5269,7 +5273,7 @@ bool  CLineChart::CFilterClip::isRedundant(float X, float Y){
 int CLineChart::CFilterClip::giveRectIntersect(FloatPoint & I1, FloatPoint &I2){
     /* Questa funzione copia nei parametri passati i valori delle eventuali intersezioni
     del segmento congiungente i due punti interni (X1,Y1) e (X2,Y2), passati con la
-    prescedente getLine, con il rettangolo R passato con il recente GetRect.
+    precedente getLine, con il rettangolo R passato con il recente GetRect.
     La funzione ritorna il numero di intersezioni trovate.
     */
     float X;
