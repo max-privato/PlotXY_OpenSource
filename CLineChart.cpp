@@ -2174,10 +2174,10 @@ void CLineChart::getData(float *px_,float **py_, int nPoints_, int nPlots_){
    //Attribuisco valori default standard alle variabili necessarie al getData per singole variabili asse x,
    FI.name="fileName";
    FI.numOfPoints=nPoints_;
-   FI.variableStep=false;
+   FI.variableStep=true;
    xVarParam.name="x";
    xVarParam.isMonotonic=true;
-   xVarParam.isVariableStep=false;
+   xVarParam.isVariableStep=true;
    curveParamLst.clear();
    SCurveParam param;
    for(i=0; i<nPlots_; i++){
