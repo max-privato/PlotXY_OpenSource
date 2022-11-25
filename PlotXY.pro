@@ -5,9 +5,13 @@
 #-------------------------------------------------
 
 QT       += core gui svg printsupport
+
+greaterThan(QT_MAJOR_VERSION,5)  QT += core5compat
+
 # QTPLUGIN += qico
 
 # QT       += core gui svg
+# DEFINES= += QT_DISABLE_DEPRECATED_BEFORE=0x050f00
 
 win32{
 #   QTPLUGIN += windowsprintersupport
@@ -16,7 +20,8 @@ win32{
 }
 
 # QMAKE__CXXFLAGS += -Wfloat-conversion -Wconversion
-TARGET = PlotXY
+QMAKE_CXXFLAGS+=-pg
+QMAKE_LFLAGS+=-pg
 TEMPLATE = app
 CONFIG += c++11
 

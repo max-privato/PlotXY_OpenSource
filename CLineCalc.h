@@ -73,13 +73,13 @@ CLineCalc in questo caso si accorge che è richiesto un successivo integrale del
    4) ovviamente il percorso di cui al punto 2 viene eseguito in due passate, la prima con gli operatori prioritari '* e '/' e nella seconda con '+' e '-'
    5) ovviamente la presenza di parentesi viene onorata. Viene definita una sottostringa con il contenuto della parentesi, e con tale contenuto viene effettuata una chiamata ricorsiva alla funzione di calcolo compute()
    6) alla fine del processo la stringa conterrà un unico carattere '#', la cui posizione è l'indice di un puntatore al risultato
-
 */
 
+
 struct SVarNums{
-    int fileNum, //contiene il numero del file per la variabile considerata; vale -1 per variabili di tipo 'v#'
-        varNum; // numero della variabile; è il valore dell'ultimo '#' in f#v# o v#. Vale -1 in caso di nome passato incorretto.
-    bool operator== (const SVarNums & x);
+  int fileNum, //contiene il numero del file per la variabile considerata; vale -1 per variabili di tipo 'v#'
+      varNum; // numero della variabile; è il valore dell'ultimo '#' in f#v# o v#. Vale -1 in caso di nome passato incorretto.
+  bool operator== (const SVarNums & x) const;
 };
 
 //Predisposizione per il passaggio all'uso del nuovo CLineCalc (v. CLinecalc\developer.docx):

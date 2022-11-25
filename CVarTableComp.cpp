@@ -48,8 +48,8 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
 
     hdrs[COLORCOL]="   ";
     hdrs[VARNUMCOL]="#";
-    setColumnWidth(VARNUMCOL,fontMetrics().width(hdrs[VARNUMCOL]));
-    iniVarNumColWidth=2*fontMetrics().width(hdrs[VARNUMCOL]);
+    setColumnWidth(VARNUMCOL,fontMetrics().horizontalAdvance(hdrs[VARNUMCOL]));
+    iniVarNumColWidth=2*fontMetrics().horizontalAdvance(hdrs[VARNUMCOL]);
     hdrs[FILENUMCOL]="f";
     hdrs[VARCOL]=" Variable name ";
     hdrs[XVARCOL]="X";
@@ -90,7 +90,7 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
       newItem->setBackground(headerGray);
       newItem->setTextAlignment(Qt::AlignCenter);
       for (int c=0; c<columnCount(); c++)
-        newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable+Qt::ItemIsSelectable));
+        newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable|Qt::ItemIsSelectable));
       setItem(0,j,newItem);
     }
     for(i=1;i<TOTROWS;i++){
@@ -208,6 +208,10 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     for(iFile=0; iFile<MAXFILES; iFile++){
       //Per ogni valore di iFile percorro tutte le righe:
       for(iRow=1; iRow<rowCount(); iRow++){
+        QString str=item(iRow,VARCOL)->text();
+        //Se una riga è vuota se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Devo mettere continue e non break, perché ci possono essere righe vuote in qualsiasi posizione della tabella:
+        if(str.size()==0)
+            continue;
         QChar  c=item(iRow,VARCOL)->text()[0];
         if(item(iRow,XVARCOL)->text()=="x"){
           xInfo.unitS=giveUnits(c);
@@ -249,9 +253,12 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
     SXYNameData calcData;
     funInfoLst.clear();
     myLineCalc.getFileInfo(allFileNums, allFileNames, varMaxNumsLst);
-    for (int i=0; i<rowCount(); i++){
+    for (int i=1; i<rowCount(); i++){
+      QString str=item(i,VARNUMCOL)->text();
+      //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Non posso mettere break, in quanto una riga può essere vuota anche prima delle righe con contenuti.
+      if(str.size()==0)
+        continue;
       if(item(i,VARNUMCOL)->text()[0]=='f'){
-        QString cCalcLine=item(i,VARCOL)->text();
         myLineCalc.getLine(item(i,VARCOL)->text(),currFileIdx+1);
         calcData=myLineCalc.checkAndFindNames();
         ret=calcData.ret;
@@ -326,20 +333,20 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
     //Purtroppo resizeColumnToContents(VARNUMCOL); ha un comportamento insoddisfacente, quindi faccio il calcolo manuale.
     wi[VARNUMCOL]=0;
     for (i=1; i<rowCount(); i++){
-      wi[VARNUMCOL]=qMax(wi[VARNUMCOL],fontMetrics().width(item(i,VARNUMCOL)->text()));
+      wi[VARNUMCOL]=qMax(wi[VARNUMCOL],fontMetrics().horizontalAdvance(item(i,VARNUMCOL)->text()));
 //      if(i<4){
 //        qDebug()<<"item text: "<<item(i,VARNUMCOL)->text();
 //        qDebug()<<"width: "<<fontMetrics().width(item(i,VARNUMCOL)->text());
 //      }
     }
-    wi[VARNUMCOL]= int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().width(hdrs[VARNUMCOL])));
-    wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().width("X"));
+    wi[VARNUMCOL]= int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().horizontalAdvance(hdrs[VARNUMCOL])));
+    wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().horizontalAdvance("X"));
     setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
 
     i=0;
     for(j=0;j<TOTCOLS;j++){
         if(j!=VARNUMCOL)
-            wi[j]=fontMetrics().width(hdrs[j]);
+            wi[j]=fontMetrics().horizontalAdvance(hdrs[j]);
         if(j!=VARCOL)
             i+=wi[j];
     }
@@ -399,23 +406,37 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
         item(row,FILENUMCOL)->setBackground(neCellBkColor);
         event->acceptProposedAction();
         numOfTotVars++;
+
         allowSaving=true;
+       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
+        //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        QSet <int>mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+        if(funSet.size()>0 || mySet.count()>1)
+           allowSaving=false;
+#else
         if(funSet.size()>0 || tabFileNums.toSet().size()>1)
           allowSaving=false;
+#endif
+
+
         emit contentChanged();
     }
 }
 
 
 void CVarTableComp::getFileNums(QList <int> fileNums, QList <int> varNums) {
-    /* Quasi sempre fileNumsLst vengono chieste da CVarTableComp::queryFileNums all'esterno, in quanto esse servono a seguito di azioni dell'utente.
-     * Però vi è un caso in cui il processo è inverso. Questo accade quando soto facendo il load state, e devo caricare i valori di queste liste per consentire a CLineCalc di fare la verifica sintattica.
-     * In questo caso CDataSelQin chiamerà la presente funzione
-     *
+  /* Quasi sempre fileNumsLst vengono chieste da CVarTableComp::queryFileNums
+   * all'esterno, in quanto esse servono a seguito di azioni dell'utente.
+   * Però vi è un caso in cui il processo è inverso. Questo accade quando sto facendo
+   * il load state, e devo caricare i valori di queste liste per consentire a CLineCalc
+   * di fare la verifica sintattica.
+   * In questo caso CDataSelQin chiamerà la presente funzione
+   *
 */
     allFileNums=fileNums;
     varMaxNumsLst=varNums;
-    // Se ho selezionato un unico file il calore di sinfleFileNum deve prender eil numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzion equando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
+    // Se ho selezionato un unico file il valore di singleFileNum deve prendere il numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzion equando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
     //Ma quando carico lo stato questa variabile rimarrebbe a 0 e essa viene testata in CVarTable::Analyse(). Se quindi sto caricando uno stato che ha informazioni sia in plot1 che in plot2, e singlefileNum non è scelto, al secondo plot analyse() non mette il valore corretto di yFile e alle fine il programma va in crash.
     int numOfFiles=0, numOfSingleFile=-1;
 
@@ -443,27 +464,26 @@ void CVarTableComp::filterOutVars(QList <QString> varList){
   * varList contiene la lista delle variabili nella varMenuTable: dovrò filtrare via
   * quindi  le variabili in "this" che non sono presenti in varList
   */
-    int varIndex;
-    for (int iRow=1; iRow<rowCount(); iRow++){
-        if(item(iRow,FILENUMCOL)->text().toInt()!=currFileIdx+1)
-            continue;
-        if(item(iRow,XVARCOL)->text()=="x")
-            continue;
-        QString str=item(iRow,VARCOL)->text();
-        varIndex=varList.indexOf(item(iRow,VARCOL)->text());
-        if(varIndex>-1)
-            // aggiorno il valore numerico a quello del file refreshato:
-            item(iRow,VARNUMCOL)->setText(QString::number(varIndex+1));
-         else
-          leftClicked(iRow,VARCOL);
-    }
+  int varIndex;
+  for (int iRow=1; iRow<rowCount(); iRow++){
+    if(item(iRow,FILENUMCOL)->text().toInt()!=currFileIdx+1)
+      continue;
+    if(item(iRow,XVARCOL)->text()=="x")
+      continue;
+    varIndex=varList.indexOf(item(iRow,VARCOL)->text());
+    if(varIndex>-1)
+      // aggiorno il valore numerico a quello del file refreshato:
+      item(iRow,VARNUMCOL)->setText(QString::number(varIndex+1));
+     else
+      leftClicked(iRow,VARCOL);
+  }
 }
 
 void CVarTableComp::getFont(QFont font_){
-    cellFont=font_;
-    for(int i=0; i<rowCount(); i++)
-      for(int j=0; j<columnCount(); j++)
-         item(i,j)->setFont(cellFont);
+  cellFont=font_;
+  for(int i=0; i<rowCount(); i++)
+    for(int j=0; j<columnCount(); j++)
+      item(i,j)->setFont(cellFont);
 }
 
 void CVarTableComp::getColorScheme(bool useOldColors_){
@@ -550,7 +570,6 @@ FINE Correzione 25/11/2020
     if(item(r,VARNUMCOL)->text()!=""){
       // Se c'è qualcosa sulla riga sotto quella default della x aumento di 1 il numero di
       // variabili; la casella sotto f diviene grigia solo se non si tratta di funzione di variabile.
-      QString str=item(r,VARNUMCOL)->text();
       if(r>1)
         numOfTotVars++;
       if(r>1 &&item(r,VARNUMCOL)->text()[0]!='f')
@@ -563,11 +582,20 @@ FINE Correzione 25/11/2020
       tabFileNums.append(item(r,FILENUMCOL)->text().toInt());
     if(item(r,VARNUMCOL)->text().left(1) =="f")
       funSet.insert(item(r,VARNUMCOL)->text().mid(1,1).toInt());
-  }
-  if(numOfTotVars>1)
-    allowSaving=true;
-  else
-    allowSaving=false;
+  } 
+
+  allowSaving=true;
+  //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
+   //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+   QSet <int>mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+   if(funSet.size()>0 || mySet.count()>1)
+      allowSaving=false;
+#else
+   if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+     allowSaving=false;
+#endif
+
   //Ora faccio lo scambio di colori di riga se la x non è in prima riga
   if(xVarRow!=0){
     QColor color=item(1,0)->background().color();
@@ -582,7 +610,8 @@ FINE Correzione 25/11/2020
 }
 
 int CVarTableComp::givehighestUsedRowIdx(){
-  return highestUsedRowIdx;
+//  int i=rowHeight(0);
+    return highestUsedRowIdx;
 }
 
 
@@ -619,8 +648,12 @@ SVarTableState CVarTableComp::giveState(){
 
 
 QList <SXYNameData> CVarTableComp::giveFunInfo(){
- /* La presente funzione serve per eliminare nomi apparentemente differenti, ma che puntano alla medesima variabile, quale ad esempio f1v3 se è già presente v3 e il file corrente è il n. 1
-NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f# superflui è fatta ex-ante
+ /* La presente funzione serve per eliminare nomi apparentemente differenti, ma che puntano
+  *  alla medesima variabile, quale ad esempio f1v3 se è già presente v3 e il file corrente
+  *  è il n. 1
+  *
+  *  NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
+  *       superflui è fatta ex-ante
   */
 
     return funInfoLst;  //compilata in analyse()
@@ -637,7 +670,7 @@ NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
       if(varName[0]=='f'){
         QString shortName=varName, fileNumStr=varName;
         fileNumStr.remove(0,1); //tolgo la "f" a inizio nome
-        fileNumStr.truncate(fileNumStr.indexOf("v")); //tolgo quello che c'è a destra del nuumero
+        fileNumStr.truncate(fileNumStr.indexOf("v")); //tolgo quello che c'è a destra del numero
         int file=fileNumStr.toInt();
         if (file!=currFileIdx+1) break;  //se il numero di file non è quello del file corrente non vi sono duplicazioni da rimuovere, e quindi passo alla successiva variabile
         shortName.remove(0,shortName.indexOf('v')); //tolgo la f e il relativo numero
@@ -659,20 +692,24 @@ NOTA Ora la funzione è sostanzialmente disabilitata perché la rimozione dei f#
 }
 
 void CVarTableComp::fillFunNames(void){
-    /* Questa funzione serve per completare i nomi delle variabili nelle funzioni di
-     * variabile, con l'indicazione del file. Ad es. v23 diviene f2v23 nel caso in cui
-     * il file la cui lista di variabili visualizzata (cioè il file "default") è il 2.
-     * Questo tipo di conversione viene usata quando l'utente cammbia il file default,
-     * per non creare difficoltà di interpretazione delle stringhe di definizione delle
-     * funzioni di variabile.
+  /* Questa funzione serve per completare i nomi delle variabili nelle funzioni di
+   * variabile, con l'indicazione del file. Ad es. v23 diviene f2v23 nel caso in cui
+   * il file la cui lista di variabili visualizzata (cioè il file "default") è il 2.
+   * Questo tipo di conversione viene usata quando l'utente cammbia il file default,
+   * per non creare difficoltà di interpretazione delle stringhe di definizione delle
+   * funzioni di variabile.
 */
-    QString filled;
-    for(int r=0; r<rowCount(); r++){
-        if(item(r,VARNUMCOL)->text()[0]=='f'){
-            filled=fillNames(item(r,VARCOL)->text(),currFileIdx+1);
-            item(r,VARCOL)->setText(filled);
-        }
+  QString filled;
+  for(int r=0; r<rowCount(); r++){
+    QString str=item(r,VARNUMCOL)->text();
+    //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Non posso mettere break, in quanto una riga può essere vuota anche prima delle righe con contenuti.
+    if(str.size()==0)
+      continue;
+    if(item(r,VARNUMCOL)->text()[0]=='f'){
+      filled=fillNames(item(r,VARCOL)->text(),currFileIdx+1);
+      item(r,VARCOL)->setText(filled);
     }
+  }
 }
 
 
@@ -685,8 +722,7 @@ void CVarTableComp::leftClicked(int r, int c){
 /*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima
  * gestisce il click destro e per il click sinistro rimanda qui.
 */
-
-//    QSet <int> testSet;
+  QSet <int> mySet;
   int j, nextFun, oldXVarRow=xVarRow;
   QString str, ret;
   CLineCalc myLineCalc;
@@ -750,11 +786,19 @@ void CVarTableComp::leftClicked(int r, int c){
           if(item(i,1)->text()!="")
             highestUsedRowIdx=i;
       }
+
       allowSaving=true;
-//      testSet=tabFileNums.toSet();
-//      j=tabFileNums.toSet().size();
-      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+      //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
+       //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+       if(funSet.size()>0 || mySet.count()>1)
           allowSaving=false;
+    #else
+       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+         allowSaving=false;
+    #endif
+
       // Chiedo a CDataSelWin di aggiornare le informazioni sulla tabella myLineCalc.
       // Gestisce solo l'attivazione dei bottoni sotto la varTable stessa
       emit contentChanged();
@@ -843,9 +887,20 @@ FINE Correzione 25/11/2020
       }
       item(r,VARCOL)->setText(str);
       fillNames(str,currFileIdx+1);
+
       allowSaving=true;
-      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-        allowSaving=false;
+      //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
+       //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+       if(funSet.size()>0 || mySet.count()>1)
+          allowSaving=false;
+    #else
+       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+         allowSaving=false;
+    #endif
+
+
       emit contentChanged();
       break;
     case VARNUMCOL: //colonna del "#"
@@ -897,6 +952,8 @@ FINE Correzione 25/11/2020
       for(j=0;j<TOTCOLS;j++){
         item(xVarRow,j)->setForeground(item(r,j)->foreground());
         item(r,j)->setForeground(xVarBrush);
+        //Per ragioni non chiarite da un certo commit in poi in questo caso sulla riga r compariva come colore del testo il grigio; per ora correggo con la seguente riga:
+        item(r,j)->setForeground(Qt::black);
       }
       item(xVarRow,0)->setBackground(item(r,0)->background().color());
       item(xVarRow,c)->setText("");
@@ -909,8 +966,19 @@ FINE Correzione 25/11/2020
         timeVarReset=true;
         leftClicked(oldXVarRow,VARCOL);
       }
-      if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-        allowSaving=false;
+
+      //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
+       //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
+    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+       if(funSet.size()>0 || mySet.count()>1)
+          allowSaving=false;
+    #else
+       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+         allowSaving=false;
+    #endif
+
+
       //Se la variabile su cui si è cliccato è una funzione di variabile devo prendere l'indice a partire dal secondo carattere;
        str=item(r,VARNUMCOL)->text();
       if(str[0]=='f'){
@@ -958,18 +1026,18 @@ void CVarTableComp::mouseReleaseEvent(QMouseEvent * event){
 
   if(item(r,XVARCOL)->text()=="x"){
     QString txt=item(r,VARCOL)->text();
-    // Qui ho fatto un click destro sulla variabile x. Allaora faccio un ciclo di conversione delle unità di  misura: da normale a s->h, da s->h a s->d, da s->d normale
+    // Qui ho fatto un click destro sulla variabile x. Allora faccio un ciclo di conversione delle unità di  misura: da normale a s->h, da s->h a s->d, da s->d normale
     //Notare che qui seleziono xInfo.timeConversion ma stranamente lo trovo resettato a 0 in dataSelWin, ove lo rimetto al valore giusto. Poi questo valore è utilizzato per la conversione della variabile sull'asee x all'interno di getData di CPlotWin: il posto più giusto perché è là che si alloca spazio alla variabile asse x, autonomo rispetto a mySO.
 
     if(xInfo.name.contains(" (s->h)")){
-      txt.truncate(txt.count()-7);
+      txt.truncate(txt.size()-7);
       txt.append(" (s->d)");
       item(r,VARCOL)->setText(txt);
       xInfo.name=txt;
       xInfo.unitS="d"; //Non si sa perché questo valore è perso quando si fa il plot
       xInfo.timeConversion=1; //Non si sa perché questo valore è perso quando si fa il plot
     }else if(xInfo.name.contains(" (s->d)")){
-      txt.truncate(txt.count()-7);
+      txt.truncate(txt.size()-7);
       item(r,VARCOL)->setText(txt);
       xInfo.name=txt;
       xInfo.unitS="s"; //Non si sa perché questo valore è perso quando si fa il plot
@@ -1092,6 +1160,7 @@ int CVarTableComp::setVar(QString varName, int varNum, int fileNum, bool rightSc
 */
   int i;
   QResizeEvent * event;
+  QSet <int> mySet;
 
   //se in multiFile è richiesta la selezione di variabile senza aver prima selezionato l'x comune con setCommonX ritorno un errore:
 //  if(multiFile && !commonXSet) return 1;
@@ -1172,8 +1241,18 @@ FINE Correzione 25/11/2020
   item(i,XVARCOL)->setToolTip(unit_);
   if(numOfTotVars>1)
     allowSaving=true;
-  if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-    allowSaving=false;
+
+  //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
+   //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+   mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
+   if(funSet.size()>0 || mySet.count()>1)
+      allowSaving=false;
+#else
+   if(funSet.size()>0 || tabFileNums.toSet().size()>1)
+     allowSaving=false;
+#endif
+
   emit contentChanged();
   resizeEvent(event=nullptr);
    return 0;

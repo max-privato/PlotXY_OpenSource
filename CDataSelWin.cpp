@@ -209,7 +209,6 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
     // locale in ubuntu is not the standard C.
      setlocale(LC_NUMERIC,"C");
   int i;
-  QString ret;
 
   // Fase A1: setupUI e personalizzazione DPI-aware dei font dei widget e dimensioni di CDataSelWin
   // Phase A1: setupUI and DPI-aware customization of widgets font and CDataSelWin dimensions
@@ -217,7 +216,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   ui->moreLbl->setVisible(false);
   move(toInPrimaryScreen(QPoint(0,0)));
   ui->showParTBtn->setVisible(false);
-
+  ui->plotBtn->setFocus();
 
   for (int tab=0; tab<MAXPLOTWINS; tab++){
     varTable[tab]= new CVarTableComp(this);
@@ -267,9 +266,9 @@ qDebug()<<"DPI: "<<currentDPI;
 
   QFont font8Pt=QFont("arial",8);
   QFont font9Pt=QFont("arial",9);
-  QFont font10Pt=QFont("arial",10);
-  QFont font11Pt=QFont("arial",11);
-  QFont font12Pt=QFont("arial",12);
+//  QFont font10Pt=QFont("arial",10);
+//  QFont font11Pt=QFont("arial",11);
+//  QFont font12Pt=QFont("arial",12);
  if (GV.PO.largerFonts)
    myFont=font9Pt;
  else
@@ -285,7 +284,7 @@ qDebug()<<"DPI: "<<currentDPI;
   ui->loadTBtn->setFont(myFont);
   ui->refrTBtn->setFont(myFont);
   ui->fourTBtn->setFont(myFont);
-  ui->plotTBtn->setFont(myFont);
+  ui->plotBtn->setFont(myFont);
   ui->resetTBtn->setFont(myFont);
   ui->saveVarsBtn->setFont(myFont);
   ui->eqTBtn->setFont(myFont);
@@ -453,7 +452,8 @@ qDebug()<<"DPI: "<<currentDPI;
    * If I am moving a window from outside to inside I will issue a MessageBox only if the
    * window is visible
   */
-    bool someWinDisplaced=false, secScreenIsRight=false;
+//    bool someWinDisplaced=false, secScreenIsRight=false;
+    bool someWinDisplaced=false;
 
     QPoint posPoint;
     QRect allScreensGeom, primaryScreenGeom, primaryScreenAvailableGeom;
@@ -603,7 +603,7 @@ qDebug()<<"DPI: "<<currentDPI;
       if(i==0){
         item->setText(hdrs[j]);
         item->setBackground(headerGray);
-        item->setFlags(item->flags()&~ (Qt::ItemIsEditable+Qt::ItemIsSelectable));
+        item->setFlags(item->flags()&~ (Qt::ItemIsEditable|Qt::ItemIsSelectable));
 //Tmax e TShift devono essere a fondo leggermente più chiaro per far capire che sono cliccabili
 // Tmax and TShift must be thoroughly clearer to make it clear that they are clickable
         if(j>4)
@@ -970,7 +970,7 @@ void CDataSelWin::groupSelected(int beginRow, int endRow){
        myVarTable->setVar(varName,varNum,selectedFileIdx+1,false, false,"");
   }
   if(myVarTable->numOfTotVars>1){
-    ui->plotTBtn->setEnabled(true);
+    ui->plotBtn->setEnabled(true);
     ui->saveVarsBtn->setEnabled(true);
   }
   if(myVarTable->numOfTotVars==2 && myVarTable->xInfo.isMonotonic)
@@ -978,22 +978,20 @@ void CDataSelWin::groupSelected(int beginRow, int endRow){
   else
     ui->fourTBtn->setEnabled(false);
 
-  //Se ho selezionato più di quante variabili possono essere visualizzate nella tabella SelectedVars rendo visibilie la label "more...", che viene poi resa nuovamente visibile se l'utente allarga la tabella al punto che non è più necessaria.
-  //rettangolo dell'ultima riga visualizzabile di myVarTable:
 
   // If I have selected more than how many variables can be displayed in the
   // SelectedVars table I make the "more ..." label visible, which is then
-  // made visible again if the user widens the table to the point where it is no longer needed.
+  // made invisible again if the user widens the table to the point where it is no longer needed.
   // rectangle of the last visible row of myVarTable:
+
+  /*Se ho selezionato più di quante variabili possono essere visualizzate nella tabella
+   * SelectedVars rendo visibile la label "more...", che viene poi resa nuovamente
+   * invisibile se l'utente allarga la tabella al punto che non è più necessaria.*/
+
   QRegion region=myVarTable->visibleRegion();
-  QVector <QRect> rects=region.rects();
-  int maxRectHeight=0;
-  for (int i=0; i<rects.count(); i++){
-    maxRectHeight=max(maxRectHeight,rects[i].height());
-  }
-  // int iii=myVarTable->givehighestUsedRowIdx();
-  // int jjj=(myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0);
-  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>maxRectHeight+1 )
+
+  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>
+                                                        region.boundingRect().height() )
     ui->moreLbl->setVisible(true);
 //  if(lastRow*myVarTable->rowHeight(0)>maxRectHeight )
 //      ui->moreLbl->setVisible(true);
@@ -1079,7 +1077,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   bool updatingFile=false; //true se in singleFile copio un file sopra il precedente (rimane false in caso di refresh o refresUpdate)
                            // true if in singleFile I copy a file over the previous one (remains false in case of refresh or refresUpdate)
   int i, freeGridRow;
-  QFileInfo FI=fileName;
+  QFileInfo FI=QFileInfo(fileName);
   //Il fileName passato può contenere il path oppure no. Il nome sicuramente senza path è il seguente strictName
   // The pastName file can contain the path or not. The name definitely without path is the following strictName
   QString fullName=FI.absoluteFilePath(), strictName=FI.fileName(), ext=FI.suffix();
@@ -1186,7 +1184,6 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   // I find the line on fileTable to write on and put it in selectedFileRow
   // (if refresh is true selectedFileRow and selectedFileIdx should not be changed):
   if(!refresh && !updatingFile){
-    freeGridRow=-1;
     if(GV.multiFileMode){
       for(i=1; i<=MAXFILES; i++)
         if(ui->fileTable->item(i,FILENAMECOL)->text()=="")break;
@@ -1513,7 +1510,7 @@ QString CDataSelWin::loadFileListLS(QStringList fileNamesList, QList <int>fileNu
 
 /*
     if(myVarTable->numOfTotVars>1){
-      ui->plotTBtn->setEnabled(true);
+      ui->plotBtn->setEnabled(true);
       ui->saveVarsBtn->setEnabled(true);
     }
 */
@@ -1609,12 +1606,8 @@ void CDataSelWin::resizeEvent(QResizeEvent *){
   if (!myVarTable->isVisible())
       return;
   QRegion region=myVarTable->visibleRegion();
-  QVector <QRect> rects=region.rects();
-  int maxRectHeight=0;
-  for (int i=0; i<rects.count(); i++){
-    maxRectHeight=max(maxRectHeight,rects[i].height());
-  }
-  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>maxRectHeight+1)
+
+  if((myVarTable->givehighestUsedRowIdx()+1)*myVarTable->rowHeight(0)>region.boundingRect().height())
     ui->moreLbl->setVisible(true);
   else
     ui->moreLbl->setVisible(false);
@@ -1733,10 +1726,10 @@ void CDataSelWin::varTableChanged (){
       ui->updateTBtn->setEnabled(false);
   if(myVarTable->numOfTotVars>1){
     ui->resetTBtn->setEnabled(true);
-    ui->plotTBtn->setEnabled(true);
+    ui->plotBtn->setEnabled(true);
   }else{
     ui->resetTBtn->setEnabled(false);
-    ui->plotTBtn->setEnabled(false);
+    ui->plotBtn->setEnabled(false);
     ui->updateTBtn->setEnabled(false);
   }
   if(myVarTable->numOfTotVars==2 && myVarTable->xInfo.isMonotonic)
@@ -1888,495 +1881,7 @@ The index to pass to setVar is the number in the first column corresponding to t
   //La seguente chiamata serve per l'aggiornamento di moreLbl:
   // The following call is needed to update moreLbl:
   resizeEvent(nullptr);
-
 }
-
-
-void CDataSelWin::on_plotTBtn_clicked() {
-    /* Funzione per l'esecuzione del plot.
-- fase 0: analizzo fileTable e compilo timeShift
-- fase 1: analizzo varTable
-- fase 2: creo le matrici x1 e y1 (la loro struttura è descritta in developer.ods)
-- fase 3: calcolo gli elementi di y1 connessi alle funzioni di variabili
-*/
-   /* Function for executing the plot.
-- phase 0: analyze fileTable and compile timeShift
-- phase 1: analyze varTable
-- phase 2: create the matrices x1 and y1 (their structure is described in developer.ods)
-- phase 3: calculate the elements of y1 connected to the functions of variables
-*/
-
-  int  iFile, iVar, iFileNew;
-//  int lastIFile; //l'ultimo valore di iFile su cui si è scritto (utile per debug)
-// int lastIFile; // the last value of iFile on which it was written (useful for debugging)
-  float **x1, ***y1; //puntatori a vettori e matrici delle delle variabili selezionate.
-                     // pointers to vectors and matrices of the selected variables.
-  SFileInfo myFileInfo;
-  QList <SFileInfo> filesInfo; //informazioni relative ai files di cui sono richiesti plot. Contiene sia le informazioni relative ai plot diretti da dati di input (uno per file) che a funzioni di variabili (uno per funzione). Pertanto il numero di elementi che contiene è pari a numOfTotPlotFiles
-
-    // information related to the files which requested plot; it contains
-    // information related to the plots generated from input data (one per file)
-    // and to variable functions (one per function).
-    // Therefore the number of elements it contains is equal to numOfTotPlotFiles
-  QList <SCurveParam> y1Info[MAXFILES+MAXFUNPLOTS];
-  QList <SXYNameData> funInfoLst; //una  voce della lista per ogni funzione di variabile
-                               // a list item for each variable function
-  CLineCalc myLineCalc;
-  QString ret;
-  float timeShift[MAXFILES];
-
-  // phase 0: I analyze fileTable and compile timeShift
-  // Associate the tShift to the file number:
-  for (int i=0; i<MAXFILES; i++)
-      timeShift[i]=0;
-  for (int iRow=1; iRow<ui->fileTable->rowCount(); iRow++){
-    bool ok;  //diventa true se la conversione in int del testo della cella fatta qui sotto ha successo
-              // becomes true if the conversion to int of the text of the cell below is successful
-    int myIFile=-1;
-    myIFile=ui->fileTable->item(iRow,1)->text().toInt(&ok)-1;
-    QString str6=ui->fileTable->item(iRow,6)->text();
-    if(ok)
-      timeShift[myIFile]=ui->fileTable->item(iRow,6)->text().toFloat();
-  }
-
- // - fase 1: analizzo varTable
- // - phase 1: analyze varTable
-  if(myVarTable->analyse()!="")
-    return;
-  if(myVarTable->numOfPlotFiles>MAXFILES){
-    QMessageBox::critical(this,"CDataSelWin", "Internal critical error\ncontact program maintenance",QMessageBox::Ok);
-    return;
-  }
-  /* - fase 2: creo le matrici x1 e y1 (la loro struttura è descritta in developer.ods)   *
-   * A questo punto la table è in grado di fornirmi i dati da inviare alla scheda del plot
-   *  per il grafico.
-   * Devo ora creare le matrici delle variabili x1[] e y1[] (il digit '1' è lasciato solo
-   * per compatibilità terminologica con la versione BCB).
-   * Ogni elemento di y1 è una matrice. I primi numOfPlotFiles sono dedicati ai dati di
-   * variabili direttamente prelevate dai files di input; gli ultimi funinfo.count() sono
-   * dedicati alle variabili funzione.
-   * Cosa analoga vale per le righe di x1[].
-*/
-  /* - phase 2: create arrays x1 and y1 (their structure is described in developer.ods) *
-   * At this point the table is able to provide the data to be sent to the plot sheet
-   * for the chart.
-   * Now I have to create the arrays of variables x1 [] and y1 [] (digit '1' is left alone
-   * for terminological compatibility with the BCB version).
-   * Each element of y1 is a matrix. The first numOfPlotFiles are dedicated to data
-   * variables directly taken from the input files; the last funinfo.count () are
-   * dedicated to function variables.
-   * The same applies to the lines of x1 [].
-*/
-  funInfoLst=myVarTable->giveFunInfo();
-  x1=new float*[myVarTable->numOfPlotFiles+funInfoLst.count()];
-  y1=new float**[myVarTable->numOfPlotFiles+funInfoLst.count()];
-
-  /* Attribuzione alle matrici dei rispettivi valori. */
-  //Nella copiatura su Y devo anche rendere contigui gli indici di files che possono essere sparpagliati:
-
-  if(myVarTable->xInfo.name.contains(" (s->h)")){  //converto il tempo s->h
-    myVarTable->xInfo.unitS="h";
-    // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
-    myVarTable->xInfo.timeConversion=1;
-  }
-  if(myVarTable->xInfo.name.contains(" (s->d)")){  //converto il tempo s->d
-    myVarTable->xInfo.unitS="d";
-    // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà all'interno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
-    myVarTable->xInfo.timeConversion=2;
-  }
-
-    /* Attribution to the matrices of the respective values. */
-  // When copying to Y I also have to make the indexes of files that can be scattered contiguous:
-  filesInfo.clear();
-  iFileNew=-1;
-  for(iFile=0; iFile<MAXFILES; iFile++){
-    if(myVarTable->yInfo[iFile].count()==0)
-        continue;
-    iFileNew++;
-    y1[iFileNew]=new float *[myVarTable->yInfo[iFile].count()];
-
-//      x1[iFileNew]=mySO[iFile]->y[0];
-    if(!myVarTable->xInfo.isFunction){
-      x1[iFileNew]=mySO[iFile]->y[myVarTable->xInfo.idx];
-    }
-    myFileInfo.name=mySO[iFile]->fileInfo.fileName();
-    myFileInfo.fileNum=iFile;
-    myFileInfo.numOfPoints=mySO[iFile]->numOfPoints;
-    myFileInfo.variableStep=mySO[iFile]->variableStep;
-    myFileInfo.frequencyScan=
-          mySO[iFile]->runType==rtFreqScan ||
-          mySO[iFile]->runType==rtHFreqScan;
-//    float dummy =fileTabItems[iFile][6]->text().toFloat();
-
-    myFileInfo.timeShift=timeShift[iFile];
-    filesInfo.append(myFileInfo);
-    for(iVar=0; iVar<myVarTable->yInfo[iFile].count(); iVar++){
-      int curVar=myVarTable->yInfo[iFile][iVar].idx;
-      y1[iFileNew][iVar]=mySO[iFile]->y[curVar];
-      y1Info[iFileNew]=myVarTable->yInfo[iFile];
-
-      for(int iCurve=0; iCurve<y1Info[iFileNew].count(); iCurve++){
-        QString thisUnit=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
-//        int sVarIndex=y1Info[iFileNew][iCurve].idx;
-        y1Info[iFileNew][iCurve].unitS=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
-      }
-    }
-  }
-/*
-  if(myVarTable->numOfPlotFiles==1){ //in questo caso plotInfo è solo plotInfo[0]
-    x1[0]=mySO[selectedFileIdx]->y[myVarTable->xInfo.idx];
-  }
-*/
-  int plotFiles=myVarTable->numOfPlotFiles;
-
-
-/* FASE 3 **** Adesso aggiungo il calcolo degli elementi di y1 collegati alle funzioni di variabili. ****/
-//Nel caso in cui myVarTable.xInfo.isFunction=true una delle fun del seguente loop verrà messa come vettore delle x invece che come matrice ad una riga in y.
-
-  /* STEP 3 **** Now I add the calculation of the elements of y1 connected to the variable functions. ****/
-  // In the case where myVarTable.xInfo.isFunction = true one of the fun of the
-  // following loop will be put as a vector of the x instead of a single row in y.
-  for(int iFun=0; iFun<funInfoLst.count(); iFun++){
-    SXYNameData funInfo=funInfoLst[iFun];
-    /* La gestione di funzioni di variabile è particolarmente complessa se non si ha
-     * la garanzia che tutti i files coinvolti hanno dati in corrispondenza
-     * degli stessi valori della variabile tempo.
-     * Questo tipo di informazione viene fornita dall'utente di PlotXY attraverso
-     * il checkbox presente nel dialog CFunStrInput.
-     * Attualmente (settembre 2015), questa checkbox è disattivata e le funzioni di
-     * variabili con dati provenienti da files differenti è effettuata sempre senza
-     * "cross-interpolation". Si dà quindi per scontato che i files coinvolti abbiano
-     * campioni tutti sugli stessi istanti, e l'unica verifica che si fa è che il
-     * numero di valori presenti nei vari files sia identico, il che costituisce
-     * "conditio sine qua non" le funzioni di variabili senza cross-interpolation
-     * possono essere calcolate.
-*/
-    /* The management of variable functions is particularly complex if you do not have
-     * guarantee that all the files involved have data in correspondence
-     * of the same values ​​as the time variable.
-     * This type of information is provided by the PlotXY user through
-     * the checkbox in the CFunStrInput dialog.
-     * Currently (September 2015), this checkbox is disabled and the functions of
-     * variables with data from different files is always performed without
-     * "cross-interpolation". It is therefore assumed that the files involved have
-     * samples all on the same instant, and the only verification that is done is that the
-     * number of values ​​present in the various files is identical, which constitutes
-     * "without which it could not be" the functions of variables without cross-interpolation
-     * can be calculated.
-*/
-  //  Come prima cosa devo verificare che tutti i file coinvolti nella funzione di variabili possiedono il medesimo numero di punti; altrimenti emetto un messaggio di errore
-
-    // First of all I have to verify that all the files involved in the variable
-    // function have the same number of points; otherwise, I issue an error message
-    int points=mySO[funInfo.fileNums[0]-1]->numOfPoints;
-    for (int fileInFun=1; fileInFun<funInfo.fileNums.count(); fileInFun++){
-      if(mySO[funInfo.fileNums[fileInFun]-1]->numOfPoints!=points){
-          QMessageBox::warning(this,"Invalid function",
-             "Unable to plot this function:\n"
-             "currently only functions operating on variables\n"
-             "coming from files having the same number of points are allowed.");
-            return;
-        }
-      }
-
-    QVector<int> funFileIdx;
-    for (int var=0; var<funInfo.varNumsLst.count(); var++ )
-      funFileIdx.append(funInfo.varNumsLst[var].fileNum-1);
-
-    /* Le matrici y1[i] e i vettori x[i] con i a partire da plotFiles, vanno allocati (dettagli in Developer.odt):*/
-    /* Arrays y1 [i] and vectors x [i] with i starting from plotFiles must be allocated (details in Developer.odt): */
-    y1[plotFiles+iFun]=CreateFMatrix(1,points);
-    x1[plotFiles+iFun]=new float[points];
-    //Passo la linea a myLineCalc():
-    myLineCalc.getFileInfo(fileNumsLst, fileNamesLst, varMaxNumsLst);
-    ret=myLineCalc.getLine(funInfo.lineInt,selectedFileIdx+1);
-
-    /*  In LineCalc devo avere dei puntatori ai vettori dei valori fra loro adiacenti.
-     * Creo pertanto varMatrix che è un puntatore che punta ad un array di puntatori
-     * contigui ai dati da utilizzare per il calcolo della funzione.
-     * In namesMatrix invece metto i corrispondenti nomi delle variabili.
-    */
-    /* In LineCalc I must have pointers to the vectors of adjacent values.
-     * I therefore create varMatrix which is a pointer pointing to an array of pointers
-     * contiguous to the data to be used for the calculation of the function.
-     * In namesMatrix instead I put the corresponding variable names.
-    */
-    float**varMatrix= new float*[funInfo.varNumsLst.count()];
-    QList <QString *> namesFullList;
-    int size=int(sizeof(float))*points;
-
-    // I create the values ​​of x1 values, that is, on the x axis of function variables,
-    // in the case where there is no function on the x axis:
-    if(!myVarTable->xInfo.isFunction){
-      memcpy(x1[plotFiles+iFun],mySO[funFileIdx[0]]->y[myVarTable->xInfo.idx], size);
-
-      // Manage timeShift set in the case of a function of variables.
-      float funTimeShift=timeShift[funFileIdx[0]];
-      for(int i=1;i<funFileIdx.count(); i++){
-        if(timeShift[funFileIdx[i]]!=funTimeShift){
-          QMessageBox::warning(this, "PlotXY",
-           "unable to evaluate function,\n"
-           "since it involves files having different time shifts\n"
-           "(Tshift field, below Tmax, in the fileList Table)"
-              );
-            return;
-        }
-      }
-    }
-    myFileInfo.timeShift=timeShift[funFileIdx[0]];
-
-    for(int j=0; j<funInfo.varNumsLst.count(); j++){
-      int soIndex=funInfo.varNumsLst[j].fileNum-1;
-      int yIndex=funInfo.varNumsLst[j].varNum-1;
-       varMatrix[j]=mySO[funInfo.varNumsLst[j].fileNum-1]->y[funInfo.varNumsLst[j].varNum-1];
-       funInfo.varUnits.append(mySO[soIndex]->sVars[yIndex].unit);
-    }
-    for(int j=0; j<fileNumsLst.count(); j++){
-       namesFullList.append(mySO[fileNumsLst[j]-1]->varNames);
-    }
-   /*Passo i nomi e il puntatore alla matrice contenente nelle varie righe i vettori
-    * delle variabili da utilizzare per il calcolo della funzione
-    * I valori di puntatori alle variabili-funzione rimangono allocati nel programma
-    * chiamante.
-    * lineCalc analizza la linea sostituendo le costanti esplicite con corrispondenti
-    * puntatori e i riferimenti ai nomi di variabile con i corrispondenti puntatori
-    * passati come secondo parametro
-    * Il vettore dei nomi espliciti mySO[]->varNames serve solo per compilare
-    * un'informazione completa del significato della stringa di funzione da visualizzare
-    * poi all'utente. La linea di funzione corredata di nomi espliciti si chiama
-    * "fullLine"
-   */
-   /* I pass the names and the pointer to the array containing the vectors in the various lines
-    * of the variables to be used for the calculation of the function
-    * The values ​​of pointers to function variables remain allocated in the program
-    * caller.
-    * lineCalc analyzes the line by replacing the explicit constants with corresponding ones
-    * pointers and references to variable names with the corresponding pointers
-    * passed as a second parameter
-    * The vector of explicit names mySO [] -> varNames serves only to compile
-    * complete information on the meaning of the function string to be displayed
-    * then to the user. The function line with explicit names is called
-    * "fullLine"
-   */
-
-    // La seguente riga manda in esecuzione indirettamente variablesToPointers.
-    // Se il plot avviene dopo un cambiamento di file, la stringa della funzione è stata arricchita delle indicazioni dei files, ma la line interna è rimasta senza i nomi di file e quindi variablesToPointers viene eseguita con la stringa sbagliata: ad esempio con v2+v3 invece della corretta f2v2+f2v3.
-
-    // The following line indirectly runs variablesToPointers.
-    // If the plot occurs after a file change, the function string has been
-    // enriched with the file indications, but the internal line has been left
-    // without the file names and therefore variablesToPointers is executed
-    // with the wrong string: for example with v2 + v3 instead of the correct f2v2 + f2v3.
-
-    // ############
-    // NOTA IMPORTANTE
-    // Ora che le funzioni di variabile ammettono di mescolare dati da differenti files, occorre cambiare la seguente chiamata a funzione. Invece di passare solo i varNames di un unico mySO, e il solo selectedFileIdx, devo passare un array di puntatori ad arrays di stringhe, ed un vettore di indici di file. Questo è un prerequisito per evitare il crash di f1v2+f2v3 nel TODO.
-    // ############
-
-    // ############
-    // IMPORTANT NOTE
-    // Now that the variable functions admit to mixing data from different files,
-    // the following function call must be changed. Instead of passing only the
-    // varNames of a single mySO, and the only selectedFileIdx, I have to pass
-    // an array of pointers to string arrays, and a file index vector. This is
-    // a prerequisite to avoiding the crash of f1v2 + f2v3 in the TODO.
-    // ############
-
-     ret=myLineCalc.getNamesAndMatrix(funInfo.varNames, funInfo.varUnits, varMatrix,
-                                                   namesFullList, selectedFileIdx);
-    if(ret!=""){
-      QMessageBox::critical(this, "PlotXY",ret);
-      return;
-    }
-    //Per soli scopi di visualizzazione per l'utente finale passo, tramite doppia indirezione per ragioni di efficienza, l'array di array dei nomi espliciti di tutte le variabili presenti nei files caricati:
-
-    // For visualization purposes only for the end user, by means of a double
-    // direction for efficiency reasons, the array of arrays of the explicit
-    // names of all the variables present in the loaded files:
-
-    //Ora effettuo il calcolo della funzione. Il file è data.fileNums[0], ma con indice a base 1.
-    //Se una funzione deve divenire la variabile x, essa la calcolo nel vettore ausiliario funXVar che devo allocare.
-
-    // Now I calculate the function. The file is data.fileNums [0], but with a base-based index of 1.
-    // If a function is to become the variable x, it is the calculation in the auxiliary vector funXVar that I have to allocate.
-    if(myVarTable->xInfo.isFunction){
-      delete[] funXVar;
-      funXVar =new float[points];
-    }
-    int myIdx;
-    if(myVarTable->xInfo.isFunction)
-      myIdx=myVarTable->xInfo.idx;
-    else
-      myIdx=-1;
-    int funXDone=0;  //Anche la var. sull'asse x può essere una funzione. Se ho già trattato la eventuale funzione sull'asse x metto funXDone a true.
-
-                     // Also the var. on the x axis it can be a function.
-                     // If I have already discussed the possible function on the x axis I put funXDone to true.
-    if(myVarTable->xInfo.isFunction && iFun>myVarTable->xInfo.idx)
-      funXDone=1;
-    for(int k=0; k<points; k++){
-      float xxx;
-        xxx=myLineCalc.compute(k);
-      if(myLineCalc.divisionByZero|| myLineCalc.domainError){
-          QString sampleIndex, timeValue, msg;
-          if (k==0)
-             sampleIndex="first";
-          else if (k==1)
-              sampleIndex="second";
-          else if (k==2)
-            sampleIndex="third";
-          else
-            sampleIndex=sampleIndex.setNum(k+1)+"th";
-          timeValue=timeValue.setNum(x1[0][k]);
-          if(myLineCalc.divisionByZero)
-            msg= "Division by zero in function of variable; plot impossible.\n"
-               "Offending operation at "+sampleIndex+ " sample.\n"
-               "The horizontal variable (possibly time) value is " + timeValue+ "\n";
-          if(myLineCalc.domainError)
-              msg= "Domain error in asin(), acos() or sqrt() in function plot; plot impossible.\n"
-                 "Offending operation at "+sampleIndex+ " sample.\n"
-                 "The horizontal variable (possibly time) value is " + timeValue+ "\n";
-         QMessageBox::warning(this, "PlotXY",msg);
-         qDebug()<<"warning 5";
-         myLineCalc.divisionByZero=false;
-        return;
-      }
-      if(iFun==myIdx)
-        funXVar[k]=xxx;
-      else
-        y1[plotFiles+iFun-funXDone][0][k]=xxx;
-      ret=myLineCalc.ret;
-      if(ret!="")break;
-    }
-
-    /* Per fare correttamente l'integrale valgono le seguenti considerazioni:
-       * 1) se la variabile x è una funzione per essa l'integrazione non è ammessa
-       * 2) L'integrale è inteso come integrale del tempo. Nel caso di multifile
-       *    l'integrale è fatto rispetto al tempo relativo alla variabile considerata;
-       *    nel caso di plotXY devo chiarire che il tempo è la variabile di indice 0
-       *    del file corrente.
-      */
-    /* To make the integral correctly, the following considerations are valid:
-           * 1) if the variable x is a function for it, integration is not allowed
-           * 2) Integral is intended as an integral of time. In the case of multifile,
-           *    the integral is made with respect to the time relating to the variable
-           *    considered; in the case of plotXY I have to clarify that the time is
-           *    the index variable 0 of the current file.
-          */
-    if(myLineCalc.integralRequest && myVarTable->xInfo.isFunction){
-      QString msg="integral of the x variable is not allowed.";
-      QMessageBox::warning(this,"PlotXY-dataSelWin",msg);
-      qDebug()<<"warning 6";
-      return;
-    }
-    if(myLineCalc.integralRequest)
-      y1[plotFiles+iFun-funXDone][0]=integrate(mySO[funFileIdx[0]]->y[0], y1[plotFiles+iFun-funXDone][0], mySO[funFileIdx[0]]->numOfPoints);
-
-//    if(myLineCalc.integralRequest)
-//      y1[plotFiles+i-funXDone][0]=integrate(x1[plotFiles+i-funXDone],
-//        y1[plotFiles+i-funXDone][0],mySO[funFileIdx]->numOfPoints);
-    delete[] varMatrix;
-    if(myVarTable->xInfo.isFunction)
-      continue;
-    SCurveParam param;
-    param.isFunction=true;  //Si ricordi che y1Info per funzioni ha un unico elemento per funzione "i"
-                            // Remember that y1Info for functions has a single element for function "i"
-    param.isMonotonic=false;
-    param.name=funInfo.name;
-    param.midName=funInfo.line;
-    param.fullName=myLineCalc.giveLine("lineFullNames");
-    param.color=funInfo.color;
-    param.style=funInfo.style;
-
-    param.rightScale=funInfo.rightScale;
-//    param.unitS=myLineCalc.computeUnits();
-    param.unitS=myLineCalc.unitOfMeasuref();
-    if(myLineCalc.integralRequest)
-       param.unitS=integrateUnits(param.unitS);
-    y1Info[plotFiles+iFun].append(param);
-    myFileInfo.name=myLineCalc.giveLine("funText");
-    myFileInfo.fileNum=plotFiles+iFun;
-    myFileInfo.numOfPoints=points;
-    myFileInfo.variableStep=true;
-    // Nel caso di funzioni di variabili faccio per default diagrammi di linea e quindi metto falso a frequency scan:
-    // In the case of variable functions, I do line diagrams by default and then put a false frequency scan:
-    myFileInfo.frequencyScan=false;
-    /*  Comment on 4 December 2019. Timeshift of function plots has not been yet programmed.
-     * for the time being it is always set to zero:
-     *
-    */
-//    myFileInfo.timeShift=0.0f;
-    filesInfo.append(myFileInfo);
-  }
-  //Ora, nel caso in cui myVarTable.xInfo.isFunction==true devo ricopiare funXVar in x1
-  // Now, in case myVarTable.xInfo.isFunction == true I have to copy funXVar to x1
-  if(myVarTable->xInfo.isFunction){
-    for(int i=0; i<1+funInfoLst.count()-1; i++){
-    //Il primo 1 nel target è numOfPlotFiles che deve essere 1 (quando facciamo plot X-Y tutti i grafici devono provenire dal medesimo file); il secondo, preceduto da segno '-', è necessario perché dobbiamo diminuire di 1 funInfo.count() in quanto funInfo contiene anche dati della funzione che deve andare sull'asse x
-
-    // The first 1 in the target is numOfPlotFiles must be 1 (when we make an X-Y plot all plots must refer to data coming from the same file); the second, preceded  by a '-' sign, is necessary because we have to decrease by 1 funInfo.count () because funInfo also contains data of the function that must go on the x axis
-        x1[i]=funXVar;
-//      memcpy(x1[i],funXVar, sizeof(float)*mySO[0]->numOfPoints);
-    }
-  }
-/*********** Software start for debugging **************
-    float x_dbg0[3], y_dbg0[3][3];
-    int
-        var_dbg=min(3,myVarTable->yInfo[lastIFile].count()),
-        pt_dbg=min(3,mySO[lastIFile]->numOfPoints);
-    for(int iPt=0; iPt<pt_dbg; iPt++)
-       for(iVar=0; iVar<var_dbg; iVar++){
-           x_dbg0[iPt]=x1[iFileNew][iPt];
-           y_dbg0[iVar][iPt]=y1[iFileNew][iVar][iPt];
-       }
-***********  fine Software per debug *************** */
-
-
-    /*Trasmetto le informazioni alla finestra di plot, che farà una copia locale delle intere matrici x1 e y1.
-    */
-    /* I pass the information to the plot window, which will make a local copy of the entire arrays x1 and y1.
-    */
-
-    //Si ricordi che lo show comporta un resize della finestra e quindi, attraverso la ui, anche del lineChart gestito dal designer all'interno della finestra. Pertanto il plot() deve seguire lo show().
-
-  // Remember that the show involves a resize of the window and therefore,
-  // through the ui, also of the lineChart managed by the designer inside
-  // the window. Therefore the plot () must follow the show ().
-  myPlotWin->getData(x1, y1, myVarTable->xInfo, y1Info, filesInfo);
-  myPlotWin->getOption(GV.PO.useCopiedDialog);  //Per ora l'unica opsione definita per la plotWin
-  //In futuro potrebbe diventare una struttura di opzioni (e il nome cambiare in getOptions)
-
-  /* Le matrici y1[i] e i vettori x[i], con i a partire da plotFiles, erano stati allocati più sopra e quindi qui disalloco, ora che myPlotWin ne ha fatto copia locale:*/
-
-  /* The matrices y1 [i] and the vectors x [i], with i starting from plotFiles,
-   * had been allocated above and therefore here disallocated, now that
-   * myPlotWin has made a local copy of it: */
-  for(int i=0; i<funInfoLst.count(); i++){
-    DeleteFMatrix(y1[plotFiles+i]);
-    delete[] x1[plotFiles+i];
-  }
-
-  //Il seguente close serve per  fare un reset del bottone "data". Altrimenti può accadere che se il data cursor è visibile, al nuovo plot i numeri sono visualizzati nell'opzione vecchia: ad esempio se ho ridotto il numero di variabili da n a 1 rimane la finestra esterna e viceversa.
-
-  // The following close is used to reset the "date" button. Otherwise it can
-  // happen that if the data cursor is visible, to the new plot the numbers
-  // are displayed in the old option: for example if I have reduced the number
-  // of variables from n to 1 the external window remains and vice versa.
-  myPlotWin->close();
-  myPlotWin->show();
-  myPlotWin->plot(updatingPlot);
-
-  ui->updateTBtn->setEnabled(true);
-  ui->updateTBtn->setChecked(false);
-  updatingPlot=false;
-  ui->eqTBtn->setEnabled(true);
-  ui->arrTBtn->setEnabled(true);
-  delete[] x1;
-  for(iFile=0; iFile<myVarTable->numOfPlotFiles; iFile++)
-    delete[] y1[iFile];
-  delete[] y1;
-}
-
 
 void CDataSelWin::on_multifTBtn_clicked(bool checked){
   // Il valore di checked è quello già dopo l'effetto del click. Se ad esempio ero in multifile e clicco, qui troverò checked=false.
@@ -2532,7 +2037,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
     if(ui->varMenuTable->rowCount()>0 && myVarTable->isEmpty())
       varMenuTable_cellClicked(0,1,false);
   }
-  ui->plotTBtn->setEnabled(false);
+  ui->plotBtn->setEnabled(false);
 }
 
 void CDataSelWin::on_fileTable_clicked(const QModelIndex &index)
@@ -2720,7 +2225,7 @@ void CDataSelWin::removeFile(int row_) {
   //Se la tabella variabili corrente è vuota devo disattivare tutti i bottoni:
   // If the current variable table is empty, I have to deactivate all the buttons:
   if(myVarTable->numOfTotVars<2){
-    ui->plotTBtn->setEnabled(false);
+    ui->plotBtn->setEnabled(false);
     ui->resetTBtn->setEnabled(false);
     ui->updateTBtn->setEnabled(false);
     ui->saveVarsBtn->setEnabled(false);
@@ -2836,7 +2341,7 @@ void CDataSelWin::on_fourTBtn_clicked() {
      * with data different from those with which the Fourier window was built
      * there are no problems.
   */
-    on_plotTBtn_clicked();
+    on_plotBtn_clicked();
     /* Con la riga precedente si sono passati i dati a myPlotWin, anche facendo
      *  calcoli nel casi di funzioni di variabili. Pertanto la cosa più
      * semplice per effettuare Fourier è di passare a myFourWin puntatori
@@ -3068,10 +2573,10 @@ void CDataSelWin::on_refrTBtn_clicked(){
   int currentTabIndex=ui->tabWidget->currentIndex();
   for(int iTab=0; iTab<actualPlotWins; iTab++){
     on_tabWidget_currentChanged(iTab);
-    if(ui->plotTBtn->isEnabled())
-        on_plotTBtn_clicked();
+    if(ui->plotBtn->isEnabled())
+        on_plotBtn_clicked();
     // Può capitare che si faccia il refresh da un file nel quale non sono presenti variabili precedentemente visualizzate. In questo caso non eseguo il plot e neanche il Four (il quale al suo interno comanderebbe comunque un plot causando un segfault)
-    if(ui->plotTBtn->isEnabled() && fourWin[iTab]->isVisible())
+    if(ui->plotBtn->isEnabled() && fourWin[iTab]->isVisible())
         on_fourTBtn_clicked();
   }
   on_tabWidget_currentChanged(currentTabIndex);
@@ -3294,6 +2799,7 @@ void CDataSelWin::on_arrTBtn_clicked(){
     QRect avGeom=screen->availableGeometry();
     avGeom=avGeom.marginsRemoved(QMargins(10,10,10,10));
 */
+    int availableHeight;
     QRect win1Rect, win2Rect;
     if(plotWin[0]->isVisible())
       win1Rect=plotWin[0]->frameGeometry();
@@ -3307,12 +2813,12 @@ void CDataSelWin::on_arrTBtn_clicked(){
     QScreen * myScreen=nullptr;
     for(int i=0; i<screenCount; i++){
       myScreen=QGuiApplication::screens()[i];
+      availableHeight=myScreen->availableGeometry().height();
       int rightPix=myScreen->availableGeometry().right();
       if(this->x()<rightPix){
         break;
       }
     }
-    int availableHeight=myScreen->availableGeometry().height();
 
     //but if I have a single window, the available space is reduced, since we do not
     // have two plot windows aside each other.:
@@ -3781,7 +3287,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     if(myVarTable->numOfTotVars>1){
       ui->tabWidget->setCurrentIndex(iSheet);
       myPlotWin=plotWin[iSheet];
-      on_plotTBtn_clicked();
+      on_plotBtn_clicked();
       if(fourWinVisible[iSheet])
         on_fourTBtn_clicked();
     }
@@ -3966,15 +3472,15 @@ void CDataSelWin::on_tool468_clicked()
     setActualPlotWins(6);
     for (int win=4; win<6; win++){
       on_tabWidget_currentChanged(win);
-      if(ui->plotTBtn->isEnabled())
-        on_plotTBtn_clicked();
+      if(ui->plotBtn->isEnabled())
+        on_plotBtn_clicked();
     }
    } else if(actualPlotWins==6){
      setActualPlotWins(8);
      for (int win=6; win<8; win++){
        on_tabWidget_currentChanged(win);
-       if(ui->plotTBtn->isEnabled())
-         on_plotTBtn_clicked();
+       if(ui->plotBtn->isEnabled())
+         on_plotBtn_clicked();
      }
    } else if(actualPlotWins==8){
      for (int win=4; win<MAXPLOTWINS; win++)
@@ -3992,3 +3498,490 @@ void CDataSelWin::on_tool468_clicked()
       setActualPlotWins(4);
     */
 }
+
+void CDataSelWin::on_plotBtn_clicked()
+{
+        /* Funzione per l'esecuzione del plot.
+    - fase 0: analizzo fileTable e compilo timeShift
+    - fase 1: analizzo varTable
+    - fase 2: creo le matrici x1 e y1 (la loro struttura è descritta in developer.ods)
+    - fase 3: calcolo gli elementi di y1 connessi alle funzioni di variabili
+    */
+       /* Function for executing the plot.
+    - phase 0: analyze fileTable and compile timeShift
+    - phase 1: analyze varTable
+    - phase 2: create the matrices x1 and y1 (their structure is described in developer.ods)
+    - phase 3: calculate the elements of y1 connected to the functions of variables
+    */
+
+      int  iFile, iVar, iFileNew;
+    //  int lastIFile; //l'ultimo valore di iFile su cui si è scritto (utile per debug)
+    // int lastIFile; // the last value of iFile on which it was written (useful for debugging)
+      float **x1, ***y1; //puntatori a vettori e matrici delle delle variabili selezionate.
+                         // pointers to vectors and matrices of the selected variables.
+      SFileInfo myFileInfo;
+      QList <SFileInfo> filesInfo; //informazioni relative ai files di cui sono richiesti plot. Contiene sia le informazioni relative ai plot diretti da dati di input (uno per file) che a funzioni di variabili (uno per funzione). Pertanto il numero di elementi che contiene è pari a numOfTotPlotFiles
+
+        // information related to the files which requested plot; it contains
+        // information related to the plots generated from input data (one per file)
+        // and to variable functions (one per function).
+        // Therefore the number of elements it contains is equal to numOfTotPlotFiles
+      QList <SCurveParam> y1Info[MAXFILES+MAXFUNPLOTS];
+      QList <SXYNameData> funInfoLst; //una  voce della lista per ogni funzione di variabile
+                                   // a list item for each variable function
+      CLineCalc myLineCalc;
+      QString ret;
+      float timeShift[MAXFILES];
+
+      // phase 0: I analyze fileTable and compile timeShift
+      // Associate the tShift to the file number:
+      for (int i=0; i<MAXFILES; i++)
+          timeShift[i]=0;
+      for (int iRow=1; iRow<ui->fileTable->rowCount(); iRow++){
+        bool ok;  //diventa true se la conversione in int del testo della cella fatta qui sotto ha successo
+                  // becomes true if the conversion to int of the text of the cell below is successful
+        int myIFile=-1;
+        myIFile=ui->fileTable->item(iRow,1)->text().toInt(&ok)-1;
+        QString str6=ui->fileTable->item(iRow,6)->text();
+        if(ok)
+          timeShift[myIFile]=ui->fileTable->item(iRow,6)->text().toFloat();
+      }
+
+     // - fase 1: analizzo varTable
+     // - phase 1: analyze varTable
+      if(myVarTable->analyse()!="")
+        return;
+      if(myVarTable->numOfPlotFiles>MAXFILES){
+        QMessageBox::critical(this,"CDataSelWin", "Internal critical error\ncontact program maintenance",QMessageBox::Ok);
+        return;
+      }
+      /* - fase 2: creo le matrici x1 e y1 (la loro struttura è descritta in developer.ods)   *
+       * A questo punto la table è in grado di fornirmi i dati da inviare alla scheda del plot
+       *  per il grafico.
+       * Devo ora creare le matrici delle variabili x1[] e y1[] (il digit '1' è lasciato solo
+       * per compatibilità terminologica con la versione BCB).
+       * Ogni elemento di y1 è una matrice. I primi numOfPlotFiles sono dedicati ai dati di
+       * variabili direttamente prelevate dai files di input; gli ultimi funinfo.count() sono
+       * dedicati alle variabili funzione.
+       * Cosa analoga vale per le righe di x1[].
+    */
+      /* - phase 2: create arrays x1 and y1 (their structure is described in developer.ods) *
+       * At this point the table is able to provide the data to be sent to the plot sheet
+       * for the chart.
+       * Now I have to create the arrays of variables x1 [] and y1 [] (digit '1' is left alone
+       * for terminological compatibility with the BCB version).
+       * Each element of y1 is a matrix. The first numOfPlotFiles are dedicated to data
+       * variables directly taken from the input files; the last funinfo.count () are
+       * dedicated to function variables.
+       * The same applies to the lines of x1 [].
+    */
+      funInfoLst=myVarTable->giveFunInfo();
+      x1=new float*[myVarTable->numOfPlotFiles+funInfoLst.count()];
+      y1=new float**[myVarTable->numOfPlotFiles+funInfoLst.count()];
+
+      /* Attribuzione alle matrici dei rispettivi valori. */
+      //Nella copiatura su Y devo anche rendere contigui gli indici di files che possono essere sparpagliati:
+
+      if(myVarTable->xInfo.name.contains(" (s->h)")){  //converto il tempo s->h
+        myVarTable->xInfo.unitS="h";
+        // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 1. Pertanto qui loassegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà allinterno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
+        myVarTable->xInfo.timeConversion=1;
+      }
+      if(myVarTable->xInfo.name.contains(" (s->d)")){  //converto il tempo s->d
+        myVarTable->xInfo.unitS="d";
+        // Per ragioni sconosciute qui arriva un timeConversion=0 invece che 2. Pertanto qui lo assegno nuovamente 1. Notare che l'applicazione fisica del fattore di conversione avverrà all'interno di getData di CPlotWin: non si può fare qui in quanto in questa sede non ho un'allocazione propria per la variabile x, e invece uso la memoria dell'oggetto di input mySO.
+        myVarTable->xInfo.timeConversion=2;
+      }
+
+        /* Attribution to the matrices of the respective values. */
+      // When copying to Y I also have to make the indexes of files that can be scattered contiguous:
+      filesInfo.clear();
+      iFileNew=-1;
+      for(iFile=0; iFile<MAXFILES; iFile++){
+        if(myVarTable->yInfo[iFile].count()==0)
+            continue;
+        iFileNew++;
+        y1[iFileNew]=new float *[myVarTable->yInfo[iFile].count()];
+
+    //      x1[iFileNew]=mySO[iFile]->y[0];
+        if(!myVarTable->xInfo.isFunction){
+          x1[iFileNew]=mySO[iFile]->y[myVarTable->xInfo.idx];
+        }
+        myFileInfo.name=mySO[iFile]->fileInfo.fileName();
+        myFileInfo.fileNum=iFile;
+        myFileInfo.numOfPoints=mySO[iFile]->numOfPoints;
+        myFileInfo.variableStep=mySO[iFile]->variableStep;
+        myFileInfo.frequencyScan=
+              mySO[iFile]->runType==rtFreqScan ||
+              mySO[iFile]->runType==rtHFreqScan;
+    //    float dummy =fileTabItems[iFile][6]->text().toFloat();
+
+        myFileInfo.timeShift=timeShift[iFile];
+        filesInfo.append(myFileInfo);
+        for(iVar=0; iVar<myVarTable->yInfo[iFile].count(); iVar++){
+          int curVar=myVarTable->yInfo[iFile][iVar].idx;
+          y1[iFileNew][iVar]=mySO[iFile]->y[curVar];
+          y1Info[iFileNew]=myVarTable->yInfo[iFile];
+
+          for(int iCurve=0; iCurve<y1Info[iFileNew].count(); iCurve++){
+    //        QString thisUnit=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
+    //        int sVarIndex=y1Info[iFileNew][iCurve].idx;
+            y1Info[iFileNew][iCurve].unitS=mySO[iFile]->sVars[y1Info[iFileNew][iCurve].idx].unit;
+          }
+        }
+      }
+    /*
+      if(myVarTable->numOfPlotFiles==1){ //in questo caso plotInfo è solo plotInfo[0]
+        x1[0]=mySO[selectedFileIdx]->y[myVarTable->xInfo.idx];
+      }
+    */
+      int plotFiles=myVarTable->numOfPlotFiles;
+
+
+    /* FASE 3 **** Adesso aggiungo il calcolo degli elementi di y1 collegati alle funzioni di variabili. ****/
+    //Nel caso in cui myVarTable.xInfo.isFunction=true una delle fun del seguente loop verrà messa come vettore delle x invece che come matrice ad una riga in y.
+
+      /* STEP 3 **** Now I add the calculation of the elements of y1 connected to the functions. ****/
+      // In the case where myVarTable.xInfo.isFunction = true one of the fun of the
+      // following loop will be put as a vector of the x instead of a single row in y.
+      for(int iFun=0; iFun<funInfoLst.count(); iFun++){
+        SXYNameData funInfo=funInfoLst[iFun];
+        /* La gestione di funzioni di variabile è particolarmente complessa se non si ha
+         * la garanzia che tutti i files coinvolti hanno dati in corrispondenza
+         * degli stessi valori della variabile tempo.
+         * Questo tipo di informazione viene fornita dall'utente di PlotXY attraverso
+         * il checkbox presente nel dialog CFunStrInput.
+         * Attualmente (settembre 2015), questa checkbox è disattivata e le funzioni di
+         * variabili con dati provenienti da files differenti è effettuata sempre senza
+         * "cross-interpolation". Si dà quindi per scontato che i files coinvolti abbiano
+         * campioni tutti sugli stessi istanti, e l'unica verifica che si fa è che il
+         * numero di valori presenti nei vari files sia identico, il che costituisce
+         * "conditio sine qua non" le funzioni di variabili senza cross-interpolation
+         * possono essere calcolate.
+    */
+        /* The management of variable functions is particularly complex if you do not have
+         * guarantee that all the files involved have data in correspondence
+         * of the same values ​​as the time variable.
+         * This type of information is provided by the PlotXY user through
+         * the checkbox in the CFunStrInput dialog.
+         * Currently (September 2015), this checkbox is disabled and the functions of
+         * variables with data from different files is always performed without
+         * "cross-interpolation". It is therefore assumed that the files involved have
+         * samples all on the same instant, and the only verification that is done is that the
+         * number of values ​​present in the various files is identical, which constitutes
+         * "without which it could not be" the functions of variables without cross-interpolation
+         * can be calculated.
+    */
+      //  Come prima cosa devo verificare che tutti i file coinvolti nella funzione di variabili possiedono il medesimo numero di punti; altrimenti emetto un messaggio di errore
+
+        // First of all I have to verify that all the files involved in the variable
+        // function have the same number of points; otherwise, I issue an error message
+        int points=mySO[funInfo.fileNums[0]-1]->numOfPoints;
+        for (int fileInFun=1; fileInFun<funInfo.fileNums.count(); fileInFun++){
+          if(mySO[funInfo.fileNums[fileInFun]-1]->numOfPoints!=points){
+              QMessageBox::warning(this,"Invalid function",
+                 "Unable to plot this function:\n"
+                 "currently only functions operating on variables\n"
+                 "coming from files having the same number of points are allowed.");
+                return;
+            }
+          }
+
+        QVector<int> funFileIdx;
+        for (int var=0; var<funInfo.varNumsLst.count(); var++ )
+          funFileIdx.append(funInfo.varNumsLst[var].fileNum-1);
+
+        /* Le matrici y1[i] e i vettori x[i] con i a partire da plotFiles, vanno allocati (dettagli in Developer.odt):*/
+        /* Arrays y1 [i] and vectors x [i] with i starting from plotFiles must be allocated (details in Developer.odt): */
+        y1[plotFiles+iFun]=CreateFMatrix(1,points);
+        x1[plotFiles+iFun]=new float[points];
+        //Passo la linea a myLineCalc():
+        myLineCalc.getFileInfo(fileNumsLst, fileNamesLst, varMaxNumsLst);
+        ret=myLineCalc.getLine(funInfo.lineInt,selectedFileIdx+1);
+
+        /*  In LineCalc devo avere dei puntatori ai vettori dei valori fra loro adiacenti.
+         * Creo pertanto varMatrix che è un puntatore che punta ad un array di puntatori
+         * contigui ai dati da utilizzare per il calcolo della funzione.
+         * In namesMatrix invece metto i corrispondenti nomi delle variabili.
+        */
+        /* In LineCalc I must have pointers to the vectors of adjacent values.
+         * I therefore create varMatrix which is a pointer pointing to an array of pointers
+         * contiguous to the data to be used for the calculation of the function.
+         * In namesMatrix instead I put the corresponding variable names.
+        */
+        float**varMatrix= new float*[funInfo.varNumsLst.count()];
+        QList <QString *> namesFullList;
+        int size=int(sizeof(float))*points;
+
+        // I create the values ​​of x1 values, that is, on the x axis of function variables,
+        // in the case where there is no function on the x axis:
+        if(!myVarTable->xInfo.isFunction){
+          memcpy(x1[plotFiles+iFun],mySO[funFileIdx[0]]->y[myVarTable->xInfo.idx], size);
+
+          // Manage timeShift set in the case of a function of variables.
+          float funTimeShift=timeShift[funFileIdx[0]];
+          for(int i=1;i<funFileIdx.count(); i++){
+            if(timeShift[funFileIdx[i]]!=funTimeShift){
+              QMessageBox::warning(this, "PlotXY",
+               "unable to evaluate function,\n"
+               "since it involves files having different time shifts\n"
+               "(Tshift field, below Tmax, in the fileList Table)"
+                  );
+                return;
+            }
+          }
+        }
+        myFileInfo.timeShift=timeShift[funFileIdx[0]];
+
+        for(int j=0; j<funInfo.varNumsLst.count(); j++){
+          int soIndex=funInfo.varNumsLst[j].fileNum-1;
+          int yIndex=funInfo.varNumsLst[j].varNum-1;
+           varMatrix[j]=mySO[funInfo.varNumsLst[j].fileNum-1]->y[funInfo.varNumsLst[j].varNum-1];
+           funInfo.varUnits.append(mySO[soIndex]->sVars[yIndex].unit);
+        }
+        for(int j=0; j<fileNumsLst.count(); j++){
+           namesFullList.append(mySO[fileNumsLst[j]-1]->varNames);
+        }
+       /*Passo i nomi e il puntatore alla matrice contenente nelle varie righe i vettori
+        * delle variabili da utilizzare per il calcolo della funzione
+        * I valori di puntatori alle variabili-funzione rimangono allocati nel programma
+        * chiamante.
+        * lineCalc analizza la linea sostituendo le costanti esplicite con corrispondenti
+        * puntatori e i riferimenti ai nomi di variabile con i corrispondenti puntatori
+        * passati come secondo parametro
+        * Il vettore dei nomi espliciti mySO[]->varNames serve solo per compilare
+        * un'informazione completa del significato della stringa di funzione da visualizzare
+        * poi all'utente. La linea di funzione corredata di nomi espliciti si chiama
+        * "fullLine"
+       */
+       /* I pass the names and the pointer to the array containing the vectors in the various lines
+        * of the variables to be used for the calculation of the function
+        * The values ​​of pointers to function variables remain allocated in the program
+        * caller.
+        * lineCalc analyzes the line by replacing the explicit constants with corresponding ones
+        * pointers and references to variable names with the corresponding pointers
+        * passed as a second parameter
+        * The vector of explicit names mySO [] -> varNames serves only to compile
+        * complete information on the meaning of the function string to be displayed
+        * then to the user. The function line with explicit names is called
+        * "fullLine"
+       */
+
+        // La seguente riga manda in esecuzione indirettamente variablesToPointers.
+        // Se il plot avviene dopo un cambiamento di file, la stringa della funzione è stata arricchita delle indicazioni dei files, ma la line interna è rimasta senza i nomi di file e quindi variablesToPointers viene eseguita con la stringa sbagliata: ad esempio con v2+v3 invece della corretta f2v2+f2v3.
+
+        // The following line indirectly runs variablesToPointers.
+        // If the plot occurs after a file change, the function string has been
+        // enriched with the file indications, but the internal line has been left
+        // without the file names and therefore variablesToPointers is executed
+        // with the wrong string: for example with v2 + v3 instead of the correct f2v2 + f2v3.
+
+        // ############
+        // NOTA IMPORTANTE
+        // Ora che le funzioni di variabile ammettono di mescolare dati da differenti files, occorre cambiare la seguente chiamata a funzione. Invece di passare solo i varNames di un unico mySO, e il solo selectedFileIdx, devo passare un array di puntatori ad arrays di stringhe, ed un vettore di indici di file. Questo è un prerequisito per evitare il crash di f1v2+f2v3 nel TODO.
+        // ############
+
+        // ############
+        // IMPORTANT NOTE
+        // Now that the variable functions admit to mixing data from different files,
+        // the following function call must be changed. Instead of passing only the
+        // varNames of a single mySO, and the only selectedFileIdx, I have to pass
+        // an array of pointers to string arrays, and a file index vector. This is
+        // a prerequisite to avoiding the crash of f1v2 + f2v3 in the TODO.
+        // ############
+
+         ret=myLineCalc.getNamesAndMatrix(funInfo.varNames, funInfo.varUnits, varMatrix,
+                                                       namesFullList, selectedFileIdx);
+        if(ret!=""){
+          QMessageBox::critical(this, "PlotXY",ret);
+          return;
+        }
+        //Per soli scopi di visualizzazione per l'utente finale passo, tramite doppia indirezione per ragioni di efficienza, l'array di array dei nomi espliciti di tutte le variabili presenti nei files caricati:
+
+        // For visualization purposes only for the end user, by means of a double
+        // direction for efficiency reasons, the array of arrays of the explicit
+        // names of all the variables present in the loaded files:
+
+        //Ora effettuo il calcolo della funzione. Il file è data.fileNums[0], ma con indice a base 1.
+        //Se una funzione deve divenire la variabile x, essa la calcolo nel vettore ausiliario funXVar che devo allocare.
+
+        // Now I calculate the function. The file is data.fileNums [0], but with a base-based index of 1.
+        // If a function is to become the variable x, it is the calculation in the auxiliary vector funXVar that I have to allocate.
+        if(myVarTable->xInfo.isFunction){
+          delete[] funXVar;
+          funXVar =new float[points];
+        }
+        int myIdx;
+        if(myVarTable->xInfo.isFunction)
+          myIdx=myVarTable->xInfo.idx;
+        else
+          myIdx=-1;
+        int funXDone=0;  //Anche la var. sull'asse x può essere una funzione. Se ho già trattato la eventuale funzione sull'asse x metto funXDone a true.
+
+                         // Also the var. on the x axis it can be a function.
+                         // If I have already discussed the possible function on the x axis I put funXDone to true.
+        if(myVarTable->xInfo.isFunction && iFun>myVarTable->xInfo.idx)
+          funXDone=1;
+        for(int k=0; k<points; k++){
+          float xxx;
+            xxx=myLineCalc.compute(k);
+          if(myLineCalc.divisionByZero|| myLineCalc.domainError){
+              QString sampleIndex, timeValue, msg;
+              if (k==0)
+                 sampleIndex="first";
+              else if (k==1)
+                  sampleIndex="second";
+              else if (k==2)
+                sampleIndex="third";
+              else
+                sampleIndex=sampleIndex.setNum(k+1)+"th";
+              timeValue=timeValue.setNum(x1[0][k]);
+              if(myLineCalc.divisionByZero)
+                msg= "Division by zero in function of variable; plot impossible.\n"
+                   "Offending operation at "+sampleIndex+ " sample.\n"
+                   "The horizontal variable (possibly time) value is " + timeValue+ "\n";
+              if(myLineCalc.domainError)
+                  msg= "Domain error in asin(), acos() or sqrt() in function plot; plot impossible.\n"
+                     "Offending operation at "+sampleIndex+ " sample.\n"
+                     "The horizontal variable (possibly time) value is " + timeValue+ "\n";
+             QMessageBox::warning(this, "PlotXY",msg);
+             qDebug()<<"warning 5";
+             myLineCalc.divisionByZero=false;
+            return;
+          }
+          if(iFun==myIdx)
+            funXVar[k]=xxx;
+          else
+            y1[plotFiles+iFun-funXDone][0][k]=xxx;
+          ret=myLineCalc.ret;
+          if(ret!="")break;
+        }
+
+        /* Per fare correttamente l'integrale valgono le seguenti considerazioni:
+           * 1) se la variabile x è una funzione per essa l'integrazione non è ammessa
+           * 2) L'integrale è inteso come integrale del tempo. Nel caso di multifile
+           *    l'integrale è fatto rispetto al tempo relativo alla variabile considerata;
+           *    nel caso di plotXY devo chiarire che il tempo è la variabile di indice 0
+           *    del file corrente.
+          */
+        /* To make the integral correctly, the following considerations are valid:
+               * 1) if the variable x is a function for it, integration is not allowed
+               * 2) Integral is intended as an integral of time. In the case of multifile,
+               *    the integral is made with respect to the time relating to the variable
+               *    considered; in the case of plotXY I have to clarify that the time is
+               *    the index variable 0 of the current file.
+              */
+        if(myLineCalc.integralRequest && myVarTable->xInfo.isFunction){
+          QString msg="integral of the x variable is not allowed.";
+          QMessageBox::warning(this,"PlotXY-dataSelWin",msg);
+          qDebug()<<"warning 6";
+          return;
+        }
+        if(myLineCalc.integralRequest)
+          y1[plotFiles+iFun-funXDone][0]=integrate(mySO[funFileIdx[0]]->y[0], y1[plotFiles+iFun-funXDone][0], mySO[funFileIdx[0]]->numOfPoints);
+
+    //    if(myLineCalc.integralRequest)
+    //      y1[plotFiles+i-funXDone][0]=integrate(x1[plotFiles+i-funXDone],
+    //        y1[plotFiles+i-funXDone][0],mySO[funFileIdx]->numOfPoints);
+        delete[] varMatrix;
+        if(myVarTable->xInfo.isFunction)
+          continue;
+        SCurveParam param;
+        param.isFunction=true;  //Si ricordi che y1Info per funzioni ha un unico elemento per funzione "i"
+                                // Remember that y1Info for functions has a single element for function "i"
+        param.isMonotonic=false;
+        param.name=funInfo.name;
+        param.midName=funInfo.line;
+        param.fullName=myLineCalc.giveLine("lineFullNames");
+        param.color=funInfo.color;
+        param.style=funInfo.style;
+
+        param.rightScale=funInfo.rightScale;
+    //    param.unitS=myLineCalc.computeUnits();
+        param.unitS=myLineCalc.unitOfMeasuref();
+        if(myLineCalc.integralRequest)
+           param.unitS=integrateUnits(param.unitS);
+        y1Info[plotFiles+iFun].append(param);
+        myFileInfo.name=myLineCalc.giveLine("funText");
+        myFileInfo.fileNum=plotFiles+iFun;
+        myFileInfo.numOfPoints=points;
+        myFileInfo.variableStep=true;
+        // Nel caso di funzioni di variabili faccio per default diagrammi di linea e quindi metto falso a frequency scan:
+        // In the case of variable functions, I do line diagrams by default and then put a false frequency scan:
+        myFileInfo.frequencyScan=false;
+        /*  Comment on 4 December 2019. Timeshift of function plots has not been yet programmed.
+         * for the time being it is always set to zero:
+         *
+        */
+    //    myFileInfo.timeShift=0.0f;
+        filesInfo.append(myFileInfo);
+      }
+      //Ora, nel caso in cui myVarTable.xInfo.isFunction==true devo ricopiare funXVar in x1
+      // Now, in case myVarTable.xInfo.isFunction == true I have to copy funXVar to x1
+      if(myVarTable->xInfo.isFunction){
+        for(int i=0; i<1+funInfoLst.count()-1; i++){
+        //Il primo 1 nel target è numOfPlotFiles che deve essere 1 (quando facciamo plot X-Y tutti i grafici devono provenire dal medesimo file); il secondo, preceduto da segno '-', è necessario perché dobbiamo diminuire di 1 funInfo.count() in quanto funInfo contiene anche dati della funzione che deve andare sull'asse x
+
+        // The first 1 in the target is numOfPlotFiles must be 1 (when we make an X-Y plot all plots must refer to data coming from the same file); the second, preceded  by a '-' sign, is necessary because we have to decrease by 1 funInfo.count () because funInfo also contains data of the function that must go on the x axis
+            x1[i]=funXVar;
+    //      memcpy(x1[i],funXVar, sizeof(float)*mySO[0]->numOfPoints);
+        }
+      }
+    /*********** Software start for debugging **************
+        float x_dbg0[3], y_dbg0[3][3];
+        int
+            var_dbg=min(3,myVarTable->yInfo[lastIFile].count()),
+            pt_dbg=min(3,mySO[lastIFile]->numOfPoints);
+        for(int iPt=0; iPt<pt_dbg; iPt++)
+           for(iVar=0; iVar<var_dbg; iVar++){
+               x_dbg0[iPt]=x1[iFileNew][iPt];
+               y_dbg0[iVar][iPt]=y1[iFileNew][iVar][iPt];
+           }
+    ***********  fine Software per debug *************** */
+
+
+        /*Trasmetto le informazioni alla finestra di plot, che farà una copia locale delle intere matrici x1 e y1.
+        */
+        /* I pass the information to the plot window, which will make a local copy of the entire arrays x1 and y1.
+        */
+
+        //Si ricordi che lo show comporta un resize della finestra e quindi, attraverso la ui, anche del lineChart gestito dal designer all'interno della finestra. Pertanto il plot() deve seguire lo show().
+
+      // Remember that the show involves a resize of the window and therefore,
+      // through the ui, also of the lineChart managed by the designer inside
+      // the window. Therefore the plot () must follow the show ().
+      myPlotWin->getData(x1, y1, myVarTable->xInfo, y1Info, filesInfo);
+      myPlotWin->getOption(GV.PO.useCopiedDialog);  //Per ora l'unica opsione definita per la plotWin
+      //In futuro potrebbe diventare una struttura di opzioni (e il nome cambiare in getOptions)
+
+      /* Le matrici y1[i] e i vettori x[i], con i a partire da plotFiles, erano stati allocati più sopra e quindi qui disalloco, ora che myPlotWin ne ha fatto copia locale:*/
+
+      /* The matrices y1 [i] and the vectors x [i], with i starting from plotFiles,
+       * had been allocated above and therefore here disallocated, now that
+       * myPlotWin has made a local copy of it: */
+      for(int i=0; i<funInfoLst.count(); i++){
+        DeleteFMatrix(y1[plotFiles+i]);
+        delete[] x1[plotFiles+i];
+      }
+
+      //Il seguente close serve per  fare un reset del bottone "data". Altrimenti può accadere che se il data cursor è visibile, al nuovo plot i numeri sono visualizzati nell'opzione vecchia: ad esempio se ho ridotto il numero di variabili da n a 1 rimane la finestra esterna e viceversa.
+
+      // The following close is used to reset the "date" button. Otherwise it can
+      // happen that if the data cursor is visible, to the new plot the numbers
+      // are displayed in the old option: for example if I have reduced the number
+      // of variables from n to 1 the external window remains and vice versa.
+      myPlotWin->close();
+      myPlotWin->show();
+      myPlotWin->plot(updatingPlot);
+
+      ui->updateTBtn->setEnabled(true);
+      ui->updateTBtn->setChecked(false);
+      updatingPlot=false;
+      ui->eqTBtn->setEnabled(true);
+      ui->arrTBtn->setEnabled(true);
+      delete[] x1;
+      for(iFile=0; iFile<myVarTable->numOfPlotFiles; iFile++)
+        delete[] y1[iFile];
+      delete[] y1;
+}
+

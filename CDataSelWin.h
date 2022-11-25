@@ -85,7 +85,6 @@ private slots:  //devono rimanere slot in quanto connessi sulla base del nome e 
     void on_loadTBtn_clicked();
     void on_multifTBtn_clicked(bool checked);
     void on_optBtn_clicked();
-    void on_plotTBtn_clicked();
     void on_refrTBtn_clicked();
     void on_refrUpdTBtn_clicked(bool checked);
     void on_resetTBtn_clicked();
@@ -99,6 +98,7 @@ private slots:  //devono rimanere slot in quanto connessi sulla base del nome e 
 
     void on_showParTBtn_clicked(bool checked);
     void on_tool468_clicked();
+    void on_plotBtn_clicked();
 
 private:
   bool fileLoaded, doubleClicking, updatingPlot, refreshUpdate,

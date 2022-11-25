@@ -26,7 +26,6 @@
 #include "SuppFunctions.h"
 #include "ui_CPlotWin.h"
 #include "CDataSelWin.h"  //def. di sFileInfo
-#include "CVarTableComp.h" //def di SCurveParam
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define min(a, b)  (((a) < (b)) ? (a) : (b))
 
@@ -85,10 +84,10 @@ CPlotWin::CPlotWin(QWidget *parent) :
     labelFontBasePoints=ui->interpolateBox->font().pointSize();
 #endif
     QFontMetrics fm(myFont);
-    int minimumWidth=fm.width("+#.##e+#")+3;
+    int minimumWidth=fm.horizontalAdvance("+#.##e+#")+3;
     ui->xValueLbl->setMinimumWidth(minimumWidth);
     ui->yValueLbl->setMinimumWidth(minimumWidth);
-    minimumWidth=fm.width(ui->interpolateBox->text()+"XXX")+2;
+    minimumWidth=fm.horizontalAdvance(ui->interpolateBox->text()+"XXX")+2;
     ui->interpolateBox->setMinimumWidth(minimumWidth);
 
     plotOpsWin = new CPlotOptions(this);
@@ -192,11 +191,11 @@ Significato delle variabili passate:
  - y1Info è un vettore di liste strutture; ogni elemento del vettore è relativo ad un file di input, e in ogni elemento della lista è una struttura contenente informazioni ad un grafico relativo a quel dato file
  filesInfo è il giusto complemento di y1Info; dà le informazioni attribuibili ai singoli files: nome, indice, numero di punti, se è a passo variabile.
 
-NOTA il numero totale di plot da fare è la somma del numero di elementi contenuti y1Info[] per  ognuno dei files (il numero dei files è pari a filesInfo->count()).
+NOTA il numero totale di plot da fare è la somma del numero di elementi contenuti y1Info[] per ognuno dei files (il numero dei files è pari a filesInfo->count()).
 
 */
 
-    int i, j, iVarTot, nVarTot;
+    int i, j, iVarTot;
     int size;
     struct SXVarParam xParam;
 
@@ -225,11 +224,6 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
     variableStep=new bool[filesInfo.count()];
     numOfPoints =new int [filesInfo.count()];
 
-    // Prima di allocare curveParam devo calcolare il numero totale di variabili:
-    nVarTot=0;
-    for(i=0; i<filesInfo.count(); i++){
-      nVarTot+=y1Info[i].count();
-    }
     y=new float**[numOfTotPlotFiles]; //modifica
     x=new float* [numOfTotPlotFiles];
     iVarTot=0;
@@ -273,6 +267,12 @@ NOTA il numero totale di plot da fare è la somma del numero di elementi contenu
                y_dbg[iVar][iPt]=y[0][iVar][iPt];
            }
     ***********  fine Software per debug ****************/
+    if(filesInfo.size()<1){
+      QString msg="Internal error #99 in CPlotWin.\n"
+              "Please contact massimo.ceraolo@unipi.it";
+        QMessageBox::information(this,"CPlotWin",msg);
+        exit(0);
+    }
     currFileInfo=filesInfo[0];
     if(numOfTotPlots==1 && currFileInfo.frequencyScan && programOptions.barChartForFS)
       ui->lineChart->plotType=ptBar;
@@ -444,15 +444,15 @@ In mac non si riescono a sopprimere i bottoni di sistema, che sprecano spazio, e
 #endif
     //Il baseTitle è un titolo a cui poi posso aggiungere l'indicazione del tempo di esecuzione. Lo devo assegnare qui in quanto nella funzione CPlotWin::CPlotWin non contiene ancora il numero di istanza che è aggiunto in CDataSelWin::CDataSelWin.
     //Però devo evitare che a ogni riapertura della finestra le stringhe contenenti i tempi si accumulino. In precedenza usavo un flag con una variabile statica "baseTitleSet". E' stato però visto che la variabile statica (evitentemente come tutte le variabli statiche, ma non lo sapevo) mantiene il suo valore da un'istanza all'altra. Pertanto in quel caso dalla seconda finestra plot in poi avevo una visualizzazione scorretta.
-    // Pertanto sono passato ad individuare la necessità di scrivere basetitle sulla base della lunghezza del medesimo titolo della finestra.
-    if(windowTitle().count()<7){
+    // Pertanto sono passato a individuare la necessità di scrivere baseTitle sulla base della lunghezza del medesimo titolo della finestra.
+    if(windowTitle().size()<7){
         baseTitle=windowTitle();
     }
     // Quando si attiva questa finestra può essere che il box "interpolate" non sia allineato con lineChart, in quanto lo stato di interpolazione di lineChart può essere stato modificato agendo sulla casella di iinterpolazione di winvalues.
     //La cosa si risolve brillantemente con la seguente riga:
     ui->interpolateBox->setChecked(ui->lineChart->linearInterpolate);
 
-    valuesWinTitle[valuesWinTitle.count()-1] = windowTitle()[windowTitle().count()-1];
+    valuesWinTitle[valuesWinTitle.size()-1] = windowTitle()[windowTitle().size()-1];
     valuesWin->setWindowTitle(valuesWinTitle);
     valuesWin->move(pos().x()+frameGeometry().width()+1,  pos().y());
     //DrawType è passata a questa classe subito dopo la costruzione. Non lo posso quindi passare a lineChart nel costruttore, ma posso qui, dopo la costruzione e prima della visualizzazione.
@@ -463,12 +463,22 @@ In mac non si riescono a sopprimere i bottoni di sistema, che sprecano spazio, e
 void CPlotWin::updateChartOptions(SOptions opts_){
   programOptions=opts_;
   EPlotPenWidth eppw;
+
+  if(programOptions.plotPenWidth==0)
+    eppw=pwThin;
+  else if(programOptions.plotPenWidth==1)
+    eppw=pwThick;
+  else
+    eppw=pwAuto;
+/*
+ * Il codice segunente è peggiore perché dà come warning variabile eppw non inizializzata
   if(programOptions.plotPenWidth==0)
     eppw=pwThin;
   if(programOptions.plotPenWidth==1)
     eppw=pwThick;
   if(programOptions.plotPenWidth==2)
     eppw=pwAuto;
+*/
   ui->lineChart->setPlotPenWidth(eppw);
   ui->lineChart->autoLabelXY=programOptions.autoLabelXY;
   ui->lineChart->useBrackets=programOptions.useBrackets;
@@ -538,10 +548,10 @@ void CPlotWin::resizeEvent(QResizeEvent *){
     ui->xValueLbl->setFont(myFont);
     ui->yValueLbl->setFont(myFont);
     QFontMetrics fm(myFont);
-    int minimumWidth=fm.width("+#.###e+##")+2;
+    int minimumWidth=fm.horizontalAdvance("+#.###e+##")+2;
     ui->xValueLbl->setMinimumWidth(minimumWidth);
     ui->yValueLbl->setMinimumWidth(minimumWidth);
-    minimumWidth=fm.width(ui->interpolateBox->text()+"XXX")+2;
+    minimumWidth=fm.horizontalAdvance(ui->interpolateBox->text()+"XXX")+2;
     ui->interpolateBox->setMinimumWidth(minimumWidth);
 
 }
@@ -638,12 +648,13 @@ void CPlotWin::on_printTBtn_clicked()
     */
 //  bool ok;
   QPrinter myPrinter;
-  QRect prnRect=myPrinter.pageRect();
+  QRect prnRect;
   QString pdfFileName, fullFileName, ret;
   /* A differenza di BCB non ho una stampante generale di sistema. Creo quindi qui un oggetto printer in quanto alcune opzioni (ad esempio l'orientazione, l'hardware fisico da usare, ecc.) possono essere selezionati all'interno di printWOptsDlg*/
   printWOptsDlg->setPrinter(&myPrinter);
   printWOptsDlg->exec();
-  prnRect=myPrinter.pageRect();
+  prnRect=myPrinter.pageLayout().paintRectPixels(myPrinter.resolution());
+//  prnRect=myPrinter.pageRect();
   if(printWOptsDlg->doPrint){
     myPrinter.setDocName("MC's PlotXY - Plot Print");
     ui->lineChart->blackWhite=printWOptsDlg->bwPrint;

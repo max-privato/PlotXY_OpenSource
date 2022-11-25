@@ -36,6 +36,116 @@
 #define NearIntD(x) (int(x+0.5))
 
 
+
+static QString smartSetNum(float num, int prec){
+    /*  Funzione PURA che scrive su stringa i numeri con un numero prefissato di cifre
+     * significative nella versione più compatta possibile, ma senza perdita di informazioni.
+     *  E' stato necessario implementarla
+     * anche se esiste la funzione di stringa setNum, in quanto quest'ultima taglia gli zeri
+     * finali. Pertanto, ad es. 0.1200  (o 0.12) con 4 cifre significative in setNum viene
+     * 0.12, con perdita di informazione sugli ultimi due digit, mentre nella presente
+     * routine, più correttamente, viene 0.1200
+     *
+    */
+    QChar sep;
+    QString out, prepS;
+    //Prima di tutto scrivo il numero nella stringa da ritornare in formato esponenziale, e successivamente verifico se esiste la possibilità di una scrittura più compatta che metto nuovamente in out. Se non esisterà questa possibilità, la stringa di uscita sarà out così come derivante dalla seguente riga:
+    out.setNum(num,'e',prec-1);
+    //Prima di tutto devo capire quante cifre ho dopo l'esponente, se 1 o 2 I due casi, testati rispettivamente con Qt 5.2 (Mac-air) e Qt 5.7 (Fisso Home) sono e+## (qualunque sia l'esponente e formato differenziato a seconda se sia sufficiente un esponente a un dicit (nel qual caso ho E+#) o servano due digit nel qual caso ho E+##). In sostanza mi basta calcolare expSize e vedere sse è di 3 caratteri (E+#) o di 4 (E+##)
+    int expSize=out.size()-out.indexOf('e');
+    //Se l'esponente è 0 intanto mi riparmio le ultime 4 cifre:
+    int exp;
+    exp=out.right(expSize-1).toInt();
+    //Se l'esponente è zero lo tolgo e via:
+    if(exp==0){
+      out.chop(expSize);
+      return out;
+    }
+
+    //nelle seguenti analisi devo maneggiare il separatore decimale sep, che può essere punto o virgola. Faccio un codice che sia robusto in tal senso:
+    if(out.contains('.'))
+        sep='.';
+    else
+        sep=',';
+    // la seguente prepS è la stringa da "prependere" se il numero è in modulo minore di 1 ovviamente nel caso in cui sia possibile rinunciare alla notazione esponenziale
+    prepS="0"+QString(sep);
+    //Il seguente loop è valido solo per esponenti positivi, e compatibili con il livello di precisione richiesto. Se il numero è troppo grande per essere rappresentato in utte le sue cifre in formato floating point non verrà processato e resterà attiva la notazione esponenziale precedentemente usata per la scrittura in out
+    for (int i=1; i<prec; i++)
+      if(exp==i &&prec>i){
+        out.remove(sep);
+        out.chop(expSize);
+        //Adesso inserisco il puntino nella posizione giusta. Però poi lo ritolgo se diviene l'ultimo carattere.
+        if(out[0]=='-')
+          out.insert(i+1+1,sep);
+        else
+          out.insert(i+1,sep);
+        if(out[out.length()-1]=='.')
+            out.chop(1);
+        break;
+        if(i+1!=out.length())
+          out.insert(i+1+(int)(out[0]=='-'),sep);
+        break;
+       }
+// Rimangono da trattare solo i casi di esponente negativo. Vengono considerati solo esponenti fino a -2 in quanto al più voglio avere due zeri dopo la virgola. Oltre questo è più leggibile la notazione esponenziale:
+    if(exp==-1 &&prec>1){
+      out.remove(sep);
+      if(out[0]=='-')
+         out.insert(1,prepS);
+      else
+         out.insert(0,prepS);
+      out.chop(expSize);
+     }
+    if(exp==-2 &&prec>2){
+      if(out[0]=='-'){
+        out.insert(1,"0");
+        out.remove(sep);
+        out.insert(1,prepS);
+      }else{
+        out.insert(0,"0");
+        out.remove(sep);
+        out.insert(0,prepS);
+      }
+      out.chop(expSize);
+     }
+    if(exp==-3 &&prec>3){
+      if(out[0]=='-'){
+        out.insert(1,"00");
+        out.remove(sep);
+        out.insert(1,prepS);
+      }else{
+        out.insert(0,"00");
+        out.remove(sep);
+        out.insert(0,prepS);
+      }
+      out.chop(expSize);
+     }
+    //Il seguente ulteriore caso comporta numeri in floatin point particolarmente lunghi, più lunghi del caso di forma esponenziale ed esponente a 3 digit. Pertanto ha senso mantenerlo solo se l'esponente è a 4 digit:
+    if(expSize==4)
+      if(exp==-4 &&prec>4){
+        if(out[0]=='-'){
+          out.insert(1,"000");
+          out.remove(sep);
+          out.insert(1,prepS);
+        }else{
+          out.insert(0,"000");
+          out.remove(sep);
+          out.insert(0,prepS);
+        }
+        out.chop(expSize);
+       }
+
+    return out;
+}
+
+
+
+
+
+
+
+
+
+
 static bool isEven(int i)  {
     /*Returns true if the inputted integer is even or zero
      * */
@@ -50,7 +160,7 @@ static bool isEven(int i)  {
   }
 
 
-CLineChart::CLineChart(QWidget * parent):QLabel(parent,nullptr)
+CLineChart::CLineChart(QWidget * parent):QLabel(parent)
 {
 /*
 La reimplementazione della funzione virtual resizeEvent in questo file contiene la chiamata a plot().
@@ -617,14 +727,14 @@ Oltre che al momento della costruzione di CLineChart, e ad ogni suo ridimensiona
    lgdFont.setPixelSize(fontPxSize);
   }
   QFontMetrics fm(baseFont);
-  float fSmallHSpace=0.6f*fm.width("a");
+  float fSmallHSpace=0.6f*fm.horizontalAdvance("a");
   smallHSpace=int(fSmallHSpace);
   if(fSmallHSpace<=2.0f)
     markHalfWidth=1.5f*fSmallHSpace;
   else
     markHalfWidth=qMax(1.5f*2.0f,1.00f*fSmallHSpace);
 
-  numWidth=fm.width("+0.000");
+  numWidth=fm.horizontalAdvance("+0.000");
   textHeight=fm.height();
   maxTic=int(plotRect.height()/(1.2f*textHeight)/2.f)-1;
   minYTic=qMin(4,maxTic-3);
@@ -642,7 +752,6 @@ Pertanto l'indice di file è sempre 0 e l'indice della variabile è sempre 0.
           yZero; //Coordinata pixel Y della retta y=0 (scale lineari) e logy=0 (scale log)
   float minXStep, fAux;
   QBrush redBrush, grayBrush;
-  QString XText;
 
   plotPen.setColor(Qt::black);
   myPainter->setPen(plotPen);
@@ -757,8 +866,11 @@ Pertanto l'indice di file è sempre 0 e l'indice della variabile è sempre 0.
 
 
 int CLineChart::drawCurves(bool noCurves){
- /* Funzione per il tracciamento delle curve su grafici di linea.  Contiene al suo interno un algoritmo per l'eliminazione automatica dei punti visualmente ridondanti e del taglio delle curve all'esterno del rettangolo di visualizzazione.
-Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è sconsigliato modificarla se non strettamente necessario.
+ /* Funzione per il tracciamento delle curve su grafici di linea.  Contiene al suo interno
+  *  un algoritmo per l'eliminazione automatica dei punti visualmente ridondanti e del
+  *  taglio delle curve all'esterno del rettangolo di visualizzazione.
+  *  Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
+  *  sconsigliato modificarla se non strettamente necessario.
 */
   int iTotPlot=-1;
   int pointsDrawn0;
@@ -835,7 +947,7 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
 //        float yfplus=yAxis.width-yRatio * (py[iFile][iPlot][startIndex[iFile]]-symin)+Y0;
 
         float xfplus, yfplus;
-        qDebug()<<"px[iFile][startIndexPlus]: "<<px[iFile][startIndexPlus];
+//        qDebug()<<"px[iFile][startIndexPlus]: "<<px[iFile][startIndexPlus];
         if(xAxis.scaleType==stLin)
           xfplus=xAxis.pixPerValue  * (px[iFile][startIndexPlus]-sxmin)+X0;
         else
@@ -852,8 +964,8 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         if(FC.isInRect(xPlus,yPlus)){
           FC.getLine(x1,y1,xPlus,yPlus);
           FC.giveRectIntersect(I1,I2);
+          path.moveTo(NearInt(I1.X), NearInt(I1.Y));
         }
-        path.moveTo(NearInt(I1.X), NearInt(I1.Y));
       }else{
         path.moveTo(double(x1),double(y1));
       }
@@ -875,9 +987,6 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
       y=NearInt(yf);
       // Se i due punti coincidono la retta è indeterminata. Però non crea difficoltà al tracciamento in quanto FC gestisce internamente tale situazione.
       FC.getLine(x1,y1,x,y);
-//      bool lineDefined=FC.getLine(x1,y1,x,y);
-//      qDebug()<<"x1: "<<x1<<"  y1: "<<y1<<"  x:"<<x<<"  y: "<<y;
-//      qDebug()<<"lineDefined: "<<lineDefined;
 
       //Grafico fino al penultimo punto, con filtraggio e "Clippaggio". L'ultimo punto
       //lo traccio fuori del loop per essere certo che venga comunque tracciato, anche
@@ -984,14 +1093,16 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 //      out<<path;
 //      file.close();
       if(makingSVG){
-          myPainter->drawPath(path);
-//          qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
+        myPainter->drawPath(path);
+//        qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
       }else{
-// Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fa i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
-          int i;
-          foreach(QPolygonF poly, path.toSubpathPolygons())
-              for(i=0; i<poly.size()-1; i++)
-                  myPainter->drawLine(poly.at(i),poly.at(i+1));
+// Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fra i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
+        int i;
+        qDebug()<<"r-g-b: "<<myPainter->pen().color().red()<< myPainter->pen().color().green()<<myPainter->pen().color().blue();
+        qDebug()<<"width: "<<myPainter->pen().width();
+        foreach(QPolygonF poly, path.toSubpathPolygons())
+          for(i=0; i<poly.size()-1; i++)
+            myPainter->drawLine(poly.at(i),poly.at(i+1));
 //          qDebug() << "foreach operation took" << timer.elapsed() << "milliseconds";
       }
     } //Fine tracciamento varie curve relative ad un medesimo file
@@ -1000,8 +1111,11 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 }
 
 int CLineChart::drawCurvesD(bool noCurves){
- /* Funzione per il tracciamento delle curve su grafici di linea.  Contiene al suo interno un algoritmo per l'eliminazione automatica dei punti visualmente ridondanti e del taglio delle curve all'esterno del rettangolo di visualizzazione.
-Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è sconsigliato modificarla se non strettamente necessario.
+ /* Funzione per il tracciamento delle curve su grafici di linea.  Contiene al suo interno
+  * un algoritmo per l'eliminazione automatica dei punti visualmente ridondanti e del
+  * taglio delle curve all'esterno del rettangolo di visualizzazione.
+  * Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
+  * sconsigliato modificarla se non strettamente necessario.
 */
   int iTotPlot=-1;
   int pointsDrawn0;
@@ -1038,10 +1152,7 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         plotPen.setColor(Qt::black);
       else
         plotPen.setColor(curveParamLst[iTotPlot].color);
-      if(iPlot>7)
-          plotPen.setStyle(Qt::DashLine);
-      else
-          plotPen.setStyle(Qt::SolidLine);
+      plotPen.setStyle(curveParamLst[iTotPlot].style);
       myPainter->setPen(plotPen);
       // Calcolo yRatio e symin, valutando se sono relativi alla scala di sinistra o a quella eventuale di destra:
       if(curveParamLst[iTotPlot].rightScale){
@@ -1099,8 +1210,8 @@ Essendo stata realizzata con grande cura ed essendo intrinsecamente complessa è
         if(FCd.isInRect(xPlus,yPlus)){
           FCd.getLine(x1,y1,xPlus,yPlus);
           FCd.giveRectIntersect(I1,I2);
+          path.moveTo(NearIntD(I1.X), NearIntD(I1.Y));
         }
-        path.moveTo(NearIntD(I1.X), NearIntD(I1.Y));
       }else{
         path.moveTo(x1,y1);
       }
@@ -1206,7 +1317,6 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
       //L'ultimo punto lo traccio solo se il penultimo era nel rettangolo:
       if(wasInRect){
         iWasInRect++;
-//        qDebug()<<"wasInRect, i:"<<wasInRect<<iWasInRect;
         if(FCd.isInRect(x,y)){
           path.lineTo(x1,y1);
           path.lineTo(x,y);
@@ -1234,13 +1344,12 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
           myPainter->drawPath(path);
 //          qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
       }else{
-// Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fa i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
+// Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fra i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
           foreach(QPolygonF poly, path.toSubpathPolygons())
               for(int i=0; i<poly.size()-1; i++)
                   myPainter->drawLine(poly.at(i),poly.at(i+1));
-//          qDebug() << "foreach operation took" << timer.elapsed() << "milliseconds";
       }
-    } //Fine tracciamento varie curve relative ad un medesimo file
+    } //Fine tracciamento varie curve relative a un medesimo file
   } //Fine ciclo for fra i vari files
  return 0;
 }
@@ -1746,8 +1855,8 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
     wFont=baseFont;
     QChar c=text[i];
     if(useSmartUnits){
-      if(c=='w') c=0x03A9; //unicode per omega maiuscolo
-      if(c=='u') c=0x03BC; //unicode per mu minuscolo
+      if(c=='w') c=QChar(0x03A9); //unicode per omega maiuscolo
+      if(c=='u') c=QChar(0x03BC); //unicode per mu minuscolo
 	}  
     if(useSmartUnits && (c.isDigit()||c=='-'||c=='+'||c=='.')){  //Vedo se questi caratteri vanno trattati come esponenti
       wFont=baseFont;
@@ -1759,11 +1868,11 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
         wFont=baseFont;
     }
     myPainter->setFont(wFont);
-    len+=myPainter->fontMetrics().width(c);
+    len+=myPainter->fontMetrics().horizontalAdvance(c);
   }
   myPainter->setFont(baseFont);
   if(addBrackets)
-    len+=myPainter->fontMetrics().width("()");
+    len+=myPainter->fontMetrics().horizontalAdvance("()");
   if(Virtual)
   return len;
   //Il calcolo preliminare appena fatto mi serve per la gestione del punto di inizio della scrittura tenendo conto dei vari allineamenti previsti. Per ora però non lo uso e passo alla scrittura.
@@ -1778,14 +1887,14 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
     wY+=myPainter->fontMetrics().height()/2-1;
   if(addBrackets){
     myPainter->drawText(wX,wY,"(");
-    wX+=myPainter->fontMetrics().width("(");
+    wX+=myPainter->fontMetrics().horizontalAdvance("(");
   }
     for(int i=0; i<text.size(); i++){
       wFont=baseFont;
       QChar c=text[i];
       if(useSmartUnits){
-        if(c=='w') c=0x03A9; //unicode per omega maiuscolo
-        if(c=='u') c=0x03BC; //unicode per mu minuscolo
+        if(c=='w') c=QChar(0x03A9); //unicode per omega maiuscolo
+        if(c=='u') c=QChar(0x03BC); //unicode per mu minuscolo
       }
       if(useSmartUnits && (c.isDigit()||c=='-'||c=='+'||c=='.')){
         wFont=baseFont;
@@ -1798,11 +1907,11 @@ int CLineChart::smartWriteUnit(QPainter * myPainter, QFont baseFont, int X, int 
           myPainter->setFont(wFont);
           myPainter->drawText(wX,wY,QString(c));
         }
-        wX+=myPainter->fontMetrics().width(c);
+        wX+=myPainter->fontMetrics().horizontalAdvance(c);
       } else{
         myPainter->setFont(baseFont);
         myPainter->drawText(wX,wY,QString(c));
-        wX+=myPainter->fontMetrics().width(c);
+        wX+=myPainter->fontMetrics().horizontalAdvance(c);
       }
     }
 
@@ -1856,14 +1965,14 @@ Questo ha comportato nel seguente if la sostituzione di "atLeft" con "atRight" e
   if(msg1+msg2=="")
       return 0;
   myPainter->setFont(baseFont);
-  width1=myPainter->fontMetrics().width(msg1);
+  width1=myPainter->fontMetrics().horizontalAdvance(msg1);
   H1=myPainter->fontMetrics().height();
   myPainter->setFont(expFont);
-  width2=myPainter->fontMetrics().width(msg2);
+  width2=myPainter->fontMetrics().horizontalAdvance(msg2);
   H2=myPainter->fontMetrics().height();
 
   if(addBrackets)
-    wBracket=myPainter->fontMetrics().width("(");
+    wBracket=myPainter->fontMetrics().horizontalAdvance("(");
   else
     wBracket=0;
 
@@ -1946,7 +2055,7 @@ bool CLineChart::event(QEvent *event){
             if(hovData.rect.contains(pos)){
               if(!curveParamLst[hovData.iTotPlot].isFunction)break;
               hovVarRect= hovData.rect;
-              QString str=curveParamLst[hovData.iTotPlot].fullName;
+//              QString str=curveParamLst[hovData.iTotPlot].fullName;
               QToolTip::showText(helpEvent->globalPos(), curveParamLst[hovData.iTotPlot].fullName);
 //              setToolTip(lCurveParam[hovData.iTotPlot].fullName);
             }
@@ -2064,10 +2173,10 @@ void CLineChart::getData(float *px_,float **py_, int nPoints_, int nPlots_){
    //Attribuisco valori default standard alle variabili necessarie al getData per singole variabili asse x,
    FI.name="fileName";
    FI.numOfPoints=nPoints_;
-   FI.variableStep=false;
+   FI.variableStep=true;
    xVarParam.name="x";
    xVarParam.isMonotonic=true;
-   xVarParam.isVariableStep=false;
+   xVarParam.isVariableStep=true;
    curveParamLst.clear();
    SCurveParam param;
    for(i=0; i<nPlots_; i++){
@@ -2079,6 +2188,7 @@ void CLineChart::getData(float *px_,float **py_, int nPoints_, int nPlots_){
      param.name="var";
      param.rightScale=false;
      param.unitS="";
+     param.style=Qt::SolidLine;
      curveParamLst.append(param);
     }
 
@@ -2391,14 +2501,12 @@ int CLineChart::giveNearValue(QPoint mouseP , QPoint &nearP, QPointF &valueP){
     /* Prima di tutto trovo index che è l'indice del valore sull'asse x più vicino al cursore*/
     if(filesInfo[iFile].variableStep){
       indexSX=qMax(0,pixelToIndexDX[VSFile][netMouseP.x()]-1);
-      deltaX=px[iFile][indexSX+1]-px[iFile][indexSX];
       if(fMouseX-px[iFile][indexSX]<px[iFile][indexSX+1]-fMouseX)
         index=indexSX;
       else
         index=indexSX+1;
     }else{
       deltaX=px[iFile][1]-px[iFile][0];
-      indexSX=int((fMouseX-px[iFile][0])/deltaX);
       index=NearInt((fMouseX-px[iFile][0])/deltaX);
       //Può accadere che fra l'ultimo e il penultimo punto non si abbia la stessa distanza
       //che fra gli altri. Questo perché se Tmax supera TOld+DeltaT, vengono registrati
@@ -2408,6 +2516,11 @@ int CLineChart::giveNearValue(QPoint mouseP , QPoint &nearP, QPointF &valueP){
           index++;
     }
     // index trovato!
+
+    //La seguente condizione non si dovrebbe mai verificare. Ma siccome è stato visto che questo in rarissimi casi accade, al fine di facilitare il debug metto il seguente check, comodo per mettere un breakpoiont su badIndex=true;
+    bool badIndex=false;
+    if(index>=nPoints)
+        badIndex=true;
 
     //Ora scelgo per il file corrente il punto più vicino verticalmente al cursore
     if(xAxis.scaleType==stLin)
@@ -2545,10 +2658,10 @@ void CLineChart::mouseMoveEvent(QMouseEvent *event)
 2) nella seconda gestisce la selezione dell'area di zoom
 3) nella terza gestisce i cursori di dati
 */
-    int nearX;
-    static SXYValues values;
-    int posX=event->pos().x();
-if(dataCursDragging)
+  int nearX;
+  static SXYValues values;
+  int posX=event->pos().x();
+  if(dataCursDragging)
     hovVarRect=QRect(0,0,0,0);
     //La seguente sezione 1 è stata trasferita all'interno della funzione event (che cestisce anche lo snap to grid)
     /*
@@ -2567,12 +2680,12 @@ if(dataCursDragging)
  */
 
 //2) selezione dell'area di zoom
-    if(zoomSelecting){  //sono in fase di selezione del rettangolo di zoom
-      //endPos è la posizione finale per il rettangolo delle zoomate
-      endZoomRectPos=event->pos();
-      update();
-      return;
-    }
+  if(zoomSelecting){  //sono in fase di selezione del rettangolo di zoom
+    //endPos è la posizione finale per il rettangolo delle zoomate
+    endZoomRectPos=event->pos();
+    update();
+    return;
+  }
 
 //3) gestione dei cursori di dati
    //A questo punto non sto selezionando il rettangolo di zoom. Adesso se sono in un'azione di dataRectDragging aggiorno i valori numerici e la posizione del cursore dati; altrimenti valuto se il mouse è nel raggio di azione di uno dei tre cursori dati. La cosa viene ripetuta tre volte, una per ogni cursore dati.
@@ -2823,11 +2936,6 @@ void  CLineChart::drawAllLabelsAndGrid(SAxis axis){
     if(axis.type==atX){
       initialPix=Y0;
       finalPix=Y1;
-      if(axis.scaleMin*axis.scaleMax>0)
-        zeroPosition=-1;
-      else{
-        zeroPosition=NearInt(-axis.scaleMin/(axis.scaleMax-axis.scaleMin)*(X1-X0)+X0);
-      }
     }else{
       initialPix=X0;
       finalPix=X1;
@@ -2845,7 +2953,7 @@ void  CLineChart::drawAllLabelsAndGrid(SAxis axis){
     // Tacche e numeri.
     //Per prima cosa vedo se devo rimuovere una tacca.
     int axisLabelLen=writeAxisLabel(0,0,axis,true);
-    //rimuovo euristicamente la tacca se lla larghezza di ticinterval.x non è almeno pari alla larghezza in pixel della aaxislabel aumentata del 50%. Altrimento divrei fare calcolimolto articolati per un fatto tutto sommato secondario.
+    //rimuovo euristicamente la tacca se la larghezza di ticinterval.x non è almeno pari alla larghezza in pixel della axislabel aumentata del 50%. Altrimento dovrei fare calcoli molto articolati per un fatto tutto sommato secondario.
     if(axisLabelLen*1.5f>axis.ticIntervalPix)
       removeOneNumLbl=true;
 
@@ -3115,7 +3223,7 @@ void CLineChart::drawAllLabelsAndGridLog(SAxis axis){
   switch(numTicType){
    case 1:
       pos[1]=pos0;
-      decInterval=pos[0]-pos[1];
+//      decInterval=pos[0]-pos[1];
       break;
     case 2:
       decInterval= float(pos10+1)/(axis.eMax-axis.eMin);
@@ -3657,7 +3765,7 @@ QString CLineChart::plot(bool autoScale){
   resetMarkData();
   designPlot();
   lastAutoScale=autoScale;
-  iRet=0;
+//  iRet=0;
   if(autoScale){
     bool someLeftScale=false, someRightScale=false;
     /*Gestione eventuale scala destra. La metto se sono verificate due condizioni:
@@ -3756,12 +3864,10 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
   if(PPlotPenWidth!=pwAuto){
     ticPen.setWidth(PPlotPenWidth+1); //se pwThin uso 1 pixel, se pwThick 2
     plotPen.setWidth(PPlotPenWidth+1);
-    framePen.setWidth(PPlotPenWidth+1);
   }else{  //Ora sono in spessore penna automatico
     //Si ricordi che il risultato della seguente divisione è troncato, non arrotondato.
-    ticPen.setWidth((plotRect.width()+plotRect.height())/1000);
+    ticPen.setWidth(qMax(1,(plotRect.width()+plotRect.height())/1000));
     plotPen.setWidth(ticPen.width());
-    framePen.setWidth(plotPen.width());
   }
   if(cutsLimits){
     framePen.setWidth(qMax(plotPen.width(),3));
@@ -3929,6 +4035,8 @@ Se X, oltre che monotona crescente è anche costituita da campioni equispaziati 
     case ptLine:
       if(drawType==dtMC)
         drawCurves(Virtual);
+      else if(drawType==dtMcD)
+        drawCurvesD(Virtual);
       else if(drawType==dtQtF)
         drawCurvesQtF(Virtual);
       else if(drawType==dtQtI)
@@ -4064,7 +4172,8 @@ QString CLineChart::print(QPrinter * printer, bool thinLines){
     QMessageBox::critical(this,"",ret);
     return ret;
   }
-  QRect prnRect=printer->pageRect();
+  QRect prnRect=printer->pageLayout().paintRectPixels(printer->resolution());
+
   if(prnRect.width()<20 || prnRect.height()<20 ){
     ret=tr("Unable to get valid information from the selected printer");
     QMessageBox::critical(this,"",ret);
@@ -4250,20 +4359,20 @@ Significato delle variabili passate (solo fino a maxVal sono usate per scale log
     myAxis.scaleMax=powf(10.,myAxis.eMax);
     if(myAxis.scaleType==stDB){
       sprintf(buffer,"%d",20*myAxis.eMin);
-      myAxis.maxTextWidth=myPainter->fontMetrics().width(buffer);
+      myAxis.maxTextWidth=myPainter->fontMetrics().horizontalAdvance(buffer);
       sprintf(buffer,"%d",20*myAxis.eMax);
-      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().width(buffer));
+      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().horizontalAdvance(buffer));
       sprintf(buffer,"dB");
       if(useBrackets)
         sprintf(buffer,"(dB)");
-      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().width(buffer));
+      myAxis.maxTextWidth=qMax(myAxis.maxTextWidth, myPainter->fontMetrics().horizontalAdvance(buffer));
     }else{// myAxis.ScaleType=stLog
-        aux=myPainter->fontMetrics().width("10");
+        aux=myPainter->fontMetrics().horizontalAdvance("10");
       sprintf(buffer,"%d",myAxis.eMin);
       myPainter->setFont(expFont);
-      myAxis.maxTextWidth=aux+myPainter->fontMetrics().width(buffer);
+      myAxis.maxTextWidth=aux+myPainter->fontMetrics().horizontalAdvance(buffer);
       sprintf(buffer,"%d",myAxis.eMax);
-      aux+=myPainter->fontMetrics().width(buffer);
+      aux+=myPainter->fontMetrics().horizontalAdvance(buffer);
       myAxis.maxTextWidth=qMax(myAxis.maxTextWidth,aux);
       myPainter->setFont(numFont);
     }
@@ -4474,9 +4583,9 @@ ComputeScaleFactor:
   sprintf(num,format,double(myAxis.scaleMax));
   sscanf(num,"%f",&YY);
   if(myAxis.done==0){
-    aux=myPainter->fontMetrics().width(num);
+    aux=myPainter->fontMetrics().horizontalAdvance(num);
     sprintf(num,format,double(myAxis.scaleMin));
-    aux=qMax(aux,myPainter->fontMetrics().width(num));
+    aux=qMax(aux,myPainter->fontMetrics().horizontalAdvance(num));
     goto Return;
   }
   aux=0;
@@ -4492,7 +4601,7 @@ ComputeScaleFactor:
     }
     sprintf(format+2,"%1df",qMax(myAxis.ticDecimals,0));
     sprintf(num,format,double(yf));
-    aux=qMax(aux,myPainter->fontMetrics().width(num));
+    aux=qMax(aux,myPainter->fontMetrics().horizontalAdvance(num));
     yf+=myAxis.ticInterval*(1+myAxis.halfTicNum);
     sprintf(num,format,double(yf));
     sscanf(num,"%f",&yy);
@@ -4693,7 +4802,7 @@ SFloatRect2 CLineChart::setFullDispRect(){
 void CLineChart::setPlotPenWidth(EPlotPenWidth myWidth){
   PPlotPenWidth=myWidth;
   /* In linea di massima si potrebbe pensare di attribuire qui PPlotPenWidth a plotPen, ticPen, framePen. Il problema è che il valore passato non è sempre un numero fisso: nel caso sia pwAuto, dipenderà  dalle dimensioni della finestra. Di conseguenza sarebbe abbastanza inutile.
-Pertanto l'attribuzione dei valori effettivi degli spessori delle penne sarà  fatta all'inizio della funzione plot(bool, bool). */
+Pertanto l'attribuzione dei valori effettivi degli spessori delle penne sarà fatta all'inizio della funzione goPlot(bool, bool). */
 }
 
 void CLineChart::setXZeroLine(bool zeroLine_){
@@ -4870,7 +4979,7 @@ Escape:
       X+=int(2*onePixDPI);
 
   /* Si ha l'obiettivo di passare prima o poi all'unica fuzione smartWriteUnit(). Per ora vi sono ancora delle difficoltà nel calcolo delle spaziature, e quindi nel caso della sola potenza di 10 uso ancora il più vecchio drawText2.
-Notare che a drawText1 si passano separatamente base ed esponente, mentre in smartWriteUnit la potenza di 10 è automaticamente riconosciuta dalla presenza come primi tre caratteri di "10*"
+Notare che a drawText2 si passano separatamente base ed esponente, mentre in smartWriteUnit la potenza di 10 è automaticamente riconosciuta dalla presenza come primi tre caratteri di "10*"
 */
 
   if (useWriteText2){ //Caso residuo solo per le potenze di 10
@@ -4929,7 +5038,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
   if(nFiles>1){
     oneFileName=true;
     for (int i=0; i<nFiles; i++){
-      QString dbgStr=filesInfo[i].name;
+//      QString dbgStr=filesInfo[i].name;
       if(filesInfo[i].name!=filesInfo[0].name){
         oneFileName=false;
         break;
@@ -4942,7 +5051,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
     myPainter->setPen(Qt::black);
     msg="(file "+filesInfo[0].name + "; x-var "+xVarParam.name+")  ";
     if(!_virtual)myPainter->drawText(xPosition,yPosition,msg);
-    xPosition+=myPainter->fontMetrics().width(msg);
+    xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
     while(1){
       iTotPlot++;
       if(iTotPlot==numOfTotPlots)    break;
@@ -4955,24 +5064,23 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
       if(!blackWhite)
         myPainter->setPen(curveParamLst[iTotPlot].color);
       //Decido se devo andare a capo sulla base della stringa senza "    ", ma se poi scrivo metto la stringa con "    ":
-      if(xPosition+myPainter->fontMetrics().width(curveParamLst[iTotPlot].name)<plotRect.width()){
+      if(xPosition+myPainter->fontMetrics().horizontalAdvance(curveParamLst[iTotPlot].name)<plotRect.width()){
       if(!_virtual){
            myPainter->drawText(xPosition,yPosition,msg);
            struct SHoveringData hovData;
            hovData.rect=myPainter->boundingRect(xPosition,yPosition-textHeight,400,50,Qt::AlignLeft, msg);
            hovData.iTotPlot=iTotPlot;
            hovDataLst.append(hovData);
-           markerXPos=xPosition+myPainter->fontMetrics().width(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
+           markerXPos=xPosition+myPainter->fontMetrics().horizontalAdvance(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
            markerYPos=int(yPosition-0.8f*myPainter->fontMetrics().height()+int(markHalfWidth));
            //Posizione dei marcatori vicino ai rispettivi nomi sulla leggenda:
            markPositions[iTotPlot].setX(markerXPos);
            markPositions[iTotPlot].setY(markerYPos);
         }
-        xPosition+=myPainter->fontMetrics().width(msg);
+        xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
       }else{
         iTotPlot--;
         numRows++;
-        xPosition=0;
         yPosition+=textHeight;
         xPosition=0;
         if(numRows==4){
@@ -5007,7 +5115,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
         iTotPlot++;
         msg=msg+curveParamLst[iTotPlot].name+"   ";
  //Se sforo il fine riga tolgo il blocco corrente dalla riga corrente a meno che non sia l'unico blocco:
-        if(myPainter->fontMetrics().width(msg)>plotRect.width()){
+        if(myPainter->fontMetrics().horizontalAdvance(msg)>plotRect.width()){
           if(blocksPerRow[iRow]>1){
             blocksPerRow[iRow]--;
             iTotPlot=iTotPlStartBlock;
@@ -5057,7 +5165,7 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
         msg="  file "+ filesInfo[iFile].name+":  ";
       myPainter->drawText(xPosition,yPosition,msg);
       //Ora che ho scritto ad inizio riga il nome del file scrivo l'elenco delle corrispondenti variabili:
-      xPosition+=myPainter->fontMetrics().width(msg);
+      xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
       for(int iVar=0; iVar<nPlots[iFile]; iVar++){
         iTotPlot++;
         if(!blackWhite)
@@ -5070,9 +5178,9 @@ PER ENTRAMBI I CASI limito comunque la leggenda ad un massimo di 3 righe, rinunc
         hovData.rect=myPainter->boundingRect(xPosition,yPosition-textHeight,400,50,Qt::AlignLeft, msg);
         hovData.iTotPlot=iTotPlot;
         hovDataLst.append(hovData);
-        markerXPos=xPosition+myPainter->fontMetrics().width(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
+        markerXPos=xPosition+myPainter->fontMetrics().horizontalAdvance(curveParamLst[iTotPlot].name)+int(markHalfWidth)+1;
         markerYPos=yPosition-int(0.8f*myPainter->fontMetrics().height()+int(markHalfWidth));
-        xPosition+=myPainter->fontMetrics().width(msg);
+        xPosition+=myPainter->fontMetrics().horizontalAdvance(msg);
        //Posizione dei marcatori vicino ai rispettivi nomi sulla leggenda:
        markPositions[iTotPlot].setX(markerXPos);
        markPositions[iTotPlot].setY(markerYPos);
@@ -5130,8 +5238,10 @@ bool CLineChart::CFilterClip::getLine(float X1_, float Y1_, float X2_, float Y2_
 }
 
 void CLineChart::CFilterClip::getRect(int X0, int Y0, int X1, int Y1){
-    R.Left=X0-0.5f;	R.Top=Y0-0.5f;
-    R.Right=X1+0.5f; R.Bottom=Y1+0.5f;
+    R.Left=X0;
+    R.Top=Y0;
+    R.Right=X1;
+    R.Bottom=Y1;
 }
 
 bool  CLineChart::CFilterClip::isInRect(float X, float Y){
@@ -5167,7 +5277,7 @@ bool  CLineChart::CFilterClip::isRedundant(float X, float Y){
 int CLineChart::CFilterClip::giveRectIntersect(FloatPoint & I1, FloatPoint &I2){
     /* Questa funzione copia nei parametri passati i valori delle eventuali intersezioni
     del segmento congiungente i due punti interni (X1,Y1) e (X2,Y2), passati con la
-    prescedente getLine, con il rettangolo R passato con il recente GetRect.
+    precedente getLine, con il rettangolo R passato con il recente GetRect.
     La funzione ritorna il numero di intersezioni trovate.
     */
     float X;
@@ -5301,8 +5411,10 @@ bool CLineChart::CFilterClipD::getLine(double X1_, double Y1_, double X2_, doubl
 }
 
 void CLineChart::CFilterClipD::getRect(int X0, int Y0, int X1, int Y1){
-    R.Left=X0-0.5;	R.Top=Y0-0.5;
-    R.Right=X1+0.5; R.Bottom=Y1+0.5;
+    R.Left=X0;
+    R.Top=Y0;
+    R.Right=X1;
+    R.Bottom=Y1;
 }
 
 bool  CLineChart::CFilterClipD::isInRect(double X, double Y){

@@ -16,6 +16,7 @@
  * DAMAGE INCURRED BY ITS USE.
  *
  */
+#define NearInt(x) (int(x+0.5f))
 
 #include "CFourWin.h"
 #include "ui_CFourWin.h"
@@ -125,7 +126,6 @@ CFourWin::CFourWin(QWidget *parent) :
   ui->harmValLbl->setFont(dummyF);
   ui->saveSetBtn->setFont(dummyF);
 #else
-  ;
   //Per ragioni misteriose sul Vaio il font delle due label vengono troppo grossi, ed in particolare più grossi di quelli del tempo iniziale e finale! Per ora faccio un aggiustamento euristico:
   /*
   if(myDPI>100){
@@ -143,7 +143,10 @@ CFourWin::CFourWin(QWidget *parent) :
 
 int  CFourWin::analyseAndShow(bool changed){
     /* Questa funzione analizza le opzioni e aggiorna i grafici di ampiezza e/o fase.
-Essa è richiamata sia allo show della finestre (in quel caso changed è true), che dopo il click sul bottone delle opzioni (in quel caso changed=false mi evita di rifare taluni calcoli inutili).*/
+     * Essa è richiamata sia allo show della finestre (in quel caso changed è true), che
+     * dopo il click sul bottone delle opzioni (in quel caso changed=false mi evita
+     * di rifare taluni calcoli inutili).
+*/
     int ret=0;
     int harm, harm1, harm2;
     float amplFactor;
@@ -166,24 +169,25 @@ Essa è richiamata sia allo show della finestre (in quel caso changed è true), 
     //Eventuale correzione con amplFactor
     harm1=myData.opt.harm1;
     harm2=myData.opt.harm2;
-    amplFactor=1.0; //evita un warning in quanto nel case succcessivo non ho la voce default
     switch(myData.opt.amplUnit){
-       case peak:
+      case peak:
         amplFactor=1.0;
         amplValueTxt="<i>value (peak):</i><br>";
         break;
-       case rms:
+      case rms:
         amplFactor=float(1.0/SQRT2);
         amplValueTxt="<i>value (rms):</i><br>";
         break;
-       case puOf0:
+      case puOf0:
         amplFactor=float((100.0/SQRT2)/fabs(double(ampl01[0])));
         amplValueTxt="<i>value (%/h0):</i><br>";
         break;
-       case puOf1:
+      case puOf1:
         amplFactor=float(100./fabs(double(ampl01[1])));
         amplValueTxt="<i>value (%/h1):</i><br>";
         break;
+      default:
+        amplFactor=1;  //Questo caso non serve; inserito solo per evitare warning successivi riguardo all'eventualità di usare un valore non inizializzato per amplFactor
     }
     ui->harmValLbl->setText(amplValueTxt);
 
@@ -247,7 +251,7 @@ void CFourWin::computeTHD(){
     THD+=amplitudes[harm]*amplitudes[harm];
   if (myData.opt.harm1<=14 && myData.opt.harm2>=40){
       for(int harm=14; harm<=40; harm++)
-        work+=harm*amplitudes[harm]*amplitudes[harm];
+        work+=float(harm)*amplitudes[harm]*amplitudes[harm];
    PWHC=sqrtf(work);
   }
 
@@ -494,7 +498,7 @@ void CFourWin::focusInEvent(QFocusEvent *){
 
     // La seguente riga non va bene quando l'opzione "/set" è selezionata. perché ovviamente cambia l'ultimo carattere.
     //    QChar c=windowTitle()[windowTitle().count()-1];
-    QChar c=windowTitle()[windowTitle().count()-1];
+    QChar c=windowTitle()[windowTitle().size()-1];
     QString s=QString(c);
     int i=s.toInt();
     emit winActivated(i);
@@ -554,7 +558,6 @@ bool CFourWin::indexesFromTimes(SFourData data){
 */
   bool changed=false;
   int oldIndexLeft=indexLeft, oldIndexRight=indexRight;
-  int nearInt(float);
    //Gli indici indexLeft e indexRight definiscono il più ampio set di campioni **interni** a t1 e t2. Per il calcolo, come specificato sopra, il valore della funzione in t1 verrà calcolato con intepolazione lineare fra quello in indexLeft-1 e in indexLeft, mentre quello di destra sarà in indexRight. Se indexLeft=0, ovviamente, prenderò come primo campione proprio quello indexLeft.
   bool indexLeftDefined=false;
   indexLeft=0;
@@ -673,10 +676,12 @@ int CFourWin::performDFT(){
       return 1;
   }
   delete[] harmOrders;
+  harmOrders=new float[harm2+1];
+  for (int i=0; i<=harm2; i++)
+    harmOrders[i]=float(i);
   delete[] ampl;  //Ampiezze delle armoniche prima della correzione con amplFactor
   delete[] amplitudes; //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
   delete[] phases;
-  harmOrders=new float[harm2+1];
   ampl=new float[harm2+1];
   amplitudes=new float[harm2+1];
   phases=new float[harm2+1];
@@ -687,7 +692,7 @@ int CFourWin::performDFT(){
   }
   auxC1=j*dcmplx(2.0*pi/nSamples);
   aux2=180./pi;
-  harmOrders[0]=0;
+//  harmOrders[0]=0;
   dftDone=true;
 
   for(harm=harm1+(harm1==0); harm<=harm2; harm++){
@@ -712,15 +717,15 @@ int CFourWin::performDFT(){
     double phase(dcmplx x);
     phases[harm]= float(aux2*phase(dcmplx(-imag(dft),real(dft))));
 
-    harmOrders[harm]=harm;
+//    harmOrders[harm]=harm;
   }
   //Computation of DC component. It is always computed because is used to express harmonics as ratio to it, and to evaluate signal RMS:
   dft0=0;
   for (sample=0; sample<nSamples; sample++)
       dft0+=double(y1[sample]);
-  ampl01[0]=float(dft0)/nSamples;
+  ampl01[0]=float(dft0)/float(nSamples);
   if(harm1==0){
-    ampl[0]=float(dft0)/nSamples;
+    ampl[0]=float(dft0)/float(nSamples);
     phases[0]=0;
   }
   //Calcolo della componente di ordine 1 (va comunque calcolata per poter fare
@@ -732,7 +737,7 @@ int CFourWin::performDFT(){
     for (sample=0; sample<nSamples; sample++){
       dft+=dcmplx(double(y1[sample]))*exp(-auxC1*dcmplx(sample));
     }
-    ampl01[1]=2*float(abs(dft))/nSamples;
+    ampl01[1]=2*float(abs(dft))/float(nSamples);
   }
   //Calcolo RMS
   if(harm1==0)
@@ -809,10 +814,12 @@ int CFourWin::performNuDFT(){
       return 1;
   }
   delete[] harmOrders;
+  harmOrders=new float[harm2+1];
+  for (int i=0; i<=harm2; i++)
+    harmOrders[i]=float(i);
   delete[] ampl;  //Ampiezze delle armoniche prima della correzione con amplFactor
   delete[] amplitudes; //Ampiezze dopo la correzione con amplFactor (ad es. per trasformaz. in p.u.).
   delete[] phases;
-  harmOrders=new float[harm2+1];
   ampl=new float[harm2+1];
   amplitudes=new float[harm2+1];
   phases=new float[harm2+1];
@@ -821,7 +828,7 @@ int CFourWin::performNuDFT(){
     QMessageBox::critical(this,"CFourWin","Internal error \"myData.indexRight\" in CFourWin");
     QApplication::closeAllWindows();
   }
-  harmOrders[0]=0;
+//  harmOrders[0]=0;
   dftDone=true;
 
   for(harm=harm1; harm<=harm2; harm++){
@@ -831,11 +838,11 @@ int CFourWin::performNuDFT(){
     float Om=2*pi/period;
     int sample;
     for (sample=0; sample<nSamples; sample++){
-      ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
-      bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
-      float aux1=y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]);
-      float aux2=x1[sample+1]-x1[sample];
-      aux1=0;
+      ak+=(y1[sample]*cosf(float(harm)*Om*x1[sample])+y1[sample+1]*cosf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+      bk+=(y1[sample]*sinf(float(harm)*Om*x1[sample])+y1[sample+1]*sinf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+//      float aux1=y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]);
+//      float aux2=x1[sample+1]-x1[sample];
+//      aux1=0;
     }
 
     if(harm==0)
@@ -843,7 +850,7 @@ int CFourWin::performNuDFT(){
     else
       ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
     phases[harm]= atan2f(ak,bk)*180.f/pi;
-    harmOrders[harm]=harm;
+//    harmOrders[harm]=harm;
   }
 
   // Le componenti di ordine 0 e 1 vanno sempre calcolate per fare il p.u.
@@ -854,15 +861,15 @@ int CFourWin::performNuDFT(){
       float Om=2*pi/period;
       int sample;
       for (sample=0; sample<nSamples; sample++){
-        ak+=(y1[sample]*cosf(harm*Om*x1[sample])+y1[sample+1]*cosf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
-        bk+=(y1[sample]*sinf(harm*Om*x1[sample])+y1[sample+1]*sinf(harm*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+        ak+=(y1[sample]*cosf(float(harm)*Om*x1[sample])+y1[sample+1]*cosf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
+        bk+=(y1[sample]*sinf(float(harm)*Om*x1[sample])+y1[sample+1]*sinf(float(harm)*Om*x1[sample+1]))*(x1[sample+1]-x1[sample]);
       }
       if(harm==0)
         ampl[harm]=ak/period;
       else
         ampl[harm]=1.f/period*(sqrtf(ak*ak+bk*bk));
       phases[harm]= atan2f(ak,bk)*180.f/pi;
-      harmOrders[harm]=harm;
+//      harmOrders[harm]=harm;
     }
   ampl[0]/=2.f;
   //La fase della componente 0 è indefinita e può venire qualunque numero Pertanto pongo:
@@ -911,7 +918,7 @@ void CFourWin::showEvent(QShowEvent *){
         case 'a': curveParam.unitS[0]=char('^'); break;
         case 'p': curveParam.unitS[0]='W'; break;
         case 'e': curveParam.unitS[0]='J'; break;
-        default: curveParam.unitS[0]=0;
+        default: curveParam.unitS[0]=QChar(0);
     }
     ui->amplChart->setYZeroLine(true);
     ui->phaseChart->setYZeroLine(true);
@@ -951,7 +958,7 @@ void CFourWin::valChanged(SXYValues values){
   // Se visualizzo solo alcune armoniche, ad es. dalla 5 alla 30, le armoniche precedenti non devono avere alcun punto e non devono emettere il relativo valore.
   //In effetti è stato visto che questo accade correttamente, salve che in prossimità dello 0 dove può arrivare un valore.
   // In attesa di comprendere in dettaglio cosa accade, una soluzione pratica e funzionante è di uscire se l'armonica visualizzata è inferiore alla minima visualizzabile
- if (values.X[0]<myData.opt.harm1-0.5f)
+ if (values.X[0]<float(myData.opt.harm1)-0.5f)
      return;
 
   msg=msg.setNum(int(values.X[0]+0.5f));
@@ -971,12 +978,6 @@ CFourWin::~CFourWin()
     delete ui;
 }
 
-int nearInt(float f){
-    int i=int(f);
-    if(f-i>0.5f)
-        i++;
-    return i;
-}
 
 
 void CFourWin::on_printBtn_clicked()
