@@ -891,6 +891,23 @@ int CLineChart::drawCurves(bool noCurves){
     }
   }else{
     for(int i=0; i<nFiles; i++){
+        /* Nella fase 3 di goPlot() si sceglie
+         *      startIndex[iFile]=iPoint-1
+         * con questa scelta inizio il tracciamento subito a sinistra del rettangolo;
+         * penserà poi la funzione filterClip a tagliare all'ingresso. Questa scelta
+         * non va però sempre bene nel caso di scale logaritmiche in quanto andare
+         * di un punto a sinistra può implicare di scegliere un valore nullo dell'ascissa,
+         * con errore di dominio. Questo accade per esempio con il file filterQs.mat usato
+         * a marzo/aprile 2018.
+         * Nel 2028 scelsi pper la scala logaritmica di porre
+         *      startIndex[iFile]=iPoint
+         * ma suesto mi può far perdere il pirmo punto con effetti che si sono di mostrati
+         * poi molto visibili in altri casi.
+         * Allora nel dic. 2023 uso un approggiccio diverso: salto il primo punto solo se
+         * c'è un domain error, come da if qui sotto
+        */
+        if(px[i][startIndex[i]] <=0)
+           startIndex[i]++;
       xStartIndex[i]=X0+ NearInt((log10f(px[i][startIndex[i]])-xAxis.eMin)*xAxis.pixPerValue );
       xStopIndex[i] =X0+ NearInt((log10f(px[i][stopIndex[i]]) -xAxis.eMin)*xAxis.pixPerValue );
     }
@@ -1098,8 +1115,8 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
       }else{
 // Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fra i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
         int i;
-        qDebug()<<"r-g-b: "<<myPainter->pen().color().red()<< myPainter->pen().color().green()<<myPainter->pen().color().blue();
-        qDebug()<<"width: "<<myPainter->pen().width();
+//        qDebug()<<"r-g-b: "<<myPainter->pen().color().red()<< myPainter->pen().color().green()<<myPainter->pen().color().blue();
+//        qDebug()<<"width: "<<myPainter->pen().width();
         foreach(QPolygonF poly, path.toSubpathPolygons())
           for(i=0; i<poly.size()-1; i++)
             myPainter->drawLine(poly.at(i),poly.at(i+1));
@@ -2518,9 +2535,9 @@ int CLineChart::giveNearValue(QPoint mouseP , QPoint &nearP, QPointF &valueP){
     // index trovato!
 
     //La seguente condizione non si dovrebbe mai verificare. Ma siccome è stato visto che questo in rarissimi casi accade, al fine di facilitare il debug metto il seguente check, comodo per mettere un breakpoiont su badIndex=true;
-    bool badIndex=false;
-    if(index>=nPoints)
-        badIndex=true;
+//    bool badIndex=false;
+//    if(index>=nPoints)
+//        badIndex=true;
 
     //Ora scelgo per il file corrente il punto più vicino verticalmente al cursore
     if(xAxis.scaleType==stLin)
@@ -3935,8 +3952,14 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
   dataCurs2.setRect(int((X0+X1)*0.6),Y0,3,Y1-Y0);
   debugCurs=dataCurs;
 
-  /*
-Tracciamento rettangolo del grafico. Lo faccio trasparente e non a fondo bianco,  perché in tal modo rendo più agevole l'eventuale editazione di un grafico esportato, senza particolari inconvenienti. Nel grafico esportato avrò quindi pieno solo il rettangolo complessivo del grafico, tracciato altrove, ma non quello "netto" contenente gli assi, cioè questo:
+  /***
+   * fase 3: tracciamento rettangolo grafico e mappatura indici per zoomate
+   *
+   * Tracciamento rettangolo del grafico. Lo faccio trasparente e non a fondo bianco,
+   * perché in tal modo rendo più agevole l'eventuale editazione di un grafico esportato,
+   * senza particolari inconvenienti. Nel grafico esportato avrò quindi pieno solo il
+   * rettangolo complessivo del grafico, tracciato altrove, ma non quello "netto"
+   * contenente gli assi, cioè questo:
 */
   if(!Virtual){
     myPainter->setPen(framePen);
@@ -3945,11 +3968,20 @@ Tracciamento rettangolo del grafico. Lo faccio trasparente e non a fondo bianco,
   }
 
 
-
-  /* Nel caso di zoomata, la generazione del grafico può essere grandemente velocizzata (soprattutto nel caso di molti punti, evidentemente) se, invece di tracciare tutto il grafico e lasciare l'effettuazione della zoomata al taglio che la ClipRgn (o la mia ClipRgn, molto più efficiente di quella di Windows, implementata in CFilterClip) fa delle parti di grafico fuori zoomata, si procede al tracciamento della sola parte di grafico interessata dalla zoomata.
-Questo, che si ottiene calcolando i valori di startIndex e stopIndex relativi all'effettiva finestra del grafico da tracciare, risulta possibile soltanto se la variabile X è monotona crescente rispetto al suo indice, e questo è senz'altro verificato se si tratta della variabile tempo. Questa caratteristica è specificata in CLineChart tramite la variabile booleana xVarParam.isMonotonic.
-Se X, oltre che monotona crescente è anche costituita da campioni equispaziati (come nel caso di ATP) il calcolo di startIndex e stopIndex risulta particolarmente veloce.
-*/
+  /* Nel caso di zoomata, la generazione del grafico può essere grandemente velocizzata
+   * (soprattutto nel caso di molti punti, evidentemente) se, invece di tracciare tutto
+   * il grafico e lasciare l'effettuazione della zoomata al taglio che la ClipRgn (o la
+   * mia ClipRgn, molto più efficiente di quella di Windows, implementata in CFilterClip)
+   * fa delle parti di grafico fuori zoomata, si procede al tracciamento della sola parte
+   * di grafico interessata dalla zoomata.
+   * Questo, che si ottiene calcolando i valori di startIndex e stopIndex relativi
+   * all'effettiva finestra del grafico da tracciare, risulta possibile soltanto se la
+   * variabile X è monotona crescente rispetto al suo indice, e questo è senz'altro
+   * verificato se si tratta della variabile tempo. Questa caratteristica è specificata
+   * in CLineChart tramite la variabile booleana xVarParam.isMonotonic.
+   * Se X, oltre che monotona crescente è anche costituita da campioni equispaziati (come
+   * nel caso di ATP) il calcolo di startIndex e stopIndex risulta particolarmente veloce.
+  */
   if(xVarParam.isMonotonic){
     for(int iFile=0; iFile<nFiles; iFile++){
       int nPoints=filesInfo[iFile].numOfPoints;
@@ -3960,9 +3992,10 @@ Se X, oltre che monotona crescente è anche costituita da campioni equispaziati 
       while(px[iFile][iPoint]<R.Left && iPoint<nPoints-1);
       // Se ho passato la riga superiore iPoint è tale che ho scavalcato il bordo sinistro di R e sono entrato dentro. Posso anche essere esattamente sul bordo sinistro.
       startIndex[iFile]=iPoint-1;
-// con questa scelta inizio il tracciamento subito a sinistra del rettangolo; penserà poi la funzione filterClip a tagliare all'ingresso. Questa scelta non va però bene nel caso di scale logaritmiche in quanto andare di un punto a sinistra può implicare di scegliere un valore nullo dell'ascissa, con errore di dominio. Questo accade per esempio con il file filterQs.mat usato a marzo/aprile 2018. In tal caso il primo punto su file era x=0 il secondo x=1. Con la riga così com'è fatta sopra se scelgo come finestra di tracciamento da 1 a 1000, anche con l'exactMastch, il primo punto viene considerato a sinistra di 1, quindi il punto di valore 0, che genera il domain error
-      if(xAxis.scaleType!=stLin)
-          startIndex[iFile]=iPoint;
+// con questa scelta inizio il tracciamento subito a sinistra del rettangolo; penserà poi la funzione filterClip a tagliare all'ingresso. Questa scelta non va però bene nel caso di scale logaritmiche in quanto andare di un punto a sinistra può implicare di scegliere un valore nullo dell'ascissa, con errore di dominio. Questo accade per esempio con il file filterQs.mat usato a marzo/aprile 2018. In tal caso il primo punto su file era x=0 il secondo x=1.
+      // Nel marzo/aprile 2028 si scelse la soluzione seguente (le due righe seguenti ora commentate). Nel dicembre 2022 si è preferito all'interno di drawCurves passare da iPoint-1 a iPoint solo nel caso di argomento del logaritmo non positivo.
+//      if(xAxis.scaleType!=stLin)
+//          startIndex[iFile]=iPoint;
 
       do
         iPoint++;
