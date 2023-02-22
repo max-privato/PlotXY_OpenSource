@@ -341,7 +341,10 @@ void CVarTableComp::resizeEvent(QResizeEvent *){
     }
     wi[VARNUMCOL]= int(myDPI/factor*qMax(wi[VARNUMCOL],fontMetrics().horizontalAdvance(hdrs[VARNUMCOL])));
     wi[VARNUMCOL]+=int(myDPI/factor*fontMetrics().horizontalAdvance("X"));
-    setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
+#if defined(Q_OS_MAC)
+    wi[VARNUMCOL]*=1.6;
+#endif
+  setColumnWidth(VARNUMCOL,wi[VARNUMCOL]);
 
     i=0;
     for(j=0;j<TOTCOLS;j++){

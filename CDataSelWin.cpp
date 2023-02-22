@@ -267,8 +267,8 @@ qDebug()<<"DPI: "<<currentDPI;
   QFont font8Pt=QFont("arial",8);
   QFont font9Pt=QFont("arial",9);
 //  QFont font10Pt=QFont("arial",10);
-//  QFont font11Pt=QFont("arial",11);
-//  QFont font12Pt=QFont("arial",12);
+  QFont font11Pt=QFont("arial",11);
+  QFont font12Pt=QFont("arial",12);
  if (GV.PO.largerFonts)
    myFont=font9Pt;
  else
