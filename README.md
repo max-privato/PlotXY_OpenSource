@@ -22,3 +22,6 @@ In recent years, it has completely been re-written, using the great power of Qt 
 This program is free software: you can redistribute it under the terms of GNU Public License version 3 as published by the Free Software Foundation.
 
 PLOTXY AND ALL THE RELATED MATERIAL INCLUDED IN THE DISTRIBUTION PLOTXY.ZIP FILE OR AVAILABLE FROM GITHUB IS SUPPLIED "AS-IS" THE AUTHOR OFFERS NO WARRANTY OF ITS FITNESS FOR ANY PURPOSE WHATSOEVER, AND ACCEPTS NO LIABILITY WHATSOEVER FOR ANY LOSS OR DAMAGE INCURRED BY ITS USE.
+
+# Reference
+[1] [MC’s PlotXY—A general-purpose plotting and post-processing open-source tool](https://www.sciencedirect.com/science/article/pii/S2352711019300287)
