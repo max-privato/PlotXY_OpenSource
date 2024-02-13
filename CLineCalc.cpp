@@ -359,7 +359,7 @@ struct SXYNameData{
       i=rxLetter.indexIn(line,i); //l'inizio della variabile dev'essere una lettera
       if(i<0){
         eol=true;
-        break;
+        continue;
       }
       if(allowMathFunctions)
         j=rxNotLetterDigitBracket.indexIn(line,i+1); //la fine della variabile è il primo carattere non lettera né digit né parentesi chiusa (è parentesi ad es. nel caso di 'abs(v9)')

@@ -59,7 +59,6 @@ private slots:
     void on_pointPixelBtn_clicked(bool checked);
     void on_pointSquareBtn_clicked(bool checked);
 //    void on_fixedAxisFontRBtn_clicked(bool checked);
-    void on_fontPointCombo_currentIndexChanged(const QString);
     void on_autoAxisFontBtn_clicked();
 
 private:

@@ -19,8 +19,9 @@ win32{
    QTPLUGIN += cocoaprintersupport
 }
 
-# QMAKE__CXXFLAGS += -Wfloat-conversion -Wconversion
+# QMAKE_CXXFLAGS += -Wfloat-conversion -Wconversion
 QMAKE_CXXFLAGS+=-pg
+QMAKE_CXXFLAGS+=-Wdeprecated-declarations
 QMAKE_LFLAGS+=-pg
 TEMPLATE = app
 CONFIG += c++11
@@ -73,7 +74,7 @@ HEADERS  += CDataSelWin.h\
     ExcludeATPCode.h \
     Dialogs/CCustomiseCol.h
 
-win32:DEFINES+=_CRT_SECURE_NO_WARNINGS \
+DEFINES+=_CRT_SECURE_NO_WARNINGS \
 
 FORMS    += CDataSelWin.ui \
     CFourWin.ui \

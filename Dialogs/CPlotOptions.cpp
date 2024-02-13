@@ -156,13 +156,6 @@ void CPlotOptions::on_pointSquareBtn_clicked(bool checked)
 }
 
 
-void CPlotOptions::on_fontPointCombo_currentIndexChanged(const QString )
-{
-//    ui->fixedAxisFontRBtn->setEnabled(true);
-    ui->fixedAxisFontRBtn->setChecked(true);
-    ui->autoAxisFontBtn->setChecked(false);
-}
-
 void CPlotOptions::on_autoAxisFontBtn_clicked()
 {
 //    ui->fixedAxisFontRBtn->setEnabled(false);
