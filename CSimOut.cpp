@@ -450,7 +450,7 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
   acceptsCommas=commasAreSeparators || csv ;
   if(acceptsCommas){
     fStr=strdup("%f,");
-    tStr=strdup(" \t,");
+    tStr=strdup(",");
   }else{
     fStr=strdup("%f");
     tStr=strdup(" \t");
@@ -478,7 +478,7 @@ QString CSimOut::loadFromAdfFile(QString fullName, bool csv){
     free(tStr);
     if(acceptsCommas){
       fStr=strdup("%f,");
-      tStr=strdup(" \t,");
+      tStr=strdup(",");
     }else{
       fStr=strdup("%f");
       tStr=strdup(" \t");

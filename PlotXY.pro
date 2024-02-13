@@ -32,6 +32,7 @@ SOURCES += main.cpp\
     CLineChart.cpp \
     CPlotWin.cpp\
     CSimOut.cpp  \
+    CSimOutATP.cpp \
     CValuesWin.cpp \
     CVarMenu.cpp \
     CVarTableComp.cpp \
