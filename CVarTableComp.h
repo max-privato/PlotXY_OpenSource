@@ -105,15 +105,15 @@ Quando però il programma chiamente chiede giveFuninfo, i nomi equivalenti vengo
     QSet <int> funSet; //contiene gli indici delle funzioni definite.
 
     //Now provate functions:
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
     QColor colors[TOTROWS], bkgroundColor;
     QBrush xVarBrush;
     QString hdrs[TOTCOLS];
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dropEvent(QDropEvent *event);
-    void mouseReleaseEvent(QMouseEvent * event);
-    void showEvent(QShowEvent *);
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent * event) override;
+    void showEvent(QShowEvent *) override;
     CCustomiseCol *customiseCol;
     CFunStrInput *funStrInput;
 
@@ -128,7 +128,7 @@ public:
     QList <SCurveParam> yInfo[MAXFILES];
 
     CVarTableComp(QWidget *parent);
-    ~CVarTableComp();
+    ~CVarTableComp() override;
 
     //Funzioni pubbliche in ordine alfabetico:
     QString analyse();

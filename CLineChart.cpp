@@ -1383,7 +1383,7 @@ Naturalmente rinunciare a drawpath ha i seguenti inconvenienti:
 La presente funzione serve quindi a verificare i cambiamenti di efficienza che si hanno se si elimina il drawPath; se essi sono trascurabili e scompare l'errore di visualizzazione sopra citato, si potrebbe usare all'uso di drawPath almeno nella visualizzazione a schermo, magari lascandolo invece attivo nella scrittura su svg.
 */
 
-    int i, iPlot=0, icount, igraf, iTotPlot=-1;
+    int i, icount, igraf, iTotPlot=-1;
     int pointsDrawn0;
     float sxmin, symin, xf, yf, x1f, y1f, yRatio;
     QPolygon poly;
@@ -1444,7 +1444,6 @@ La presente funzione serve quindi a verificare i cambiamenti di efficienza che s
           pointsDrawn0++;
         } //Fine ciclo for tracciamento curve
         pointsDrawn=qMax(pointsDrawn,pointsDrawn0);
-        iPlot++;
       } //Fine tracciamento varie curve relative ad un medesimo file
     } //Fine ciclo for fra i vari files
   //  Return:
@@ -1468,7 +1467,7 @@ Si osserva che Qti opera SENZA simplified(), in quanto se metto simplified() i t
 L'unica differenza fra QtF e QtI sta nella linea "lineTo", la quint'ultima di codice, che nel caso di QtF traccia fra valori float, mentre QtI traccia fra valori preventivamente convertiti da float a int.
    */
 
-  int i, iPlot=0, icount, igraf, iTotPlot=-1;
+  int i, icount, igraf, iTotPlot=-1;
   int pointsDrawn0;
   float sxmin, symin, xf, yf, x1f, y1f, yRatio;
   QPainterPath path;
@@ -1529,7 +1528,6 @@ L'unica differenza fra QtF e QtI sta nella linea "lineTo", la quint'ultima di co
         pointsDrawn0++;
       } //Fine ciclo for tracciamento curve
       pointsDrawn=qMax(pointsDrawn,pointsDrawn0);
-      iPlot++;
     } //Fine tracciamento varie curve relative ad un medesimo file
   } //Fine ciclo for fra i vari files
 //  Return:
@@ -1541,7 +1539,7 @@ void CLineChart::drawCurvesQtI(bool NoCurves){
 Per la spiegazione vedere il commento alla funzione drawCurvesQtF.
 */
 
-  int i, iPlot=0, icount, igraf, iTotPlot=-1;
+  int i, icount, igraf, iTotPlot=-1;
   int PointsDrawn0;
   float sxmin, symin, xf, yf, x1f, y1f, YRatio;
   QPainterPath path;
@@ -1602,7 +1600,6 @@ Per la spiegazione vedere il commento alla funzione drawCurvesQtF.
         PointsDrawn0++;
       } //Fine ciclo for tracciamento curve
       pointsDrawn=qMax(pointsDrawn,PointsDrawn0);
-      iPlot++;
     } //Fine tracciamento varie curve relative ad un medesimo file
   } //Fine ciclo for fra i vari files
 //  Return:
@@ -1683,7 +1680,7 @@ void  CLineChart::drawMark(float X, float Y, int mark, bool markName){
 void CLineChart::drawSwarm(void){
 /* Funzione per il tracciamento di uno sciame di punti, non collegati da alcuna linea. I punti possono essere minimi (pari ad un pixel) o medi (pari ad un quadratino 3x3  il cui centro è la coordinata del punto desiderato).
  */
-  int i, iPlot=0, icount, igraf, iTotPlot=-1;
+  int i, icount, igraf, iTotPlot=-1;
   int pointsDrawn0, ptRadius=swarmPointWidth/2;
   float sxmin, symin, xf, yf, x1f, y1f, yRatio;
   float x,y,x1,y1; //valori arrotondati di xf, yf, x1f, y1f
@@ -1805,8 +1802,8 @@ void CLineChart::drawSwarm(void){
         pointsDrawn0++;
       }
       pointsDrawn=qMax(pointsDrawn,pointsDrawn0);
-      if(swarmPointSize!=ssPixel)
-      iPlot++;
+//      if(swarmPointSize!=ssPixel)
+//      iPlot++;
     } //Fine tracciamento varie curve relative ad un medesimo file
   } //Fine ciclo for fra i vari files
 }

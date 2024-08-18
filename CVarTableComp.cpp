@@ -81,25 +81,24 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
 
     //cellFont non va definito perché è già ricevuto da CDtaSelWin tramite getFont()
     //
-
-    for (j=0; j<TOTCOLS; j++){
+    for (j=0; j<columnCount(); j++){
       //Setting items for the first row:
-        QTableWidgetItem *newItem=new QTableWidgetItem;
+      QTableWidgetItem *newItem=new QTableWidgetItem;
       newItem->setFont(cellFont);
       newItem->setText(hdrs[j]);
       newItem->setBackground(headerGray);
       newItem->setTextAlignment(Qt::AlignCenter);
-      for (int c=0; c<columnCount(); c++)
-        newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable|Qt::ItemIsSelectable));
+      newItem->setFlags(newItem->flags()&~ (Qt::ItemIsEditable|Qt::ItemIsSelectable));
       setItem(0,j,newItem);
     }
+    //Setting items for the other rows:
     for(i=1;i<TOTROWS;i++){
       QBrush myBrush;
       myBrush.setColor(colors[i]);
 
       if(i>8)
         myBrush.setStyle(Qt::VerPattern);
-      for(j=0;j<TOTCOLS;j++){
+      for(j=0;j<columnCount();j++){
         QTableWidgetItem *newItem=new QTableWidgetItem;
         newItem->setFont(cellFont);
         newItem->setText("");
@@ -286,14 +285,12 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
 
 
 void CVarTableComp::myReset(bool deep) {
-  QBrush myBrush;
   timeVarReset=false;
   for(int i=1; i<rowCount(); i++){
-    myBrush.setColor(colors[i]);
     for(int j=1; j<columnCount(); j++){
       if(j<columnCount()-1)
         item(i,j)->setBackground(neCellBkColor);
-      item(i,j)->setForeground(myBrush);
+      item(i,j)->setForeground(colors[i]);
       item(i,j)->setText("");
       item(i,j)->setToolTip("");
     }
@@ -725,7 +722,6 @@ void CVarTableComp::leftClicked(int r, int c){
 /*Questa funzione è usata solo per chiamata diretta da mouseReleaseEvent: quest'ultima
  * gestisce il click destro e per il click sinistro rimanda qui.
 */
-  QSet <int> mySet;
   int j, nextFun, oldXVarRow=xVarRow;
   QString str, ret;
   CLineCalc myLineCalc;
@@ -737,6 +733,8 @@ void CVarTableComp::leftClicked(int r, int c){
   SXYNameData calcData;
   QString defaultStr=item(r,VARCOL)->text();
   if(r==0) return;  //si è cliccato sull'intestazione
+
+  QSet <int> mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
 
   switch(c){
     case COLORCOL:
@@ -818,7 +816,7 @@ void CVarTableComp::leftClicked(int r, int c){
 /*******************************************
 Correzione 25/11/2020
 Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazione del colore del testo, correttamente fissata al momento della creazione della tabella.
-Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
+Come workaround ho pensato di ricopiare come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
 *** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
 *******************************************/
        brush_=item(r,0)->background();

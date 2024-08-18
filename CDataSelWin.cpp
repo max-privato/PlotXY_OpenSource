@@ -244,6 +244,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
 
   QScreen *screen=QGuiApplication::primaryScreen();
   currentDPI=screen->logicalDotsPerInch();
+  QSizeF  physSize=screen->physicalSize();
 qDebug()<<"DPI: "<<currentDPI;
   int maxHeight=int(FRACTIONOOFSCREEN*screen->availableGeometry().height());
     /* Il secondo parametro che passo nella seguente chiamata a funzione è la massima altezza che posso dare alla finestra. Vorrei che la finestra restasse sempre nello spazio disponibile, inclusa la propria intestazione. Purtroppo questo mi risulta al momento impossibile in quanto i due metodi della presente finestra geometry() e frameGeometry(), che dovrebbero dare valori differenti, danno gli stessi rettangoli e coincidono con la zona utile, al netto di frame e zona del titolo, cioè con quello che secondo la documentazione dovrebbe essre geometry(), ma non frameGeometry().
@@ -2790,7 +2791,6 @@ void CDataSelWin::on_arrTBtn_clicked(){
  * this can cause some plot window to be (partially or totally) covered. Seventh and
  * eight fourier windows are not rearranged. The fourier windows are placed on top of any
  * existing plot windows.
- *
 */
 
     bool sizeIsEnough=true;
@@ -2811,6 +2811,7 @@ void CDataSelWin::on_arrTBtn_clicked(){
     QScreen *lastScreen=QGuiApplication::screens()[screenCount-1];
     int totAvailableWidth=lastScreen->availableGeometry().right();  //Total availableWidth of all screens!!
     QScreen * myScreen=nullptr;
+    availableHeight=0; //This is needed only to avoid a later warning of availableHeight uninitialised, since some compilers do not see that in the following loop it is initialised anyway
     for(int i=0; i<screenCount; i++){
       myScreen=QGuiApplication::screens()[i];
       availableHeight=myScreen->availableGeometry().height();
@@ -3542,7 +3543,6 @@ void CDataSelWin::on_plotBtn_clicked()
                   // becomes true if the conversion to int of the text of the cell below is successful
         int myIFile=-1;
         myIFile=ui->fileTable->item(iRow,1)->text().toInt(&ok)-1;
-        QString str6=ui->fileTable->item(iRow,6)->text();
         if(ok)
           timeShift[myIFile]=ui->fileTable->item(iRow,6)->text().toFloat();
       }
@@ -3716,7 +3716,7 @@ void CDataSelWin::on_plotBtn_clicked()
         // I create the values ​​of x1 values, that is, on the x axis of function variables,
         // in the case where there is no function on the x axis:
         if(!myVarTable->xInfo.isFunction){
-          memcpy(x1[plotFiles+iFun],mySO[funFileIdx[0]]->y[myVarTable->xInfo.idx], size);
+          memcpy(x1[plotFiles+iFun],mySO[funFileIdx[0]]->y[myVarTable->xInfo.idx], size_t(size));
 
           // Manage timeShift set in the case of a function of variables.
           float funTimeShift=timeShift[funFileIdx[0]];

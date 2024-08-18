@@ -854,7 +854,7 @@ QString CLineCalc::giveLine(QString str){
 
 
 QString CLineCalc::computeUnits(){
-
+    /* Calcola l'unità di misura del risultato*/
     int i;
     QString unit="";
 
