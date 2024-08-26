@@ -1,0 +1,25 @@
+Cose da fare sulla versione "beta" per Laszlo e Mustafa
+
+1) dialog per la stampa errato                    FATTO
+
+2) rendere non ridimensionabili:
+- Fourier Options                                 FATTO
+- Fourier Copy dialog (e mettere il nome giusto!) FATTO
+- Plot Print Dialog (e mettergli il nome giusto!) FATTO
+- Plot Scale setup                                FATTO
+- Plot Options (e mettergli il nome giusto!)      FATTO
+- Program Options                                 FATTO
+
+3) Attivare il Print dalla scheda Fourier         FATTO
+
+4) Info Dialog su DataSelWin:
+- mettere tooltp                                  FATTO
+- mettere titolo della scheda                     FATTO
+
+5) quando ricarico uno stato conententi variabili
+ a doppia cifra vegono =...; allargando e 
+ riavvicinando scompaiono                       NON FACCIO 
+
+
+6) La versione release non stampa su carta: 
+   (non apre il device)                          FATTO
