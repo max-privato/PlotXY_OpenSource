@@ -1,0 +1,588 @@
+Return-Path: <claes.hillberg@ch.abb.com>
+Delivered-To: a008042@mbox1.unipi.it
+Received: from mx4.unipi.it (mx4.unipi.it [131.114.21.52])
+	by mbox1.unipi.it (Postfix) with ESMTP id C3FED100A4F
+	for <a008042@mbox1.unipi.it>; Mon, 21 Mar 2016 08:28:37 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+	by mx4.unipi.it (Postfix) with ESMTP id C21FBC177C
+	for <massimo.ceraolo@unipi.it>; Mon, 21 Mar 2016 08:28:37 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at unipi.it
+Received: from emea01-am1-obe.outbound.protection.outlook.com (mail-am1on0060.outbound.protection.outlook.com [157.56.112.60])
+	by mx4.unipi.it (Postfix) with ESMTP id A1ABDC1831
+	for <massimo.ceraolo@unipi.it>; Mon, 21 Mar 2016 08:27:45 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ABB.onmicrosoft.com;
+ s=selector1-ch-abb-com;
+ h=From:To:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=J8eLhRBY9x5GiE/qhjMR8fKdf17zUrAWgv4VUXlIhHg=;
+ b=TAaF6IIloGSzjwXYANlpcthSH62YrfxXuik0G+YHhrb2CA2daPE00LCz6vqoUo4uoAjA63ERrj7bkzG1nLHemyI9mAa2T6DBpqqJK7sgf2ErDqcB4vK8Qn/oCwxzjfvoLOS2NsO6Hw6+MY9SH4fCIHRfVv6kVzbDTHXm04ZL9Vc=
+Received: from AM3PR06MB1107.eurprd06.prod.outlook.com
+ (2a01:111:e400:5873::13) by AM3PR06MB1105.eurprd06.prod.outlook.com
+ (2a01:111:e400:5872::14) with Microsoft SMTP Server (TLS) id 15.1.443.12;
+ Mon, 21 Mar 2016 07:27:38 +0000
+Received: from AM3PR06MB1107.eurprd06.prod.outlook.com
+ ([fe80::a00a:6ddf:8df3:30d2]) by AM3PR06MB1107.eurprd06.prod.outlook.com
+ ([fe80::a00a:6ddf:8df3:30d2%14]) with mapi id 15.01.0443.014; Mon, 21 Mar
+ 2016 07:27:38 +0000
+From: Claes Hillberg <claes.hillberg@ch.abb.com>
+To: Massimo Ceraolo <massimo.ceraolo@unipi.it>
+Subject: RE: PlotXY_Bugs2016
+Thread-Topic: PlotXY_Bugs2016
+Thread-Index: AdF90CCn/p/F9EN/RLa3pwFTOZ82iwEtILMAAC6gcwA=
+Date: Mon, 21 Mar 2016 07:27:38 +0000
+Message-ID: <AM3PR06MB1107564006E1A57646F4054BB48F0@AM3PR06MB1107.eurprd06.prod.outlook.com>
+References: <AM3PR06MB1107617E14CE8EBF53A29089B4880@AM3PR06MB1107.eurprd06.prod.outlook.com>
+ <56EE62CC.2060804@unipi.it>
+In-Reply-To: <56EE62CC.2060804@unipi.it>
+Accept-Language: de-CH, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: unipi.it; dkim=none (message not signed)
+ header.d=none;unipi.it; dmarc=none action=none header.from=ch.abb.com;
+x-originating-ip: [80.75.192.110]
+x-ms-office365-filtering-correlation-id: 0d610739-da8e-48ab-6092-08d3515a481b
+x-microsoft-exchange-diagnostics: 1;AM3PR06MB1105;5:/8KZPaS+SAFyE1+BeutL4nHyxnV9q/+/aAiqs6p8fcbvuzoPucl0hFlkdi4npn19TkLejoNJND4YrscNpgDMD85vex71VhZjvul6X2xt55cJZ+rUTd395xGDPz9vqPzrOEPmTXZ+jObTp6jjI3WuuA==;24:V9I4OhisGReiOeXx98z4c5ziux0dSMbHEvecjjIOx1cPcyBp+j+lKaEd/0yJsyzg6VnZGTo+fJOWUVVYcubX6JJKd8hadoft0Jwg06Fhppc=
+x-microsoft-antispam: UriScan:;BCL:0;PCL:0;RULEID:;SRVR:AM3PR06MB1105;
+x-microsoft-antispam-prvs: <AM3PR06MB11055F40746DCAB2B166BCCDB48F0@AM3PR06MB1105.eurprd06.prod.outlook.com>
+x-exchange-antispam-report-test: UriScan:;
+x-exchange-antispam-report-cfa-test: BCL:0;PCL:0;RULEID:(601004)(2401047)(8121501046)(5005006)(10201501046)(3002001);SRVR:AM3PR06MB1105;BCL:0;PCL:0;RULEID:;SRVR:AM3PR06MB1105;
+x-forefront-prvs: 0888B1D284
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(51914003)(377424004)(85664002)(92566002)(81166005)(74316001)(5004730100002)(5250100002)(5890100001)(3280700002)(3846002)(790700001)(6116002)(19300405004)(3660700001)(102836003)(1220700001)(1096002)(586003)(66066001)(19625215002)(2906002)(5002640100001)(2900100001)(19617315012)(2950100001)(33656002)(11100500001)(189998001)(54356999)(76176999)(86362001)(15975445007)(19580395003)(50986999)(19580405001)(5003600100002)(5008740100001)(16236675004)(107886002)(110136002)(76576001)(450100001)(87936001)(10055905006)(460985005);DIR:OUT;SFP:1101;SCL:1;SRVR:AM3PR06MB1105;H:AM3PR06MB1107.eurprd06.prod.outlook.com;FPR:;SPF:None;MLV:sfv;LANG:en;
+spamdiagnosticoutput: 1:23
+spamdiagnosticmetadata: NSPM
+Content-Type: multipart/alternative;
+	boundary="_000_AM3PR06MB1107564006E1A57646F4054BB48F0AM3PR06MB1107eurp_"
+MIME-Version: 1.0
+X-OriginatorOrg: ch.abb.com
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Mar 2016 07:27:38.6625
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 372ee9e0-9ce0-4033-a64a-c07073a91ecd
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM3PR06MB1105
+
+--_000_AM3PR06MB1107564006E1A57646F4054BB48F0AM3PR06MB1107eurp_
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+Hello Massimo,
+
+Thanks for the new update, it seems to work.
+
+Another issue is that when you have a circuit in Atpdraw and run simulation=
+s with different parameters for finding the best solution you use PlotXY by=
+ using the Refresh button, maybe you use all four plot windows plotting a l=
+ot of different curves with zoomed plots. (ok) Then you would like to test =
+something different and you modify your circuit a little and run it again. =
+The modified circuit may have a different setup of plot variables, two poss=
+ibilities can arise.
+1. There is less curves in the plot file, or
+2. more variables, a new one is perhaps added in the middle somewhere of th=
+e old output.
+
+In an earlier version of PlotXY, I think this was not an issue. If a variab=
+le did not exist anymore in the plot it was just removed, but I believe tha=
+t you could still have the same plot updated even if the number of the vari=
+able to be plotted in the plot file had changed.
+
+In the present version the program crashes when less variables are present =
+and you are not sure what variables changes, the curves in the plot may cha=
+nge, but the corresponding name (and the number) in the curve selection win=
+dow remain.
+
+Of course when you know that the circuit has changed and has a now setup of=
+ plot variables you can close PlotXY and restart it again, but then the sel=
+ection of plot variables and zoomed windows are lost and you need some time=
+ to get it ok again. What is your opinion about this? Automatic correction,=
+ variable selection &Zoom for each window can be saved and reloaded (txt fi=
+le)....
+
+Best regards,
+Claes
+
+From: Massimo Ceraolo [mailto:massimo.ceraolo@unipi.it]
+Sent: Sonntag, 20. M=E4rz 2016 09:44
+To: Claes Hillberg <claes.hillberg@ch.abb.com>
+Subject: Re: PlotXY_Bugs2016
+
+A new beta is loaded now at the same address:
+https://dl.dropboxusercontent.com/u/55064681/PlotXY.exe
+
+I did correct a few problems.
+This executable is not totally satisfying, in all details, but for me it do=
+es not crash any more, and it nearly finished.
+Now I can have a closer look at your pptx.
+
+I will let you know when this correction phase is considered finished and  =
+the resulting version uploaded on the public URL.
+
+MC
+
+
+Il 14/03/2016 10.03, Claes Hillberg ha scritto:
+Hello Massimo,
+
+I can confirm the crash as you mentioned.
+Please refer to the attached file.
+Regards,
+Claes
+From: Massimo Ceraolo [mailto:massimo.ceraolo@unipi.it]
+Sent: Montag, 14. M=E4rz 2016 09:25
+To: Claes Hillberg <claes.hillberg@ch.abb.com><mailto:claes.hillberg@ch.abb=
+.com>
+Subject: Re: PlotXY_Bugs2016.pptx
+
+Thank you.
+In the meanwhile I've discovered a bug in PlotXY that might cause it to cra=
+sh whenever more than one function of variable is used, so also in your exa=
+mple.
+You can experience a crash, then.
+I'll write back to you when this is solved, hopefully by 2-3 days.
+
+MC
+
+
+Il 14/03/2016 07:31, Claes Hillberg ha scritto:
+Good morning,
+
+I was away last week and was not able to response to your mail.
+
+The pl4 file is 41MB, for the simulation I sent you pictures of, but I atta=
+ch the same file but with simulation time t_end=3D0.5sec ->1.9MB
+
+I will download the new version of the program later today and report back =
+to you.
+
+Best regards,
+Claes
+From: Massimo Ceraolo [mailto:massimo.ceraolo@unipi.it]
+Sent: Samstag, 12. M=E4rz 2016 10:48
+To: Claes Hillberg <claes.hillberg@ch.abb.com><mailto:claes.hillberg@ch.abb=
+.com>
+Subject: Re: PlotXY_Bugs2016.pptx
+
+I did not receive your pl4 file.
+
+However I've improved the marker positions.
+You can download the new executable from the following url:
+https://dl.dropboxusercontent.com/u/55064681/PlotXY.exe
+
+If you make an updated report, and supply me the pl4 file I can address the=
+ remaining issues.
+MC
+
+
+Il 03/03/2016 15.07, Claes Hillberg ha scritto:
+Hello, Mr Ceraolo,
+
+I have for a long time used you plotting program.
+In the latest version, I have found some issues that you may consider in a =
+future fix if you see it fitting. They are described in the attached ppt fi=
+le. If you like I can provide the pl4 file.
+
+
+My PlotXY.exe has the date 2015-07-21 07:11
+
+
+
+PLOTXY HISTORY AND ROAD-MAP
+
+May 2015
+PlotXY was created initially in 1998 as an answer to the need....
+
+Best regards,
+
+Claes Hillberg
+ABB Schweiz Ltd
+
+
+
+
+
+
+--
+
+Massimo Ceraolo
+
+Pisa University School of Engineering, chairman
+
+University of Pisa  - Italy
+
+Tel: +39 050 2217021 Mobile: +39 340 9173634
+
+
+
+
+--
+
+Massimo Ceraolo
+
+Pisa University School of Engineering, chairman
+
+University of Pisa  - Italy
+
+Tel: +39 050 2217021 Mobile: +39 340 9173634
+
+
+
+
+--
+
+Massimo Ceraolo
+
+Pisa University School of Engineering, chairman
+
+University of Pisa  - Italy
+
+Tel: +39 050 2217021 Mobile: +39 340 9173634
+
+--_000_AM3PR06MB1107564006E1A57646F4054BB48F0AM3PR06MB1107eurp_
+Content-Type: text/html; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:Consolas;
+	panose-1:2 11 6 9 2 2 4 3 2 4;}
+@font-face
+	{font-family:Cambria;
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:"Times New Roman \,serif";}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	color:black;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:#954F72;
+	text-decoration:underline;}
+pre
+	{mso-style-priority:99;
+	mso-style-link:"HTML Preformatted Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	color:black;}
+span.HTMLPreformattedChar
+	{mso-style-name:"HTML Preformatted Char";
+	mso-style-priority:99;
+	mso-style-link:"HTML Preformatted";
+	font-family:Consolas;
+	color:black;}
+p.Default, li.Default, div.Default
+	{mso-style-name:Default;
+	margin:0cm;
+	margin-bottom:.0001pt;
+	text-autospace:none;
+	font-size:12.0pt;
+	font-family:"Cambria",serif;
+	color:black;}
+span.EmailStyle20
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+span.EmailStyle21
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle22
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle23
+	{mso-style-type:personal;
+	font-family:"Calibri",sans-serif;
+	color:#1F497D;}
+span.EmailStyle24
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body bgcolor=3D"white" lang=3D"EN-US" link=3D"#0563C1" vlink=3D"#954F72">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Hello Massimo,<o:p></o=
+:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Thanks for the new upd=
+ate, it seems to work.<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Another issue is that =
+when you have a circuit in Atpdraw and run simulations with different param=
+eters for finding the best solution you use PlotXY by using the Refresh but=
+ton, maybe you use all four plot windows
+ plotting a lot of different curves with zoomed plots. (ok) Then you would =
+like to test something different and you modify your circuit a little and r=
+un it again. The modified circuit may have a different setup of plot variab=
+les, two possibilities can arise.
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">1. There is less curve=
+s in the plot file, or
+<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">2. more variables, a n=
+ew one is perhaps added in the middle somewhere of the old output.<o:p></o:=
+p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">In an earlier version =
+of PlotXY, I think this was not an issue. If a variable did not exist anymo=
+re in the plot it was just removed, but I believe that you could still have=
+ the same plot updated even if the number
+ of the variable to be plotted in the plot file had changed.<o:p></o:p></sp=
+an></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">In the present version=
+ the program crashes when less variables are present and you are not sure w=
+hat variables changes, the curves in the plot may change, but the correspon=
+ding name (and the number) in the curve
+ selection window remain.<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Of course when you kno=
+w that the circuit has changed and has a now setup of plot variables you ca=
+n close PlotXY and restart it again, but then the selection of plot variabl=
+es and zoomed windows are lost and you
+ need some time to get it ok again. What is your opinion about this? Automa=
+tic correction, variable selection &amp;Zoom for each window can be saved a=
+nd reloaded (txt file)&#8230;.<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Best regards, <o:p></o=
+:p></span></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Claes<o:p></o:p></span=
+></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D"><o:p>&nbsp;</o:p></spa=
+n></p>
+<div>
+<div style=3D"border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm =
+0cm 0cm">
+<p class=3D"MsoNormal"><b><span style=3D"color:windowtext">From:</span></b>=
+<span style=3D"color:windowtext"> Massimo Ceraolo [mailto:massimo.ceraolo@u=
+nipi.it]
+<br>
+<b>Sent:</b> Sonntag, 20. M=E4rz 2016 09:44<br>
+<b>To:</b> Claes Hillberg &lt;claes.hillberg@ch.abb.com&gt;<br>
+<b>Subject:</b> Re: PlotXY_Bugs2016<o:p></o:p></span></p>
+</div>
+</div>
+<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
+<div>
+<p class=3D"MsoNormal">A new beta is loaded now at the same address:<br>
+<a href=3D"https://dl.dropboxusercontent.com/u/55064681/PlotXY.exe">https:/=
+/dl.dropboxusercontent.com/u/55064681/PlotXY.exe</a><br>
+<br>
+I did correct a few problems.<br>
+This executable is not totally satisfying, in all details, but for me it do=
+es not crash any more, and it nearly finished.
+<br>
+Now I can have a closer look at your pptx.<br>
+<br>
+I will let you know when this correction phase is considered finished and&n=
+bsp; the resulting version uploaded on the public URL.<br>
+<br>
+MC<br>
+<br>
+<br>
+Il 14/03/2016 10.03, Claes Hillberg ha scritto:<span style=3D"font-size:12.=
+0pt"><o:p></o:p></span></p>
+</div>
+<blockquote style=3D"margin-top:5.0pt;margin-bottom:5.0pt">
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Hello Massimo,</span><=
+o:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">&nbsp;</span><o:p></o:=
+p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">I can confirm the cras=
+h as you mentioned.</span><o:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Please refer to the at=
+tached file.</span><o:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Regards,</span><o:p></=
+o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Claes</span><o:p></o:p=
+></p>
+<div>
+<div style=3D"border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm =
+0cm 0cm">
+<p class=3D"MsoNormal"><b><span style=3D"color:windowtext">From:</span></b>=
+<span style=3D"color:windowtext"> Massimo Ceraolo [<a href=3D"mailto:massim=
+o.ceraolo@unipi.it">mailto:massimo.ceraolo@unipi.it</a>]
+<br>
+<b>Sent:</b> Montag, 14. M=E4rz 2016 09:25<br>
+<b>To:</b> Claes Hillberg <a href=3D"mailto:claes.hillberg@ch.abb.com">&lt;=
+claes.hillberg@ch.abb.com&gt;</a><br>
+<b>Subject:</b> Re: PlotXY_Bugs2016.pptx</span><o:p></o:p></p>
+</div>
+</div>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal" style=3D"margin-bottom:12.0pt">Thank you.<br>
+In the meanwhile I've discovered a bug in PlotXY that might cause it to cra=
+sh whenever more than one function of variable is used, so also in your exa=
+mple.<br>
+You can experience a crash, then.<br>
+I'll write back to you when this is solved, hopefully by 2-3 days.<br>
+<br>
+MC<br>
+<br>
+<br>
+<o:p></o:p></p>
+<div>
+<p class=3D"MsoNormal">Il 14/03/2016 07:31, Claes Hillberg ha scritto:<o:p>=
+</o:p></p>
+</div>
+<blockquote style=3D"margin-top:5.0pt;margin-bottom:5.0pt">
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Good morning,</span><o=
+:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">&nbsp;</span><o:p></o:=
+p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">I was away last week a=
+nd was not able to response to your mail.</span><o:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">&nbsp;</span><o:p></o:=
+p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">The pl4 file is 41MB, =
+for the simulation I sent you pictures of, but I attach the same file but w=
+ith simulation time t_end=3D0.5sec -&gt;1.9MB</span><o:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">&nbsp;</span><o:p></o:=
+p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">I will download the ne=
+w version of the program later today and report back to you.</span><o:p></o=
+:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">&nbsp;</span><o:p></o:=
+p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Best regards,</span><o=
+:p></o:p></p>
+<p class=3D"MsoNormal"><span style=3D"color:#1F497D">Claes</span><o:p></o:p=
+></p>
+<div>
+<div style=3D"border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm =
+0cm 0cm">
+<p class=3D"MsoNormal"><b><span style=3D"color:windowtext">From:</span></b>=
+<span style=3D"color:windowtext"> Massimo Ceraolo [<a href=3D"mailto:massim=
+o.ceraolo@unipi.it">mailto:massimo.ceraolo@unipi.it</a>]
+<br>
+<b>Sent:</b> Samstag, 12. M=E4rz 2016 10:48<br>
+<b>To:</b> Claes Hillberg <a href=3D"mailto:claes.hillberg@ch.abb.com">&lt;=
+claes.hillberg@ch.abb.com&gt;</a><br>
+<b>Subject:</b> Re: PlotXY_Bugs2016.pptx</span><o:p></o:p></p>
+</div>
+</div>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<div>
+<p class=3D"MsoNormal">I did not receive your pl4 file.<br>
+<br>
+However I've improved the marker positions.<br>
+You can download the new executable from the following url:<br>
+<a href=3D"https://dl.dropboxusercontent.com/u/55064681/PlotXY.exe">https:/=
+/dl.dropboxusercontent.com/u/55064681/PlotXY.exe</a><br>
+<br>
+If you make an updated report, and supply me the pl4 file I can address the=
+ remaining issues.<br>
+MC<br>
+<br>
+<br>
+Il 03/03/2016 15.07, Claes Hillberg ha scritto:<o:p></o:p></p>
+</div>
+<blockquote style=3D"margin-top:5.0pt;margin-bottom:5.0pt">
+<p class=3D"MsoNormal">Hello, Mr Ceraolo,<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal">I have for a long time used you plotting program.<o:=
+p></o:p></p>
+<p class=3D"MsoNormal">In the latest version, I have found some issues that=
+ you may consider in a future fix if you see it fitting. They are described=
+ in the attached ppt file. If you like I can provide the pl4 file.<o:p></o:=
+p></p>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<p class=3D"Default">My PlotXY.exe has the date 2015-07-21 07:11<o:p></o:p>=
+</p>
+<p class=3D"Default">&nbsp;<o:p></o:p></p>
+<p class=3D"Default"><i><span style=3D"font-size:26.0pt;color:#0070C0">PLOT=
+XY HISTORY AND ROAD-MAP
+</span></i><o:p></o:p></p>
+<p class=3D"Default"><i><span style=3D"font-size:14.0pt;font-family:&quot;C=
+alibri&quot;,sans-serif;color:#0070C0">May 2015
+</span></i><o:p></o:p></p>
+<p class=3D"MsoNormal"><b><i><span style=3D"color:#0070C0">PlotXY </span></=
+i></b><i><span style=3D"color:#0070C0">was created initially in 1998 as an =
+answer to the need&#8230;.</span></i><o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal">Best regards,<o:p></o:p></p>
+<p class=3D"MsoNormal">&nbsp;<o:p></o:p></p>
+<p class=3D"MsoNormal">Claes Hillberg<o:p></o:p></p>
+<p class=3D"MsoNormal">ABB Schweiz Ltd<o:p></o:p></p>
+</blockquote>
+<p class=3D"MsoNormal"><span style=3D"font-size:12.0pt;font-family:&quot;Ti=
+mes New Roman&quot;,serif"><br>
+<br>
+<br>
+<br>
+<br>
+</span><o:p></o:p></p>
+<pre>-- <o:p></o:p></pre>
+<pre>Massimo Ceraolo<o:p></o:p></pre>
+<pre>Pisa University School of Engineering, chairman<o:p></o:p></pre>
+<pre>University of Pisa&nbsp; - Italy<o:p></o:p></pre>
+<pre>Tel: &#43;39 050 2217021 Mobile: &#43;39 340 9173634<o:p></o:p></pre>
+</blockquote>
+<p class=3D"MsoNormal"><span style=3D"font-size:12.0pt;font-family:&quot;Ti=
+mes New Roman \,serif&quot;"><br>
+<br>
+<br>
+</span><o:p></o:p></p>
+<pre>-- <o:p></o:p></pre>
+<pre>Massimo Ceraolo<o:p></o:p></pre>
+<pre>Pisa University School of Engineering, chairman<o:p></o:p></pre>
+<pre>University of Pisa&nbsp; - Italy<o:p></o:p></pre>
+<pre>Tel: &#43;39 050 2217021 Mobile: &#43;39 340 9173634<o:p></o:p></pre>
+</blockquote>
+<p class=3D"MsoNormal"><span style=3D"font-size:12.0pt;font-family:&quot;Ti=
+mes New Roman&quot;,serif"><br>
+<br>
+<br>
+<o:p></o:p></span></p>
+<pre>-- <o:p></o:p></pre>
+<pre>Massimo Ceraolo<o:p></o:p></pre>
+<pre>Pisa University School of Engineering, chairman<o:p></o:p></pre>
+<pre>University of Pisa&nbsp; - Italy<o:p></o:p></pre>
+<pre>Tel: &#43;39 050 2217021 Mobile: &#43;39 340 9173634<o:p></o:p></pre>
+</div>
+</body>
+</html>
+
+--_000_AM3PR06MB1107564006E1A57646F4054BB48F0AM3PR06MB1107eurp_--

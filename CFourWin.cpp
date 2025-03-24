@@ -912,13 +912,12 @@ void CFourWin::showEvent(QShowEvent *){
     settings.endGroup();
 
     switch(myData.varName[0].toLatin1()){
-        case 'v': curveParam.unitS[0]='V'; break;
-        case 'c': case 'i': curveParam.unitS[0]='A'; break;
-        case '1': curveParam.unitS[0]='A'; break;
-        case 'a': curveParam.unitS[0]=char('^'); break;
-        case 'p': curveParam.unitS[0]='W'; break;
-        case 'e': curveParam.unitS[0]='J'; break;
-        default: curveParam.unitS[0]=QChar(0);
+        case 'v': curveParam.unitS="V"; break;
+        case 'c': case 'i': curveParam.unitS="A"; break;
+        case 'a': curveParam.unitS="^"; break;
+        case 'p': curveParam.unitS="W"; break;
+        case 'e': curveParam.unitS="J"; break;
+        default: curveParam.unitS="";
     }
     ui->amplChart->setYZeroLine(true);
     ui->phaseChart->setYZeroLine(true);

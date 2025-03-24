@@ -3131,7 +3131,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   setActualPlotWins(wins);
 
   //Fase 2: recupero nomi files e gestione fileTable
-  //Per la fase 1 seguo la seguente procedura:
+  //Per la fase 2 seguo la seguente procedura:
   // 2.1) leggo le registrazioni dei files e faccio una verifica di validità
   // 2.2) se è tutto OK scarto i files eventualmente già presenti in memoria
   //      e carico quelli nuovi, altrimenti lascio tutto com'è ed emetto
@@ -3163,7 +3163,9 @@ void CDataSelWin::on_loadStateTBtn_clicked()
       QMessageBox msgBox;
         msgBox.setText(
           "Warning:\n file \""+pathName+"\"\n"+
-          "has time and date stamps that do not correspond to those stored when saving state\n");
+          "has time and date stamps that do not correspond to those stored when saving state\n"
+          "Continuing may cause issues or even program crash in case of file-state inconsistencies\n"
+         );
         msgBox.setInformativeText(
           "Do you want to proceed with reloading it?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No );
