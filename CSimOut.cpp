@@ -80,10 +80,14 @@ void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
     }
   }
 
-  if(unit[0]=='V') VarName="v:"+VarName;
-  else if (unit[0]=='A')   VarName="c:"+VarName;
-  else if (unit[0]=='W')   VarName="p:"+VarName;
-  else if (unit[0]=='J')   VarName="e:"+VarName;
+  // Se sto processando segnali digitali l'unit passata era " "" poi trasformata in "" con unit.trimmed(). In questo casl l'accessoa unit[0] è illegale.
+  QString dummyUnit="x";
+  if (unit.size()>0)
+    dummyUnit=unit[0];
+  if(dummyUnit[0]=='V') VarName="v:"+VarName;
+  else if (dummyUnit[0]=='A')   VarName="c:"+VarName;
+  else if (dummyUnit[0]=='W')   VarName="p:"+VarName;
+  else if (dummyUnit[0]=='J')   VarName="e:"+VarName;
   else if (unit.left(3)=="DEG") VarName="a:"+VarName;
   else if (CCBM_1!='?')  VarName=CCBM.left(1)+":"+VarName;
   else{
@@ -893,23 +897,27 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   //Righe di definizione dei segnali (con l'indice parto da 1 e arrivo a Signals+1
   //perché nei miei vettori l'indice 0 è relativo alla variabile tempo)
   extStr="CFG";
+  //Lettura dei segnali analogici
   for (var=1; var<analogSigs+1; var++){
     fgets(row,maxLen+1,pFile); rowNum++;
     StrTok.getStr(row);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il numero d'ordine, parametro critico.
     //Verifica di errori per parametri critici:
-    if(pToken==nullptr || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)
+        goto _return;
     //(Non uso in alcun modo il numero d'ordine)
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il nome (identifier), parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==nullptr)goto _return;
+    if(pToken==nullptr)
+        goto _return;
     varNames[var]=QString(pToken);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene la "fase", parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==nullptr)goto _return;
+    if(pToken==nullptr)
+        goto _return;
     //(Non uso in alcun modo la fase)
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il "ccbm", parametro non critico
@@ -963,7 +971,8 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     //Verifica di errori per parametri critici:
     if(pToken==nullptr || *pToken==0)goto _return;
     iErr=sscanf(pToken,"%d",&max[var]);
-    if(iErr!=1)goto _return;
+    if(iErr!=1)
+        goto _return;
 
     //L'ultima parte della riga, specifica del formato 1999 non la leggo; pertanto
     //il presente loop di for è valido sia per il formato 1991 che per il 1999.
@@ -971,23 +980,28 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     sVars[var].unit=unit.simplified();
 //    int iii=0;
   }
+  //Ora che ho letto i segnali analogici passo a leggere i segnali digitali che nel file li seguono
   for (var=analogSigs+1; var<numOfVariables; var++){
-    fgets(row,maxLen+1,pFile); rowNum++;
+    fgets(row,maxLen+1,pFile);
+    rowNum++;
     StrTok.getStr(row);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il numero d'ordine, parametro critico.
     //Verifica di errori per parametri critici:
-    if(pToken==nullptr || *pToken==0)goto _return;
+    if(pToken==nullptr || *pToken==0)
+        goto _return;
     //(Non uso in alcun modo il numero d'ordine)
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene il nome (identifier), parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==nullptr)goto _return;
+    if(pToken==nullptr)
+        goto _return;
     varNames[var]=QString(pToken);
     pToken=StrTok.giveTok();
     //A questo punto pToken contiene la "fase", parametro non critico
     //Verifica di errori per parametri non critici:
-    if(pToken==nullptr)goto _return;
+    if(pToken==nullptr)
+        goto _return;
     //(Non uso in alcun modo la fase)
 
     addPrefix(varNames[var]," ","d", var);
@@ -1123,9 +1137,14 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   } else {
     for(point=0; point<numOfPoints; point++){
       // 1) lettura del numero di campione "n":
-      fread (&u, 4, 1, pFile);
       // 2) lettura del tempo "timestamp":
-      fread (&u1, 4, 1, pFile);
+      if(fread (&u, 4, 1, pFile)!=1 ||
+         fread (&u1, 4, 1, pFile)!=1){
+        retStr="Truncated DAT file (binary) while reading sample/timestamp at point "
+               +QString::number(point+1);
+        rowNum=point+1;
+        goto _return;
+      }
       //Ma se numOfRates è diverso da 0 uso quello per calcolare il tempo:
       if(numOfRates>0){
         //Al tempo andrebbe aggiunto initialTime per avere una rappresentazione completa di quello che c'è sul file. Però PlotXY è concepito per far partire i segnali da 0 e quindi non faccio la traslazione (il decremento perché il primo campione è 1, ma il relativo istante 0):
@@ -1136,7 +1155,12 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
         y[0][point]=factor[0]*u1;
       // 3) lettura variabili analogiche:
       for(var=1; var<analogSigs+1; var++){
-        fread (&si, 2, 1, pFile);
+        if(fread (&si, 2, 1, pFile)!=1){
+          retStr="Truncated DAT file (binary) while reading analog signal at point "
+                 +QString::number(point+1);
+          rowNum=point+1;
+          goto _return;
+        }
         y[var][point]=factor[var]*si+offset[var];
       }
 
@@ -1146,7 +1170,12 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
 
       for(int digivar=0; digivar<digiCombs; digivar++){
         var=analogSigs+1+16*digivar;
-        fread (&si, sizeof(short int), 1, pFile);
+        if(fread (&si, sizeof(short int), 1, pFile)!=1){
+          retStr="Truncated DAT file (binary) while reading combined digital signals at point "
+                 +QString::number(point+1);
+          rowNum=point+1;
+          goto _return;
+        }
         for(i=0;i<16;i++){
 //          bool test=(si&short(2^i))>0;
 //            test=(si& (1<<i))>0;
@@ -1156,7 +1185,12 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
       // 5) lettura variabili digitali a canale combinato parzialmente vuoto:
       if(extraDigiSigs){
         var=analogSigs+1+16*digiCombs;
-        fread (&si, sizeof(short int), 1, pFile);
+        if(fread (&si, sizeof(short int), 1, pFile)!=1){
+          retStr="Truncated DAT file (binary) while reading extra digital signals at point "
+                 +QString::number(point+1);
+          rowNum=point+1;
+          goto _return;
+        }
         for(i=0;i<extraDigiSigs;i++){
 //            bool test=(si&short(2^i))>0;
 //            bool test;
