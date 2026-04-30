@@ -1652,7 +1652,7 @@ void  CLineChart::drawMark(float X, float Y, int mark, bool markName){
         //Quadratino pieno:
         myPainter->setBrush(Qt::black);
         myPainter->drawRect(int(X-markHalfWidth),int(Y-markHalfWidth),
-                            int(markHalfWidth),int(markHalfWidth));
+                            int(2*markHalfWidth),int(2*markHalfWidth));
         break;
       case 6:
         //Triangolino pieno:
