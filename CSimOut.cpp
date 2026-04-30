@@ -117,7 +117,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
    * elaborazioni.
    * Essi potranno essere tutti trasferiti direttamente in array mySO senza on con
    * eliminazione degli alias
-   * Questa ruoutine è pensata per essere richiamtata solo da loadfromModelicaMatFile.
+   * Questa ruoutine è pensata per essere richiamata solo da loadfromModelicaMatFile.
    *
    * Se elimino le variabili alias, poi posso avere un hint che dia solo la variabile
    * mantenuta o anche la lista degli alias eliminati, a seconda del secondo parametro
@@ -141,39 +141,52 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     } header;  //Intestazione standard dei fle matlab rel 4.0
 
 
-    // lettura intestazione: Aclass
+    // lettura header iniziale:
     if(fread(&header,sizeof(header),1,pFile)!=1){
-        fileData.retString= "Error reading \"Aclass\" in loadFromModelicaMatFile";
+        fileData.retString= "Error reading \"header\" in inputMatModelicaDataFile";
         return fileData;
     }
-    // lettura stringa "Aclass":
+    // lettura stringa "Aclass" dopo l'header iniziale:
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+        fileData.retString= "Error 1 reading \"Aclass\" in inputMatModelicaDataFile";
+        delete[] pVarName;
+        return fileData;
+    };
     if(strncmp(pVarName,"Aclass",6)!=0){  //Questo confronto va fatto con strncmp e non scon strcmp in quanto il contenuto di pVarName non necessariamente finisce con '\0', e quindi la funzione potrebbe operare in modo inappropriato se non trova tale carattere di fine stringa.
         delete[] pVarName;
-        fileData.retString="Error reading Aclass";
+        fileData.retString= "Error 2 reading \"Aclass\" in inputMatModelicaDataFile";
         return fileData;
     }
     // lettura Aclass:
     // Faccio staticamente su 44 caratteri in quanto dovrebbe essere sempre una matrice 4x11. caso mai cambio dopo. Così il debug è molto facilitato
     char  aClassData[44];
-    fread(aClassData,44,1,pFile);
+    if(fread(aClassData,44,1,pFile)!=1){
+        delete[] pVarName;
+        fileData.retString= "Error reading \"aClassData\" in inputMatModelicaDataFile";
+        return fileData;
+    };
 
 
     //*** fase 2 leggo "name" e passo avanti.
     // lettura intestazione:
     if(fread(&header,sizeof(header),1,pFile)!=1){
-        fileData.retString="Error reading \"name\" in loadFromModelicaMatFile";
+        delete[] pVarName;
+        fileData.retString="Error reading \"name\" in inputMatModelicaDataFile";
         return fileData;
     }
     // lettura nome (quindi "name"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
-
-    if(strcmp(pVarName,"name")!=0){
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
         delete[] pVarName;
-        fileData.retString="Error reading \"name\"";
+        fileData.retString="Error reading \"name\" in inputMatModelicaDataFile";
+        return fileData;
+    };
+
+    if(strncmp(pVarName,"name",4)!=0){
+        delete[] pVarName;
+        fileData.retString="Error reading \"name\"in inputMatModelicaDataFile";
         return fileData;
     }
     // lettura dati:
@@ -181,7 +194,11 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     dummyStr=new char[header.nCols+1]; //il +1 per via del carattere nullo di fine stringa
 //    QString *allNames=new QString[header.nRows];
     for (int i=0; i<header.nRows; i++){
-      fread(dummyStr,size_t(header.nCols),1,pFile);
+      if(fread(dummyStr,size_t(header.nCols),1,pFile)!=1){
+          delete[] pVarName;
+          fileData.retString="Error reading string in inputMatModelicaDataFile";
+          return fileData;
+      };
       dummyStr[header.nCols]=0;
 //      allNames[i]=QString(nameData);
       fileData.namesLst.append(QString(dummyStr).trimmed());
@@ -1656,7 +1673,10 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
             goto Return;
         }
         for(int i=0; i<numDimens; i++)
-            fread(dimens+i,4,1,pFile);
+          if(fread(dimens+i,4,1,pFile)!=1){
+            retStr="Error reading dimens in LoadFromMatFile5";
+            goto Return;
+          };
 
         //Dopo il Dimensions Array c'è l'Array Name:
         fread(&type0,4,1,pFile); //tipo del prossimo dato numerico (è sempre miINT8, quindi sovrapponibile con lettura per caratteri senza problemi di swap di bytes fra little e big endian.)
@@ -2133,14 +2153,13 @@ QString CSimOut::loadFromModelicaMatFile(FILE * pFile, bool addAlias_){
    paramInfo.description.clear();
    paramInfo.units.clear();
    paramInfo.values.clear();
-   int aliasCount=0;
+   [[maybe_unused]] int aliasCount=0;
    for (int i=1;  i<fd.dataInfoRows; i++){
      if(fd.dataInfo[i][0]==1){
        int parIdx=qAbs(fd.dataInfo[i][1])-1;
        int lastIndexOf=loadedVarIndices.lastIndexOf(parIdx);
        if(lastIndexOf>-1 && addAlias_){  //Caso in cui un parametro è stato memorizzato e gli devo aggiungere uno o più alias
          QString curDescription=paramInfo.description[lastIndexOf];
-         QString curName=paramInfo.names[lastIndexOf];
          int lastCharIdx=curDescription.size()-1;
          //la seguente riga è importante perché se la riga è vuota lastCarIdx è -1
          if(lastCharIdx<0)
