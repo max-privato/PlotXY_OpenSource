@@ -58,11 +58,6 @@ void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
  * unit ricava eventuali fattori moltiplicativi che sono usati per trasformare le
  * rispettive grandezze in unità SI e informazioni riguardo l'unità di misura.
 */
-  QChar CCBM_1;
-  if(CCBM.length()>0)
-    CCBM_1=CCBM[0];
-  else
-    CCBM_1='?';
 
   //elimino eventuali spazi iniziali e finali da unit:
   unit=unit.trimmed();
@@ -80,19 +75,30 @@ void CSimOut::addPrefix(QString &VarName, QString unit, QString CCBM, int Var){
     }
   }
 
-  // Se sto processando segnali digitali l'unit passata era " "" poi trasformata in "" con unit.trimmed(). In questo casl l'accessoa unit[0] è illegale.
-  QString dummyUnit="x";
-  if (unit.size()>0)
-    dummyUnit=unit[0];
-  if(dummyUnit[0]=='V') VarName="v:"+VarName;
-  else if (dummyUnit[0]=='A')   VarName="c:"+VarName;
-  else if (dummyUnit[0]=='W')   VarName="p:"+VarName;
-  else if (dummyUnit[0]=='J')   VarName="e:"+VarName;
-  else if (unit.left(3)=="DEG") VarName="a:"+VarName;
-  else if (CCBM_1!='?')  VarName=CCBM.left(1)+":"+VarName;
+  // Se sto processando segnali digitali l'unit passata era " "" poi trasformata in "" con unit.trimmed(). In questo caso l'accesso a unit[0] è illegale.
+  if (unit.size()>0){
+    if(unit[0]=='V') VarName="v:"+VarName;
+    else if (unit[0]=='A')   VarName="c:"+VarName;
+    else if (unit[0]=='W')   VarName="p:"+VarName;
+    else if (unit[0]=='J')   VarName="e:"+VarName;
+    else if (unit.left(3)=="DEG") VarName="a:"+VarName;
+    // Fallback: se l'unità non è una di quelle riconosciute, usiamo CCBM come hint
+    // sul tipo di variabile, oppure "?" se anche CCBM è vuoto. In quest'ultimo caso
+    // resettiamo factorUnit a 1: se non riconosciamo l'unità non possiamo fidarci
+    // nemmeno del moltiplicatore k/m applicato in precedenza dal preprocessing.
+    else if (CCBM.size()>0) VarName=CCBM.left(1)+":"+VarName;
+    else {
+      factorUnit[Var]=1;
+      VarName="?:"+VarName;
+    }
+  }
   else{
+    //is the circuit component being monitored. In case no unit information is available, we use the available first character in PlotXY names to contain the first character of CCBM. Finally, if no unit nor CCBM is available, we will use as a first character "?".
+    if(CCBM.size()>0)
+       VarName=CCBM.left(1)+":"+VarName;
+    else
+       VarName="?:"+VarName;
     factorUnit[Var]=1;
-    VarName="?:"+VarName;
   }
 }
 
