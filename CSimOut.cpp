@@ -149,7 +149,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     // lettura stringa "Aclass":
     pVarName=new char[header.namlen];
     fread(pVarName,size_t(header.namlen),1,pFile);
-    if(strcmp(pVarName,"Aclass")!=0){
+    if(strncmp(pVarName,"Aclass",6)!=0){  //Questo confronto va fatto con strncmp e non scon strcmp in quanto il contenuto di pVarName non necessariamente finisce con '\0', e quindi la funzione potrebbe operare in modo inappropriato se non trova tale carattere di fine stringa.
         delete[] pVarName;
         fileData.retString="Error reading Aclass";
         return fileData;
@@ -285,6 +285,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     pVarName=new char[header.namlen];
     fread(pVarName,size_t(header.namlen),1,pFile);
     if(strcmp(pVarName,"dataInfo")!=0){
+      delete[] pVarName;
       fileData.retString= "Error reading \"dataInfo\" in loadFromModelicaMatFile";
       return fileData;
     }
@@ -357,7 +358,10 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     //lettura nome (quindi "data_2"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+        fileData.retString= "Error reading \"Aclass\" in loadFromModelicaMatFile";
+        return fileData;
+    };
 
     if(strcmp(pVarName,"data_2")!=0){
         delete[] pVarName;
@@ -1044,6 +1048,7 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
     delete[] max;
     delete[] offset;
     delete[] factor;
+    delete[] row;
     return "Unable to open DAT file (does it exist?)";
   }
   do{
@@ -2243,7 +2248,10 @@ char *CSimOut::CStrTok::giveTok(void){
 }
 
 CSimOut::CStrTok::~CStrTok(){
-  delete[] string;
+// string was allocated with strdup, i.e. with malloc, and cannot be freeed with delete;  It may work with some compilers, may not with others.
+// The next row is therefore commented out and sumbsituted with free
+   //delete[] string;
+   free(string);
 }
 
 
@@ -2862,6 +2870,7 @@ Questo un quanto queste due caratteristiche non sono in alcuno modo necessarie p
 CSimOut::~CSimOut(){
   delete[] varNames;
   delete[] factorUnit;
+  delete[] sVars;
     if(y!=nullptr)DeleteFMatrix(y);
 }
 
