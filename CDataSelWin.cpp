@@ -778,94 +778,20 @@ void CDataSelWin::closeEvent(QCloseEvent *){
   }
 
 quit:
-  /*  La cancellazione di plotWin# delle seguenti 4 righe non è indispensabile in quanto
-   * subito dopo vi è un qApp->quit() che causa l'uscita da a.exec() in main(), e quindi
-   * l'uscita dall'applicazione. A quanto si legge su Internet, all'uscita dall'
-   * applicazione il sistema operativo è in grado di liberare tutta la memoria allocata
-   * dal programma non già liberata durante l'esecuzione da un delete.
-   * Il richiamo esplicito a delete qui riportato mi fa fare la chiusura delle finestre
-   * e la relativa disallocazione prima che il controllo del programma sia passato al
-   * sistema operativo.
-   *
-   * NOTA de avessi messo questi delete in ~CDataSelWin() vi sarebbe stato il seguente
-   * problema (che si evidenzia solo nel mio Win XP in VirtualBox del calcolatore fisso
-   * HP Pavillon):
-   * se chiudo la DatSelWin con una finestra plot aperta, tale finesta plot rimane aperta.
-   * Questo comportamento è facilmente spiegabile. Occorre per prima cosa rimarcare che
-   * si esce da application.exec()(cioè la riga a.exec() di main()) soltanto quando tutte
-   * le finestre primarie (quelle cioè che non hanno parent) vengono chiuse. Pertanto
-   * fintanto che rimangono aperte finestre plotWin#, non si esce da a.exec() di main().
-   * E solo dopo che, in main(), si esce da a.exec(), si va oltre. Dopo a.exec() in main
-   * non vi sono altre righe, quindi si passa al delete delle variabili automatiche. Una
-   * di queste è CDataSelWin w; il delete di w provoca l'esecuzione di ~CDataSelWin().
-   * Quindi se metto i delete di plotWin# in ~CDataSelWin() essi non vengono esequiti
-   * quando l'utente clicca sulla "x" di CDataSelWin, se è ancora visibile qualche
-   * finestra di plot, in quanto in tal caso CDataSelWin non è l'ultima finestra primaria
-   * che viene chiusa. Vengono solo esequiti successivamente, cioè quanto anche tutte le
-   * plotWin# sono state manualmente chiuse dall'utente.
-   *
-   * Infine una considerazione sul confronto fra "delete plotWin1" e "plotWin1->close()".
-   * QWidget::close() non libera la memoria e non esegue il distruttore, a meno che
-   * l'attributo Qt::WA_DeleteOnClose non sia stato settato ad esempio alla creazione
-   * della finestra(non è settato per default).
-   * Vista la situazione la soluzione con il delete, standard del C++,  appare preferibile.
-  */
+  /* Qui fino al 24.03.2025 c'era la chiusura tramite delete delle plotWin[].
+   * E' stato però visto che dopo tale chiusura veniva mandato in esecuzione l'evento
+   * focusInEvent, il quale interroga plotWin[win] e lo trova indefinito, causando in taluni casi
+   * su Mac (ad esempio se si era fatto in precedenza un refresh state con finestra di fourier
+   * visualizzata nella versione in uso a marzo 2025) un crash.
+   * Questo bug è stato scoperto a molti anni di distanza dalla scrittura di questo
+   * closeEvent(), in quanto su windows non aveva mai causato alcun problema, men che
+   * meno crash.
+*/
 
-  /* The deletion of plotWin # of the following 4 lines is not indispensable
-   * since immediately after there is a qApp-> quit () which causes the exit
-   * from a.exec () in main (), and then the exit from application. As we read
-   * on the Internet, at the exit from the application the operating system
-   * is able to free all the memory allocated by the program not already freed
-   * during execution by a delete.
-   * The explicit recall to delete reported here makes me close the windows
-   * and the relative disallocation before the control of the program is
-   * passed to the operating system.
-   *
-   * NOTE I had put these delete in ~ CDataSelWin () there would have been the
-   * following problem (which is highlighted only in my Win XP in VirtualBox
-   * of the HP Pavilion fixed computer):
-   * if I close the DatSelWin with an open plank window, this plank remains open.
-   * This behavior is easily explained. First of all, we need to remark that we
-   * exit application.exec () (that is, the line a.exec () of main ()) only when
-   * all the primary windows (ie those that do not have a parent) are closed.
-   * Therefore, as long as open plotWin # windows remain, you do not exit
-   * a.exec () of main (). And only after that, in main (), we leave a.exec (),
-   * we go further. After a.exec () in main, there are no other lines,
-   * so the automatic variables are deleted. One of these is CDataSelWin w;
-   * the delete of w causes the execution of ~ CDataSelWin (). So if I put the
-   * delete of plotWin # in ~ CDataSelWin () they are not performed when the
-   * user clicks on the "x" of CDataSelWin, if some plot window is still visible,
-   * because in this case CDataSelWin is not the last window primary that is closed.
-   * They come only esequiti subsequently, that is how much also all the plotWin #
-   * have been manually closed by the user.
-   *
-   * Finally a consideration on the comparison between "delete plotWin1" and
-   * "plotWin1-> close ()".
-   * QWidget :: close () does not free the memory and does not perform the
-   * destructor unless the Qt :: WA_DeleteOnClose attribute has been set for
-   * example when the window is created (it is not set by default).
-   * Given the situation the solution with the delete, C ++ standard, appears preferable.
-  */
+ // for (int win=0; win<MAXPLOTWINS; win++)
+ //   delete plotWin[win];
 
-  for (int win=0; win<MAXPLOTWINS; win++)
-    delete plotWin[win];
-  /*La seguente riga non è necessaria in quanto a questo punto tutte le plotWin si sono chiuse e l'ultima finestra primaria, CDataSelWin si sta per chiudere.
-    Quanto tutte le finestre primarie sono chiuse qApp->quit() viene chiamata automaticamente, e quindi si esce da a.exec(), e quindi da main().  Per riferimento guardare QApplication::lastWindowClosed():
-    La riga non è necessaria ma non fa male! Se la lasciamo il programma si chiude correttamente anche qualora in un secondo momento (ma non credo proprio) si dovesse porre
-    quitOnLastWindowClosed=false
-    */
-
-  /* The following line is not needed because at this point all the PlotWin have
-    been closed and the last primary window, CDataSelWin, is about to close.
-    When all the primary windows are closed, qApp-> quit () is called
-    automatically, and then exits from a.exec (), and then from main ().
-    For reference look at QApplication :: lastWindowClosed ():
-    The line is not necessary but it does not hurt! If we leave it,
-    the program closes correctly even if at a later time (but I do not think so)
-    it should be placed
-    quitOnLastWindowClosed = false
-    */
-     qApp->quit();
+   qApp->quit();
 }
 
 QString CDataSelWin::computeCommonX(void){
@@ -3262,11 +3188,11 @@ void CDataSelWin::on_loadStateTBtn_clicked()
       keyName="VarTable_"+QString::number(iSheet+1)+"_"+ QString::number(iRow+1)+".colors";
       QRgb color=settings.value(keyName).value<QRgb>();
       if(color==0){
-       QMessageBox::information(this, "PlotXY",
+        QMessageBox::information(this, "PlotXY",
                  "The stored data do not appear to be created using this PlotXY version\n"
                  "Save state operation before restoring.\n"
                  "No data restored.");
-          return;
+        return;
       }
       colorVect.append(color);
     }
@@ -3336,12 +3262,12 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 
 void CDataSelWin::focusInEvent(QFocusEvent *){
   for (int win=0; win<MAXPLOTWINS; win++){
-  if(plotWin[win]->isVisible())
-     plotWin[win]->raise();
-  if(fourWin[win]->isVisible())
-     fourWin[win]->raise();
+    if(plotWin[win]->isVisible())
+         plotWin[win]->raise();
+    if(fourWin[win]->isVisible())
+         fourWin[win]->raise();
   }
-  //Ora che ho alzato tutte le finestre che potevano essere sotto altre, devo alsare la dinestra DataSelWin, che deve superare quelle di plot:
+  //Ora che ho alzato tutte le finestre che potevano essere sotto altre, devo alzare la finestra DataSelWin, che deve superare quelle di plot:
   raise();
 }
 
