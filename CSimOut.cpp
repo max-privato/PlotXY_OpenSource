@@ -1496,7 +1496,10 @@ Il file contiene sequenzialmente coppie header-matrice.
 
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+        ret="Truncated MAT v4 file while reading variable name (first pass)";
+        goto Return;
+    }
 
     //Se la prima variabile ha come nome "Aclass" si ipotizza che si tratti di un file creato con Modelica (Dymola e OM sano formati quasi identici e entrambi mettonon una prima variabile con questo nome a inizio file). Di conseguenza rimando l'interpretazione alla specifica routine.
 
@@ -1562,10 +1565,16 @@ Il file contiene sequenzialmente coppie header-matrice.
         }
 
         if(iCol==0) {
-            fread(&header,sizeof(header),1,pFile);
+            if(fread(&header,sizeof(header),1,pFile)!=1){
+                ret="Truncated MAT v4 file while reading variable header (second pass)";
+                goto Return;
+            }
             delete[]pVarName;
             pVarName=new char[header.namlen];
-            fread(pVarName,size_t(header.namlen),1,pFile);
+            if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+                ret="Truncated MAT v4 file while reading variable name (second pass)";
+                goto Return;
+            }
             varNames[varIndex]=QString(pVarName);
         }
         if(header.nCols>1) {
@@ -1578,12 +1587,18 @@ Il file contiene sequenzialmente coppie header-matrice.
         }
         if(isDouble){
             for(point=0; point<numOfPoints; point++){
-                fread(&dAux,sizeof(double),1,pFile);
+                if(fread(&dAux,sizeof(double),1,pFile)!=1){
+                    ret="Truncated MAT v4 file while reading double data";
+                    goto Return;
+                }
                 y[varIndex][point]=float(dAux);
             }
         }else{
             for(point=0; point<numOfPoints; point++)
-                fread(&y[varIndex][point],sizeof(float),1,pFile);
+                if(fread(&y[varIndex][point],sizeof(float),1,pFile)!=1){
+                    ret="Truncated MAT v4 file while reading float data";
+                    goto Return;
+                }
         }
     }
 
@@ -1625,7 +1640,10 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
     if(pFile==nullptr)
         return "Unable to open file";
     fileHeader[127]=0;
-    fread(fileHeader,128,1,pFile);
+    if(fread(fileHeader,128,1,pFile)!=1){
+        retStr="Truncated MAT v5 file while reading the 128-byte file header";
+        goto Return;
+    }
     // Non faccio la verifica big-endian / little-endian perché con i processori Intel, di mio interesse,
     // è usato sempre il little-endian. Quando dovessi implementare anche questa funzione potrei usare le Endian Conversion functions del Qt.
     //Qui come prima cosa faccio il conto delle variabili e del numero di punti per ognuna di esse. Siccome accetto anche che vi siano matrici con più colonne da considerare variabili indipendenti, non posso desumere il numero di variabili dalle dimensioni del file e della prima variabile incontrata, ma le devo contare tutte, facendo uso dell'accesso diretto tramite fseek() e l'informazione sempre disponibile dei bytes occupati da ogni singola variabile.
@@ -1634,39 +1652,61 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
     while(1){
         if(fread(&dataType,4,1,pFile)<1)
             break;  // tipo dell'intero segmento
-        fread(&numberOfBytes,4,1,pFile);  //bytes dell'intero segmento
+        if(fread(&numberOfBytes,4,1,pFile)!=1){  //bytes dell'intero segmento
+            retStr="Truncated MAT v5 file while reading numberOfBytes (first pass)";
+            goto Return;
+        }
         numOfVariables++;
         fseek(pFile, long(numberOfBytes),SEEK_CUR);
     }
     rewind(pFile);
-    fread(fileHeader,128,1,pFile);
+    if(fread(fileHeader,128,1,pFile)!=1){
+        retStr="Truncated MAT v5 file when re-reading the 128-byte file header";
+        goto Return;
+    }
     delete[] varNames;
     varNames=new QString[numOfVariables];
 
     for(iVar=0;iVar<numOfVariables; iVar++){
         smallData=false;
-        fread(&dataType,4,1,pFile);  // tipo dell'intero segmento
+        if(fread(&dataType,4,1,pFile)!=1){  // tipo dell'intero segmento
+            retStr="Truncated MAT v5 file while reading dataType (second pass)";
+            goto Return;
+        }
         if(dataType==15){
         retStr="The file contains compressed variables\n"
                 "that is a feature currently not supported.\n"
                 "Please save matlab data using the \"-V4\" option.";
         goto Return;
         }
-        fread(&numberOfBytes,4,1,pFile);  //bytes dell'intero segmento
+        if(fread(&numberOfBytes,4,1,pFile)!=1){  //bytes dell'intero segmento
+            retStr="Truncated MAT v5 file while reading numberOfBytes (second pass)";
+            goto Return;
+        }
 
 /* Ora ci sono i sottosegmenti. Per ognuno di essi i primi 4 bytes ne dicono il formato, il secondi il numero di bytes.*/
         //Primo sottosegmento: Array flags
-        fread(&type,4,1,pFile); //tipo dei dati dell'Array flags (in realtà meglio leggerli come caratteri)
-        fread(&num,4,1,pFile); //numero di bytes della prossima riga (sempre 8!) Il dato è riportato perché ogni sottosegmento comincia con il tipo di dato e poi ha il numero di bytes seguenti l'intestazione.
-        fread(arrayFlags,4,1,pFile); //Array dei flags. L'elemento 0 ha la classe, l'1 i flag (scambiati rispetto alla figura di pag. 1-20 del file pdf perché abbiamo il little-endian
-        fread(&undefined,4,1,pFile);
+        if(fread(&type,4,1,pFile)!=1 ||         //tipo dei dati dell'Array flags
+           fread(&num,4,1,pFile)!=1 ||          //numero di bytes della prossima riga
+           fread(arrayFlags,4,1,pFile)!=1 ||    //Array dei flags
+           fread(&undefined,4,1,pFile)!=1){
+            retStr="Truncated MAT v5 file while reading Array flags subsegment";
+            goto Return;
+        }
 
         //Secondo sottosegmento:  il dimensions array:
-        fread(&type,4,1,pFile); //tipo dati array dimensions (INT32)
-        fread(&num,4,1,pFile); //numero di bytes dell'array dimensions (al netto dell'intestazione)
+        if(fread(&type,4,1,pFile)!=1 ||   //tipo dati array dimensions (INT32)
+           fread(&num,4,1,pFile)!=1){     //numero di bytes dell'array dimensions
+            retStr="Truncated MAT v5 file while reading dimensions array header";
+            goto Return;
+        }
         numDimens=num/4; //ci saranno 4 bytes per ognuna delle dimensioni
-        if(numDimens*4!=num)  //se non sono allineato agli 8 bytes c'è il padding:
-            fread(&undefined,4,1,pFile);
+        if(numDimens*4!=num){  //se non sono allineato agli 8 bytes c'è il padding:
+            if(fread(&undefined,4,1,pFile)!=1){
+                retStr="Truncated MAT v5 file while reading dimensions padding";
+                goto Return;
+            }
+        }
         if(numDimens>2){
             retStr="The file contains arrays with more than two dimensions\n"
                     "that is not allowed";
@@ -1679,7 +1719,10 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
           };
 
         //Dopo il Dimensions Array c'è l'Array Name:
-        fread(&type0,4,1,pFile); //tipo del prossimo dato numerico (è sempre miINT8, quindi sovrapponibile con lettura per caratteri senza problemi di swap di bytes fra little e big endian.)
+        if(fread(&type0,4,1,pFile)!=1){ //tipo del prossimo dato numerico (è sempre miINT8, quindi sovrapponibile con lettura per caratteri senza problemi di swap di bytes fra little e big endian.)
+            retStr="Truncated MAT v5 file while reading Array Name type";
+            goto Return;
+        }
         //Tratto il caso di Small Data Element
 
         if(type0.small.bytes>0)smallData=true;
@@ -1688,20 +1731,35 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
             num=type0.small.bytes;
         }else{
             type=type0.type;
-            fread(&num,4,1,pFile); //numero di caratteri per il nome dell'array
+            if(fread(&num,4,1,pFile)!=1){ //numero di caratteri per il nome dell'array
+                retStr="Truncated MAT v5 file while reading Array Name length";
+                goto Return;
+            }
         }
         //Il nome in PlotXY lo tronco a 16 caratteri; pertanto leggo o 8 o 16 bytes (la scrittura viene fatta in campi di 8 bytes con scarto dei residui):
         if(smallData){ //in tal caso ho uno small data element format
-            fread(currVarName,4,1,pFile); //numero di caratteri per il nome dell'array
+            if(fread(currVarName,4,1,pFile)!=1){ //numero di caratteri per il nome dell'array
+                retStr="Truncated MAT v5 file while reading short variable name";
+                goto Return;
+            }
         }else if(num<9){
-            fread(currVarName,8,1,pFile); //numero di caratteri per il nome dell'array
+            if(fread(currVarName,8,1,pFile)!=1){ //numero di caratteri per il nome dell'array
+                retStr="Truncated MAT v5 file while reading 8-byte variable name";
+                goto Return;
+            }
         }else{
-            fread(currVarName,16,1,pFile); //numero di caratteri per il nome dell'array
+            if(fread(currVarName,16,1,pFile)!=1){ //numero di caratteri per il nome dell'array
+                retStr="Truncated MAT v5 file while reading 16-byte variable name";
+                goto Return;
+            }
         }
         //leggo e scarto eventuali caratteri residui:
         if(num>16 && num%8!=0)
             for(int i=0; i<8-num%8; i++)
-                fread(&c,1,1,pFile);
+                if(fread(&c,1,1,pFile)!=1){
+                    retStr="Truncated MAT v5 file while reading variable name padding";
+                    goto Return;
+                }
         if(num<17)
             currVarName[num]='\0';
         else
@@ -1709,7 +1767,10 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
         varNames[iVar]=QString(currVarName);
 
         //Ora il subsegmento con la parte numerica:
-        fread(&type0,4,1,pFile); //formato  del prossimo dato numerico
+        if(fread(&type0,4,1,pFile)!=1){ //formato  del prossimo dato numerico
+            retStr="Truncated MAT v5 file while reading numeric subsegment type";
+            goto Return;
+        }
         // Anche qui può accadere che vi sia uno smalldata, se ho un unico valore.
         //Invece di fare la lettura completa emetto un essaggio di errore perché un unico valore non è ammesso in PlotXY:
         if(type0.small.bytes>0){
@@ -1722,7 +1783,10 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
             retStr="Invalid format:\nonly single and double precision variables\nare allowed in mat files to be read";
             goto Return;
         }
-        fread(&num,4,1,pFile); //numero di bytes per i dati
+        if(fread(&num,4,1,pFile)!=1){ //numero di bytes per i dati
+            retStr="Truncated MAT v5 file while reading data byte count";
+            goto Return;
+        }
         if(type==uInt8)
             numOfPoints1=num;
         else if(type== singleFloat)
@@ -1751,19 +1815,28 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
         if(type==uInt8){
             short s;
             for(int i=0; i<numOfPoints; i++){
-                fread(&s,1,1,pFile);
+                if(fread(&s,1,1,pFile)!=1){
+                    retStr="Truncated MAT v5 file while reading uint8 data";
+                    goto Return;
+                }
 //                float f=(float)s;
                 y[iVar][i]=float(s);
             }
         }else  if(type==doubleFloat){
             double D;
             for(int i=0; i<numOfPoints; i++){
-                fread(&D,8,1,pFile);
+                if(fread(&D,8,1,pFile)!=1){
+                    retStr="Truncated MAT v5 file while reading double data";
+                    goto Return;
+                }
                 y[iVar][i]=float(D);
             }
         }else{
             for(int i=0; i<numOfPoints; i++)
-                fread(&y[iVar][i],4,1,pFile);
+                if(fread(&y[iVar][i],4,1,pFile)!=1){
+                    retStr="Truncated MAT v5 file while reading float data";
+                    goto Return;
+                }
         }
     }
     Return:
