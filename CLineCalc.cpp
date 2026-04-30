@@ -276,20 +276,20 @@ QString CLineCalc::computeFun1(int start, int iVal){
     while(intLine[j]==' ')j++;
     //A questo punto l'argomento della funzione può essere una costante (carattere '#') o una variabile (carattere '@')
     if(intLine[j]=='#'){
-        if(pFun[i]==fun1[ASININDEX] && abs(pConst[j])>1)
+        if(pFun[i]==fun1[ASININDEX] && fabsf(pConst[j])>1)
           ret="Domain error when evaluating asin()";
-        if(pFun[i]==fun1[ACOSINDEX] && abs(pConst[j])>1)
+        if(pFun[i]==fun1[ACOSINDEX] && fabsf(pConst[j])>1)
           ret="Domain error when evaluating acos()";
         if(pFun[i]==fun1[SQRTINDEX] && pConst[j]<0)
           ret="Domain error when evaluating sqrt()";
       y=pFun[i](pConst[j]);
     }
     if(intLine[j]=='@'){
-        if(pFun[i]==fun1[ASININDEX] && abs(pConst[j])>1)
+        if(pFun[i]==fun1[ASININDEX] && fabsf(pVar[j][iVal])>1)
           ret="Domain error when evaluating asin()";
-        if(pFun[i]==fun1[ACOSINDEX] && abs(pConst[j])>1)
+        if(pFun[i]==fun1[ACOSINDEX] && fabsf(pVar[j][iVal])>1)
           ret="Domain error when evaluating acos()";
-        if(pFun[i]==fun1[SQRTINDEX] && pConst[j]<0)
+        if(pFun[i]==fun1[SQRTINDEX] && pVar[j][iVal]<0)
           ret="Domain error when evaluating sqrt()";
       y=pFun[i](pVar[j][iVal]);
     }
