@@ -133,6 +133,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     fileData.retString="";
     /* Le matrici dataInfo, data_1 e data_2 di fileData vengono allocate nella presente funzione e disallocate, dopo che verranno utilizzate, in loadFromModelicaMatFile(). Notare che una delle due versioni di quest'ultima è sempre chiamata a valle della presente funzione. Quindi c'è sempre e comunque una coppia allocatore/disallocatore.*/
     char * pVarName=nullptr;
+    char * dummyStr=nullptr;
 
 
     //*** fase 1 leggo Aclass e passo avanti.
@@ -144,92 +145,91 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     // lettura header iniziale:
     if(fread(&header,sizeof(header),1,pFile)!=1){
         fileData.retString= "Error reading \"header\" in inputMatModelicaDataFile";
-        return fileData;
+        goto Return;
     }
     // lettura stringa "Aclass" dopo l'header iniziale:
     pVarName=new char[header.namlen];
     if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
         fileData.retString= "Error 1 reading \"Aclass\" in inputMatModelicaDataFile";
-        delete[] pVarName;
-        return fileData;
-    };
+        goto Return;
+    }
     if(strncmp(pVarName,"Aclass",6)!=0){  //Questo confronto va fatto con strncmp e non scon strcmp in quanto il contenuto di pVarName non necessariamente finisce con '\0', e quindi la funzione potrebbe operare in modo inappropriato se non trova tale carattere di fine stringa.
-        delete[] pVarName;
         fileData.retString= "Error 2 reading \"Aclass\" in inputMatModelicaDataFile";
-        return fileData;
+        goto Return;
     }
     // lettura Aclass:
     // Faccio staticamente su 44 caratteri in quanto dovrebbe essere sempre una matrice 4x11. caso mai cambio dopo. Così il debug è molto facilitato
     char  aClassData[44];
     if(fread(aClassData,44,1,pFile)!=1){
-        delete[] pVarName;
         fileData.retString= "Error reading \"aClassData\" in inputMatModelicaDataFile";
-        return fileData;
-    };
+        goto Return;
+    }
 
 
     //*** fase 2 leggo "name" e passo avanti.
     // lettura intestazione:
     if(fread(&header,sizeof(header),1,pFile)!=1){
-        delete[] pVarName;
         fileData.retString="Error reading \"name\" in inputMatModelicaDataFile";
-        return fileData;
+        goto Return;
     }
     // lettura nome (quindi "name"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
     if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
-        delete[] pVarName;
         fileData.retString="Error reading \"name\" in inputMatModelicaDataFile";
-        return fileData;
-    };
+        goto Return;
+    }
 
     if(strncmp(pVarName,"name",4)!=0){
-        delete[] pVarName;
         fileData.retString="Error reading \"name\"in inputMatModelicaDataFile";
-        return fileData;
+        goto Return;
     }
     // lettura dati:
-    char *dummyStr;
     dummyStr=new char[header.nCols+1]; //il +1 per via del carattere nullo di fine stringa
 //    QString *allNames=new QString[header.nRows];
     for (int i=0; i<header.nRows; i++){
       if(fread(dummyStr,size_t(header.nCols),1,pFile)!=1){
-          delete[] pVarName;
           fileData.retString="Error reading string in inputMatModelicaDataFile";
-          return fileData;
+          goto Return;
       };
       dummyStr[header.nCols]=0;
 //      allNames[i]=QString(nameData);
       fileData.namesLst.append(QString(dummyStr).trimmed());
     }
     delete[] dummyStr;
+    dummyStr=nullptr;
 
 
     //*** fase 3 leggo "description" e passo avanti.
     // lettura intestazione:
     if(fread(&header,sizeof(header),1,pFile)!=1){
         fileData.retString= "Error reading \"description\" in loadFromModelicaMatFile";
-        return fileData;
+        goto Return;
     }
     // lettura nome (quindi "description"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+        fileData.retString="Error reading \"description\" name in loadFromModelicaMatFile";
+        goto Return;
+    }
 
     if(strcmp(pVarName,"description")!=0){
-        delete[] pVarName;
         fileData.retString="Error reading \"description\"";
-        return fileData;
+        goto Return;
     }
     // lettura dati:
     dummyStr = new char[header.nCols+1];
     for(int i=0; i<header.nRows; i++){
-      fread(dummyStr,size_t(header.nCols),1,pFile);
+      if(fread(dummyStr,size_t(header.nCols),1,pFile)!=1){
+        fileData.retString="Error reading description string in inputMatModelicaData";
+        goto Return;
+      }
       dummyStr[header.nCols]=0;
       fileData.descriptionLst.append(QString(dummyStr).trimmed());
     }
     delete[] dummyStr;
+    dummyStr=nullptr;
 
     for(int i=0; i<fileData.descriptionLst.count(); i++){
       int start, end;
@@ -295,16 +295,18 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     // lettura intestazione:
     if(fread(&header,sizeof(header),1,pFile)!=1){
         fileData.retString= "Error reading dataInfo header in loadFromModelicaMatFile";
-        return fileData;
+        goto Return;
     }
     // lettura nome (quindi "dataInfo"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+        fileData.retString= "Error reading \"dataInfo\" name in loadFromModelicaMatFile";
+        goto Return;
+    }
     if(strcmp(pVarName,"dataInfo")!=0){
-      delete[] pVarName;
       fileData.retString= "Error reading \"dataInfo\" in loadFromModelicaMatFile";
-      return fileData;
+      goto Return;
     }
 
     //Leggo dataInfo.
@@ -316,7 +318,10 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     for (int i=0; i<header.nRows; i++){
       for (int j=0; j<header.nCols; j++){
         int di;
-        fread(&di,4,1,pFile);
+        if(fread(&di,4,1,pFile)!=1){
+          fileData.retString="Error reading dataInfo data in loadFromModelicaMatFile";
+          goto Return;
+        }
         fileData.dataInfo[i][j]=di;
 //        if(i<100)
 //         dataInfoDBG[i][j]=di;
@@ -334,18 +339,20 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     // lettura intestazione:
     if(fread(&header,sizeof(header),1,pFile)!=1){
         fileData.retString= "Error reading \"data_1\" in loadFromModelicaMatFile";
-        return fileData;
+        goto Return;
     }
 
     //lettura nome (quindi "data_1"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
-    fread(pVarName,size_t(header.namlen),1,pFile);
+    if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
+        fileData.retString="Error reading \"data_1\" name in loadFromModelicaMatFile";
+        goto Return;
+    }
 
     if(strcmp(pVarName,"data_1")!=0){
-        delete[] pVarName;
         fileData.retString="Error reading \"data_1\"";
-        return fileData;
+        goto Return;
     }
 
     //Leggo data_1.
@@ -356,10 +363,16 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
         float fn;
         double dn;
         if(header.type==10){
-           fread(&fn,sizeof(float),1,pFile);
+           if(fread(&fn,sizeof(float),1,pFile)!=1){
+             fileData.retString="Error reading data_1 (float) in loadFromModelicaMatFile";
+             goto Return;
+           }
            fileData.data_1[i][j]=fn;
          }else{
-           fread(&dn,sizeof(double),1,pFile);
+           if(fread(&dn,sizeof(double),1,pFile)!=1){
+             fileData.retString="Error reading data_1 (double) in loadFromModelicaMatFile";
+             goto Return;
+           }
            fileData.data_1[i][j]=float(dn);
         }
       }
@@ -370,20 +383,19 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     // lettura intestazione:
     if(fread(&header,sizeof(header),1,pFile)!=1){
         fileData.retString= "Error reading \"data_2\" in loadFromModelicaMatFile";
-        return fileData;
+        goto Return;
     }
     //lettura nome (quindi "data_2"):
     delete [] pVarName;
     pVarName=new char[header.namlen];
     if(fread(pVarName,size_t(header.namlen),1,pFile)!=1){
-        fileData.retString= "Error reading \"Aclass\" in loadFromModelicaMatFile";
-        return fileData;
-    };
+        fileData.retString= "Error reading \"data_2\" name in loadFromModelicaMatFile";
+        goto Return;
+    }
 
     if(strcmp(pVarName,"data_2")!=0){
-        delete[] pVarName;
         fileData.retString="Error reading \"data_2\"";
-        return fileData;
+        goto Return;
      }
 
     //Leggo data_2.
@@ -394,10 +406,16 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
         float fn;
         double dn;
         if(header.type==10){
-           fread(&fn,sizeof(float),1,pFile);
+           if(fread(&fn,sizeof(float),1,pFile)!=1){
+             fileData.retString="Error reading data_2 (float) in loadFromModelicaMatFile";
+             goto Return;
+           }
            fileData.data_2[i][j]=fn;
          }else{
-           fread(&dn,sizeof(double),1,pFile);
+           if(fread(&dn,sizeof(double),1,pFile)!=1){
+             fileData.retString="Error reading data_2 (double) in loadFromModelicaMatFile";
+             goto Return;
+           }
            fileData.data_2[i][j]=float(dn);
         }
       }
@@ -405,7 +423,9 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
     fileData.numOfData2Rows=header.nRows;
     fileData.numOfData2Cols=header.nCols;
 
-   delete [] pVarName;
+   Return:
+   delete[] pVarName;
+   delete[] dummyStr;
    return fileData;
 }
 
@@ -1510,8 +1530,7 @@ Il file contiene sequenzialmente coppie header-matrice.
         ret=loadFromModelicaMatFile(pFile);
       else
         ret=loadFromModelicaMatFile(pFile,addAlias_);
-      fclose (pFile);
-      return ret;
+      goto Return;
     }
 
     //Se c'è una variabile di nome "t", composta da un'unica colonna, essa verrà intesa
@@ -1545,8 +1564,10 @@ Il file contiene sequenzialmente coppie header-matrice.
     if(y!=nullptr)
         DeleteFMatrix(y);
     y=CreateFMatrix(numOfVariables,numOfPoints);
-    if(y==nullptr)
-        return "Unable to allocate space for data storage";
+    if(y==nullptr){
+        ret="Unable to allocate space for data storage";
+        goto Return;
+    }
 
     rewind(pFile);
     iCol=0;
@@ -1603,6 +1624,7 @@ Il file contiene sequenzialmente coppie header-matrice.
     }
 
     Return:
+    delete[] pVarName;
     fclose (pFile);
     return ret;
 }
