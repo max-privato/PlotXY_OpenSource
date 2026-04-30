@@ -94,8 +94,10 @@ int main(int argc, char *argv[])
     for(int i=0;i<MAXFILES; i++)
       GV.varNumsLst.append(0);
 
-    QStringList optLst={"/dtXY","/dtQtF","/dtQtI","/dtQtP","/sff","/uml","/set"};
+    QStringList optLst={"/dtQtF","/dtQtI","/dtQtP","/sff","/uml","/set"};
     GV.PO.drawType=0;  // filtraggio grafici XY
+    GV.PO.useMatLib=false;
+    GV.PO.showElapsTime=false;
     QString opt;
     for(i=1; i<QCoreApplication::arguments().count(); i++){
       opt=QCoreApplication::arguments().at(i);
@@ -115,13 +117,10 @@ int main(int argc, char *argv[])
        GV.PO.showFullFilelist=true;
      if(opt=="/uml"){
        GV.PO.useMatLib=true;
-      }else{
-        GV.PO.useMatLib=false;
-      }
-      if(opt=="/set")  //ShowElapsedTime
-        GV.PO.showElapsTime=true;
-      else
-        GV.PO.showElapsTime=false;
+     }
+     if(opt=="/set"){  //ShowElapsedTime
+       GV.PO.showElapsTime=true;
+     }
     }
     // The file names come after the options, so I have to memorize the last option found:
     GV.PO.firstFileIndex=i;
@@ -130,7 +129,6 @@ int main(int argc, char *argv[])
     // The slots of these two classes then distribute the options to the underlying classes that need them (without additional signal / slot).
     // The first execution of the signal is commanded at the bottom of CDataSelWin :: CdataSeWin, after the relative connect has been made.
 
-    qApp->setStyleSheet("QTabWidget { font-size: 12px }");
     qApp->setStyleSheet("QTableWidget { font-size: 12px }");
     qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
 

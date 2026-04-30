@@ -518,10 +518,7 @@ void CFourWin::getData(struct SFourData data_){
     myData.opt.harm1=settings.value("harm1",DEFAULTHARM1).toInt();
     myData.opt.harm2=settings.value("harm2",DEFAULTHARM2).toInt();
     if(myData.opt.harm2<myData.opt.harm1+2){
-        myData.opt.harm2=DEFAULTHARM1;
-        err=true;
-    }
-    if(myData.opt.harm2<myData.opt.harm1+2){
+        myData.opt.harm1=DEFAULTHARM1;
         myData.opt.harm2=DEFAULTHARM2;
         err=true;
     }

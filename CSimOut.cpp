@@ -22,7 +22,6 @@
 #include <QLibrary>
 #include <QMessageBox>
 #include <fcntl.h>
-#include <limits.h>
 #include <QRegularExpression>
 #include "ExcludeATPCode.h"
 #include "MTLmatrix.h"
@@ -118,7 +117,7 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
    * elaborazioni.
    * Essi potranno essere tutti trasferiti direttamente in array mySO senza on con
    * eliminazione degli alias
-   * Questa ruoutine è pensata per essere richiamtat ssolo da loadfromModelicaMatFile.
+   * Questa ruoutine è pensata per essere richiamtata solo da loadfromModelicaMatFile.
    *
    * Se elimino le variabili alias, poi posso avere un hint che dia solo la variabile
    * mantenuta o anche la lista degli alias eliminati, a seconda del secondo parametro
@@ -132,15 +131,14 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
 
     struct DataFromModelicaFile fileData;
     fileData.retString="";
-    /* Le matrici dataInfo, data_1 e data_2 di fileData vengono allocate nella presente funzione e disallocate, dopo che verranno utilizzate, in loadFromModelicaMatFile(). Notare che una delle due versioni di quest'ultima è sempre chiamata a valle della presente funzione. Quindi c'è empre e comunque una coppia allocatore/disallocatore.*/
+    /* Le matrici dataInfo, data_1 e data_2 di fileData vengono allocate nella presente funzione e disallocate, dopo che verranno utilizzate, in loadFromModelicaMatFile(). Notare che una delle due versioni di quest'ultima è sempre chiamata a valle della presente funzione. Quindi c'è sempre e comunque una coppia allocatore/disallocatore.*/
     char * pVarName=nullptr;
 
 
     //*** fase 1 leggo Aclass e passo avanti.
     struct Header {
-//        int type,nRows,nCols,imagf,namlen;  Commentta per via di quanto spiegato nel commento di inizio function
       int type,nCols,nRows,imagf,namlen;
-    } header;
+    } header;  //Intestazione standard dei fle matlab rel 4.0
 
 
     // lettura intestazione: Aclass
@@ -148,12 +146,12 @@ struct DataFromModelicaFile  CSimOut::inputMatModelicaData(FILE * pFile){
         fileData.retString= "Error reading \"Aclass\" in loadFromModelicaMatFile";
         return fileData;
     }
-    // lettura nome Aclass:
+    // lettura stringa "Aclass":
     pVarName=new char[header.namlen];
     fread(pVarName,size_t(header.namlen),1,pFile);
     if(strcmp(pVarName,"Aclass")!=0){
         delete[] pVarName;
-        fileData.retString="Error reading AClass";
+        fileData.retString="Error reading Aclass";
         return fileData;
     }
     // lettura Aclass:
@@ -1921,7 +1919,7 @@ QString CSimOut::loadFromModelicaMatFile(FILE * pFile){
    * Dymola e OM. Essi hanno la stessa struttura, riesco a gestirli da un'unica
    * funzione.
    * Per comprendere come funziona questa funzione la cosa più semplice è guardare il file
-   * RL_DYM.TXT,, associandolo, durante la lettura a RL_DYM.mat.
+   * RL_DYM.TXT, associandolo, durante la lettura a RL_DYM.mat.
    * Infatti la descrizione del file TXT di Dymola è molto completa e coincide con la
    * logica usata per scrivere la presente funzione.
    *
