@@ -1141,7 +1141,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
     }else
       freeGridRow=1;
 
-    if (freeGridRow==-1)
+    if (freeGridRow>MAXFILES)
       return "Internal code error N. 1";
 
     //Rendo la prima riga libera la riga selezionata, e copio i dati nelle celle
@@ -2110,7 +2110,7 @@ void CDataSelWin::removeFile(int row_) {
   // always interpreted as a single click that has selected the file.
   // I make the first file in the table current:
   for (row=1; row<=MAXFILES; row++)
-    if(ui->fileTable->item(row_,1)->text()!="") break;
+    if(ui->fileTable->item(row,1)->text()!="") break;
   selectFile(row);
 
   // I make "free" the index of the file that I am going to make disappear from the table:
@@ -2613,8 +2613,11 @@ but in any case they will have to have the same number of points
   else
     fullName = QFileDialog::getSaveFileName(this, "Save File",QDir::currentPath(),
       "ADF  (*.adf);;COMTRADE  (*.cfg);;MATLAB  (*.mat)");
-  if(fullName=="")
+  if(fullName==""){
+    delete[] stoVarIdx;
+    delete[] bkpVarNames;
     return;
+  }
 
   /* La routine saveToAdfFile, originariamente pensata per il programma Converter.exe, che dopo la conversione scartava il programma di input, modifica tutti i nomi delle variabili per renderli compatibili con il formato di output. Pertanto occorre provvedere a salvare i nomi originari e poi ripristinarli.
   */
@@ -3211,6 +3214,9 @@ void CDataSelWin::on_loadStateTBtn_clicked()
                  "The stored data do not appear to be created using this PlotXY version\n"
                  "Save state operation before restoring.\n"
                  "No data restored.");
+        settings.endGroup();  // Colors
+        settings.endGroup();  // VarTables
+        settings.endGroup();  // programState
         return;
       }
       colorVect.append(color);
@@ -3392,7 +3398,6 @@ Affinché questo possa funzionare i numeri in prima colonna devono essere scritt
         ui->varMenuTable->sortByColumn(0,Qt::AscendingOrder);
         break;
     }
-
 }
 
 void CDataSelWin::on_showParTBtn_clicked(bool checked) {
@@ -3436,15 +3441,6 @@ void CDataSelWin::on_tool468_clicked()
      setActualPlotWins(4);
    }
 
-
-    /*
-    if(actualPlotWins==4)
-      setActualPlotWins(6);
-    else if(actualPlotWins==6)
-      setActualPlotWins(8);
-    else if(actualPlotWins==8)
-      setActualPlotWins(4);
-    */
 }
 
 void CDataSelWin::on_plotBtn_clicked()
@@ -3577,13 +3573,40 @@ void CDataSelWin::on_plotBtn_clicked()
           }
         }
       }
-    /*
-      if(myVarTable->numOfPlotFiles==1){ //in questo caso plotInfo è solo plotInfo[0]
-        x1[0]=mySO[selectedFileIdx]->y[myVarTable->xInfo.idx];
-      }
-    */
       int plotFiles=myVarTable->numOfPlotFiles;
 
+/*
+The following function was introduced upon my request by Claude. Here follows some explanation of its behaviohr:
+
+***
+This function is equivalent in effect to defining a small local helper function, except:
+
+-> It lives as a local variable inside on_plotBtn_clicked, so it has no external linkage and cannot be called from anywhere else.
+-> The [&] capture clause means it automatically has read/write access to every local variable of the enclosing function (x1, y1, plotFiles, etc.) without you having to pass them as parameters — the compiler wires them up invisibly.
+-> iFun_, currentAllocated, and vm are explicit parameters, passed at each call site like a normal function.
+
+The auto is mandatory here (prior to C++20) because you cannot spell out the type yourself — it would be something like std::function<void(int,bool,float**)> at best, but even that is a type-erased wrapper, not the true lambda type. auto simply tells the compiler "give this variable whatever type the lambda expression on the right produces."
+***
+
+*/
+// Cleanup helper for early returns inside the for(iFun) loop below.
+// iFun_:              current loop index (passed explicitly, not captured)
+// currentAllocated:   true if y1[plotFiles+iFun_] and x1[plotFiles+iFun_] were already allocated
+// vm:                 varMatrix for the current iteration (nullptr if not yet allocated)
+      auto cleanupFunLoop = [&](int iFun_, bool currentAllocated, float** vm){
+          if(vm) delete[] vm;
+          if(currentAllocated){
+              DeleteFMatrix(y1[plotFiles+iFun_]);
+              delete[] x1[plotFiles+iFun_];
+          }
+          for(int ic=0; ic<iFun_; ic++){
+              DeleteFMatrix(y1[plotFiles+ic]);
+              delete[] x1[plotFiles+ic];
+          }
+          for(int ic=0; ic<plotFiles; ic++) delete[] y1[ic];
+          delete[] x1;
+          delete[] y1;
+      };
 
     /* FASE 3 **** Adesso aggiungo il calcolo degli elementi di y1 collegati alle funzioni di variabili. ****/
     //Nel caso in cui myVarTable.xInfo.isFunction=true una delle fun del seguente loop verrà messa come vettore delle x invece che come matrice ad una riga in y.
@@ -3630,6 +3653,7 @@ void CDataSelWin::on_plotBtn_clicked()
                  "Unable to plot this function:\n"
                  "currently only functions operating on variables\n"
                  "coming from files having the same number of points are allowed.");
+                cleanupFunLoop(iFun, false, nullptr);
                 return;
             }
           }
@@ -3674,6 +3698,7 @@ void CDataSelWin::on_plotBtn_clicked()
                "since it involves files having different time shifts\n"
                "(Tshift field, below Tmax, in the fileList Table)"
                   );
+                cleanupFunLoop(iFun, true, varMatrix);
                 return;
             }
           }
@@ -3742,6 +3767,7 @@ void CDataSelWin::on_plotBtn_clicked()
                                                        namesFullList, selectedFileIdx);
         if(ret!=""){
           QMessageBox::critical(this, "PlotXY",ret);
+          cleanupFunLoop(iFun, true, varMatrix);
           return;
         }
         //Per soli scopi di visualizzazione per l'utente finale passo, tramite doppia indirezione per ragioni di efficienza, l'array di array dei nomi espliciti di tutte le variabili presenti nei files caricati:
@@ -3795,6 +3821,7 @@ void CDataSelWin::on_plotBtn_clicked()
              QMessageBox::warning(this, "PlotXY",msg);
              qDebug()<<"warning 5";
              myLineCalc.divisionByZero=false;
+             cleanupFunLoop(iFun, true, varMatrix);
             return;
           }
           if(iFun==myIdx)
@@ -3823,6 +3850,7 @@ void CDataSelWin::on_plotBtn_clicked()
           QString msg="integral of the x variable is not allowed.";
           QMessageBox::warning(this,"PlotXY-dataSelWin",msg);
           qDebug()<<"warning 6";
+          cleanupFunLoop(iFun, true, varMatrix);
           return;
         }
         if(myLineCalc.integralRequest)
