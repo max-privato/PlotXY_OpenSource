@@ -135,7 +135,7 @@ private:
 */
   QList <QString> fileNamesLst; //List dei nomi di files correntemente visualizzati nella fileTable
   QList <int> fileNumsLst;  //List dei numeri di files correntemente visualizzati nella fileTable
-     //Questa lista però è utilizzata in più come array che come lista: i suoi elementi sono in numero sempre pari a MAXFILES; se il num è 0 il file in realtà non è caricato in memoria: i num infatti partono da 1. In futuro andrebbe convertito in una vera lista
+     //Questa lista però è utilizzata più come array che come lista: i suoi elementi sono in numero sempre pari a MAXFILES; se il num è 0 il file in realtà non è caricato in memoria: i num infatti partono da 1. In futuro andrebbe convertito in una vera lista
 
   QList <int> varMaxNumsLst; //Lista dei numeri di variabili dei files correntemente visualizzati nella fileTable
 

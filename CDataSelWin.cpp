@@ -3668,6 +3668,7 @@ void CDataSelWin::on_plotBtn_clicked()
            funInfo.varUnits.append(mySO[soIndex]->sVars[yIndex].unit);
         }
         for(int j=0; j<fileNumsLst.count(); j++){
+           if(fileNumsLst[j]==0) continue;  // skip empty slots
            namesFullList.append(mySO[fileNumsLst[j]-1]->varNames);
         }
        /*Passo i nomi e il puntatore alla matrice contenente nelle varie righe i vettori
