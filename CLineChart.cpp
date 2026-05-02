@@ -648,12 +648,12 @@ float **CLineChart::CreateFMatrix(long NumRows, long NumCols){
     Matrix=new float*[NumRows];
     if(Matrix==nullptr)
         return nullptr;
-    if(Matrix==nullptr)
-        return nullptr;
   //Allocaz. matrice:
     Matrix[0]=new float[NumRows*NumCols];
-    if(Matrix[0]==nullptr)
+    if(Matrix[0]==nullptr){
+        delete[] Matrix;
         return nullptr;
+    }
     for(i=1; i<NumRows; i++)
         Matrix[i]=Matrix[0]+i*NumCols;
     return Matrix;
@@ -3855,8 +3855,8 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
 
   //***
   // fase 0: operazioni  preliminari
-  delete startIndex;
-  delete stopIndex;
+  delete[] startIndex;
+  delete[] stopIndex;
   startIndex=new int[nFiles];
   stopIndex=new int[nFiles];
 
@@ -4086,8 +4086,8 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
   drawTimeUs=int(timer.nsecsElapsed()/1000.f);
   //  qDebug() << "Drawing time: " << timer.elapsed() << "/ms";
   //Qui alloco lo spazio per i valori numerici da leggere in corrispondenza del cursore dati, anche se l'effettivo assegnamento dei valori avverrà nella routine "giveValues".
-  delete cursorXValues;
-  delete cursorXValBkp;
+  delete[] cursorXValues;
+  delete[] cursorXValBkp;
   DeleteFMatrix(cursorYValues);
   DeleteFMatrix(cursorYValBkp);
   cursorXValues=new float[nFiles];
