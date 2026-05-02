@@ -76,7 +76,7 @@ private:
     void setActualPlotWins(int wins);
     void varTableChanged ();
 
-private slots:  //devono rimanere slot in quanto connessi sulla base del nome e non attraverso connect specifici
+private:
     void on_aboutBtn_clicked();
     void on_fileTable_clicked(const QModelIndex &index);
     void on_fileTable_doubleClicked(const QModelIndex &index);

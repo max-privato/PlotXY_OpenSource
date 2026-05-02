@@ -690,6 +690,29 @@ qDebug()<<"DPI: "<<currentDPI;
   //Fase C:  tutti i connect del programma eccetto quelli che hanno come origine e destinazione un medesimo widget diverso da CDataSelWin, e quelli le cui funzioni non sono acceswsibili (ad es. i signal di ClineChart collegati agli Slot di CPlotWin)
   // Phase C: all the connections of the program except those whose source and destination have the same widget different from CDataSelWin.
 
+  // Explicit connections for UI slots (replaces Qt auto-connect by name):
+  connect(ui->aboutBtn,      &QAbstractButton::clicked,         this, &CDataSelWin::on_aboutBtn_clicked);
+  connect(ui->fileTable,     &QAbstractItemView::clicked,       this, &CDataSelWin::on_fileTable_clicked);
+  connect(ui->fileTable,     &QAbstractItemView::doubleClicked, this, &CDataSelWin::on_fileTable_doubleClicked);
+  connect(ui->fourTBtn,      &QAbstractButton::clicked,         this, &CDataSelWin::on_fourTBtn_clicked);
+  connect(ui->loadStateTBtn, &QAbstractButton::clicked,         this, &CDataSelWin::on_loadStateTBtn_clicked);
+  connect(ui->loadTBtn,      &QAbstractButton::clicked,         this, &CDataSelWin::on_loadTBtn_clicked);
+  connect(ui->multifTBtn,    &QAbstractButton::clicked,         this, &CDataSelWin::on_multifTBtn_clicked);
+  connect(ui->optBtn,        &QAbstractButton::clicked,         this, &CDataSelWin::on_optBtn_clicked);
+  connect(ui->refrTBtn,      &QAbstractButton::clicked,         this, &CDataSelWin::on_refrTBtn_clicked);
+  connect(ui->refrUpdTBtn,   &QAbstractButton::clicked,         this, &CDataSelWin::on_refrUpdTBtn_clicked);
+  connect(ui->resetTBtn,     &QAbstractButton::clicked,         this, &CDataSelWin::on_resetTBtn_clicked);
+  connect(ui->tabWidget,     &QTabWidget::currentChanged,       this, &CDataSelWin::on_tabWidget_currentChanged);
+  connect(ui->updateTBtn,    &QAbstractButton::clicked,         this, &CDataSelWin::on_updateTBtn_clicked);
+  connect(ui->saveVarsBtn,   &QAbstractButton::clicked,         this, &CDataSelWin::on_saveVarsBtn_clicked);
+  connect(ui->eqTBtn,        &QAbstractButton::clicked,         this, &CDataSelWin::on_eqTBtn_clicked);
+  connect(ui->arrTBtn,       &QAbstractButton::clicked,         this, &CDataSelWin::on_arrTBtn_clicked);
+  connect(ui->saveStateTBtn, &QAbstractButton::clicked,         this, &CDataSelWin::on_saveStateTBtn_clicked);
+  connect(ui->sortTBtn,      &QAbstractButton::clicked,         this, &CDataSelWin::on_sortTBtn_clicked);
+  connect(ui->showParTBtn,   &QAbstractButton::clicked,         this, &CDataSelWin::on_showParTBtn_clicked);
+  connect(ui->tool468,       &QAbstractButton::clicked,         this, &CDataSelWin::on_tool468_clicked);
+  connect(ui->plotBtn,       &QAbstractButton::clicked,         this, &CDataSelWin::on_plotBtn_clicked);
+
   for (int win=0; win<MAXPLOTWINS; win++){
     connect(myProgOptions,&CProgOptions::programOptionsChanged,
             plotWin[win],&CPlotWin::updateChartOptions);
