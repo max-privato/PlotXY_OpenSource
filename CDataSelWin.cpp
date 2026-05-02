@@ -864,9 +864,8 @@ QString CDataSelWin::computeCommonX(void){
     if(mySO[i]->varNames[0][0]!=commonX[0])  allSameFirstChar=false;
   }
   if(allSameName) return commonXName;
-  if(allSameFirstChar)return commonX.append('*');
-  if(!allSameFirstChar)return "x";
-  return commonX;
+  if(allSameFirstChar) return commonX.append('*');
+  return "x";
 }
 
 void CDataSelWin::dragEnterEvent(QDragEnterEvent *event)
@@ -1476,7 +1475,6 @@ QString CDataSelWin::loadFileListLS(QStringList fileNamesList, QList <int>fileNu
   }
   // Adattamento altezza tabella:
   // Table height adaptation:
-  visibleFileRows=fileNamesList.count();
   if(GV.multiFileMode)
     visibleFileRows=qMax(fileNamesList.count(),3);
   else
@@ -2660,7 +2658,7 @@ but in any case they will have to have the same number of points
      msg="File "+fullName+" not saved.\nReason: extension \"" +
             ext+"\" is invalid.";
   }
-  for(i=0; i<nStoVars; i++)
+  for(i=0; i<nBkpVars; i++)
     mySO[myFileIdx]->varNames[i]=bkpVarNames[i];
   if(msg==""){
     QString shortName=fullName;
