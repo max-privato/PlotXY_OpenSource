@@ -1388,8 +1388,6 @@ QString CDataSelWin::loadFileList(QStringList fileNameList, QString tShift){
       return ret;
     }
     freeFileIndex.remove(j);
-    if(ret!="")
-      break;
     if(!GV.multiFileMode)
       break;
     if(GV.multiFileMode)
@@ -1472,7 +1470,6 @@ QString CDataSelWin::loadFileListLS(QStringList fileNamesList, QList <int>fileNu
         return ret;
     }
     freeFileIndex.remove(fileNumList[i]-1);
-    if(ret!="")break;
     if(!GV.multiFileMode) break;
     if(GV.multiFileMode)
       myVarTable->setCommonX(computeCommonX());
