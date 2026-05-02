@@ -39,8 +39,6 @@
 #include "CVarTableComp.h"
 #include "CPlotWin.h"
 #include "SuppFunctions.h"
-#include "Dialogs/CUnitsDlg.h"
-#include "Dialogs/CHelpDlg.h"
 #include "Dialogs/CProgOptions.h"
 
 namespace Ui {
