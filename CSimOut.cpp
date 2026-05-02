@@ -1048,10 +1048,8 @@ QString CSimOut::loadFromComtradeFile(QString cfgFileName){
   sscanf(pToken,"%f",&sampleRate);
 //  StrTok.getStr(row);
   pToken=StrTok.giveTok();
+  if(pToken==nullptr)goto _return;  // null check must precede sscanf
   sscanf(pToken,"%d",&numOfPoints);
-  //A questo punto pToken contiene il nome (identifier), parametro non critico
-  //Verifica di errori per parametri non critici:
-  if(pToken==nullptr)goto _return;
 
   //Dalle due righe della data prendo solo i numeri finali per determinare l'istante iniziale nel caso di nSamples>0 se vi è un pretrigger.
   fgets(row,maxLen,pFile); rowNum++;
@@ -1763,7 +1761,7 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
             goto Return;
         }
         numDimens=num/4; //ci saranno 4 bytes per ognuna delle dimensioni
-        if(numDimens*4!=num){  //se non sono allineato agli 8 bytes c'è il padding:
+        if(num%8!=0){  //se non sono allineato agli 8 bytes c'è il padding (4 bytes):
             if(fread(&undefined,4,1,pFile)!=1){
                 retStr="Truncated MAT v5 file while reading dimensions padding";
                 goto Return;
@@ -1852,7 +1850,7 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
         if(type==uInt8)
             numOfPoints1=num;
         else if(type== singleFloat)
-            numOfPoints1=num/8;
+            numOfPoints1=num/4;
         else
             numOfPoints1=num/8;
         if(iVar==0)
@@ -1875,14 +1873,13 @@ QString CSimOut::loadFromMatFile5(QString fileName) {
             }
         }
         if(type==uInt8){
-            short s;
+            unsigned char uc;
             for(int i=0; i<numOfPoints; i++){
-                if(fread(&s,1,1,pFile)!=1){
+                if(fread(&uc,1,1,pFile)!=1){
                     retStr="Truncated MAT v5 file while reading uint8 data";
                     goto Return;
                 }
-//                float f=(float)s;
-                y[iVar][i]=float(s);
+                y[iVar][i]=float(uc);
             }
         }else  if(type==doubleFloat){
             double D;
@@ -2640,7 +2637,7 @@ QString CSimOut::saveToComtradeFile(QString cfgFileName, QString stationName) {
     vars = new int[numOfVariables];
     for(i=0; i<numOfVariables; i++)vars[i]=i;
       ret=saveToComtradeFile(cfgFileName, stationName, numOfVariables, vars);
-    delete vars;
+    delete[] vars;
     return ret;
 }
 
@@ -2682,8 +2679,8 @@ Da prove fatte con GTPPLOT negli anni '90  appariva che interi negativi non veni
   */
 
   //Allocazione spazi:
-  offset= new float[nVars];
-  factor= new float[nVars];
+  offset= new float[numOfVariables];
+  factor= new float[numOfVariables];
 
   /* Fase 1: Preparazione file di estensione cfg*/
   //Apertura file:
