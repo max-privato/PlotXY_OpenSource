@@ -19,6 +19,7 @@
 
 #include "CDataSelWin.h"
 #include "CLineCalc.h"
+#include "Dialogs/CHelpDlg.h"
 #undef EXCLUDEATPCODE
 #include "ExcludeATPCode.h"
 #include <QApplication>
