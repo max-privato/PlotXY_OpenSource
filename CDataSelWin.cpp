@@ -476,7 +476,7 @@ qDebug()<<"DPI: "<<currentDPI;
     primaryScreenAvailableGeom=QGuiApplication::screens()[0]->availableGeometry();
 
     /*La gestione smart della posizione delle finestre salvate la faccio così:
-     * - per ogni finestra devo valutare sia la posizione orizzontal che verticale
+     * - per ogni finestra devo valutare sia la posizione orizzontale che verticale
      * - se una finestra salvata ci sta nella allScreensGeom la uso e visualizzo
      *   la finestra. Di conseguenza la finestra verrà posizionata nello schermo giusto
      *   e nella finestra giusta
@@ -512,11 +512,11 @@ qDebug()<<"DPI: "<<currentDPI;
       value.setNum(win+1);
       value="plotWin"+value+"/pos";
       posPoint=settings.value(value).toPoint();
-      if(posPoint.x()+0.5*this->width()>allScreensGeom.right()){
+      if(posPoint.x()+0.5*plotWin[win]->width()>allScreensGeom.right()){
          someWinDisplaced=true;
-         posPoint.setX(primaryScreenAvailableGeom.right()-this->width()-5);
+         posPoint.setX(primaryScreenAvailableGeom.right()-plotWin[win]->width()-5);
       }
-      if(posPoint.x()+0.5*this->width()<allScreensGeom.left()){
+      if(posPoint.x()+0.5*plotWin[win]->width()<allScreensGeom.left()){
          someWinDisplaced=true;
          posPoint.setX(primaryScreenAvailableGeom.left()+5);
       }
@@ -527,11 +527,11 @@ qDebug()<<"DPI: "<<currentDPI;
       value.setNum(win+1);
       value="fourWin"+value+"/pos";
       posPoint=settings.value(value).toPoint();
-      if(posPoint.x()+0.5*this->width()>allScreensGeom.right()){
+      if(posPoint.x()+0.5*fourWin[win]->width()>allScreensGeom.right()){
          someWinDisplaced=true;
-         posPoint.setX(primaryScreenAvailableGeom.right()-this->width()-5);
+         posPoint.setX(primaryScreenAvailableGeom.right()-fourWin[win]->width()-5);
       }
-      if(posPoint.x()+0.5*this->width()<allScreensGeom.left()){
+      if(posPoint.x()+0.5*fourWin[win]->width()<allScreensGeom.left()){
          someWinDisplaced=true;
          posPoint.setX(primaryScreenAvailableGeom.left()+5);
       }
