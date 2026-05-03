@@ -38,8 +38,10 @@ public:
     void fillTable();
     void getData(QStringList names_, QList <float> values_, QStringList units_, QStringList
                              descriptions_);
-    void resizeEvent(QResizeEvent *);
-    void showEvent(QShowEvent *);
+
+protected:
+    void resizeEvent(QResizeEvent *) override;
+    void showEvent(QShowEvent *) override;
 
 private slots:
     void on_matrixBtn_clicked();
