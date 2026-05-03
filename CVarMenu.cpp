@@ -26,8 +26,10 @@ CVarMenu::CVarMenu(QWidget *parent):QTableWidget(parent)
 {
   verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 //    horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+   currFile=0;
    dragging=false;
    groupBeginRow=-1;
+   groupEndRow=-1;
    neCellBkColor.setRgb(240,240,240);
  }
 
@@ -82,8 +84,10 @@ Pertanto, anche se non è bello, faccio l'azione di sistemazione dello sfondo de
 
 
 void CVarMenu::keyReleaseEvent(QKeyEvent *)  {
-    groupBeginRow=-1;
-    itemAt(groupBeginPos)->setBackground(neCellBkColor);
+    if(groupBeginRow != -1){
+        itemAt(groupBeginPos)->setBackground(neCellBkColor);
+        groupBeginRow=-1;
+    }
  }
 
 

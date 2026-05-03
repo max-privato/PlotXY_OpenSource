@@ -38,6 +38,11 @@ signals:
 public slots:
     void setCurrFile(int);
     void timerEnd();
+protected:
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
 private:
     bool dragging;
     int currFile,
@@ -45,10 +50,6 @@ private:
     QColor neCellBkColor;
     QColor backgroundColor;
     QPoint dragStartPosition, groupBeginPos, groupEndPos;
-    void keyReleaseEvent(QKeyEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
 };
 
 #endif // CVARMENU_H

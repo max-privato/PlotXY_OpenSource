@@ -42,8 +42,6 @@ public:
     bool dataTBtnChecked;
     bool lastWinIsCut; //Assume il valore di windowIsCut dell'ultimo grafico tracciato
     explicit CPlotWin(QWidget *parent = nullptr);
-    void focusInEvent(QFocusEvent *) override;
-//    void enterEvent(QEvent *) override;
     void getData(float **x1, float*** y1, SCurveParam &x1Info, QList <SCurveParam> *y1Info, QList <SFileInfo> filesInfo);
     struct SFourData giveFourData();
     void getOption(bool useCopiedDialog_); //per ora un'unica opzione possibile; in futuro potrebbe divenire "getOptions" e ricevere una struttura)
@@ -94,6 +92,9 @@ private:
     CValuesWin * valuesWin;
     Ui::CPlotWin *ui;
     QString baseTitle; //titolo della finestra senza il tempo aggiunto
+protected:
+    void focusInEvent(QFocusEvent *) override;
+//    void enterEvent(QEvent *) override;
     void hideEvent(QHideEvent *) override;
     void showEvent(QShowEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;

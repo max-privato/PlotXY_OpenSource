@@ -105,11 +105,15 @@ CPlotWin::CPlotWin(QWidget *parent) :
     ui->xValueLbl->setVisible(false);
     ui->yValueLbl->setVisible(false);
     ui->interpolateBox->setVisible(false);
-    ui->lineChart->linearInterpolate=ui->interpolateBox->checkState();
+    ui->lineChart->linearInterpolate=ui->interpolateBox->isChecked();
 
     dataTBtnChecked=false;
-    wasResizing=false;
+    drawType=0;
+    lastWinIsCut=false;
     numOfTotPlotFiles=0;
+    numOfTotPlots=0;
+    useCopiedDialog=false;
+    wasResizing=false;
     baseTitle="";
     numOfPlots.clear();
     numOfPoints=nullptr;
@@ -510,7 +514,7 @@ void CPlotWin::on_SVGBtn_clicked()
     msg=ui->lineChart->makeSvg(fileName+".svg",false);
     if(msg.size()==0)
       svgCreated=true;
-    ui->lineChart->makePng(fileName+".png", false);
+    msg=ui->lineChart->makePng(fileName+".png", false);
     if(msg.size()==0)
       pngCreated=true;
    //Messaggi
