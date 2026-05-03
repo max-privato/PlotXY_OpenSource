@@ -363,6 +363,7 @@ class CFilterClipD{
   float lastXCurs[3]; //serve per riposizionare i cursori durante il dimensionamento
   float onePixDPI; // DPI/96: fattore di conversione per convertire un pixel nel suo equivalente a DPI aumentati
   float **px, ***py; //Matrici dei valori asse x e asse y;
+  bool pxOwned;     // true when px/py were allocated by the single-file getData overload
   float *cursorXValues,	//Valori da utilizzare per il cursore numerico
                **cursorYValues; //Valori da utilizzare per il cursore numerico
   float *cursorXValBkp,	//Valori di salvataggio del cursore numerico

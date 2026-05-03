@@ -82,9 +82,6 @@ static QString smartSetNum(float num, int prec){
         if(out[out.length()-1]=='.')
             out.chop(1);
         break;
-        if(i+1!=out.length())
-          out.insert(i+1+(int)(out[0]=='-'),sep);
-        break;
        }
 // Rimangono da trattare solo i casi di esponente negativo. Vengono considerati solo esponenti fino a -2 in quanto al più voglio avere due zeri dopo la virgola. Oltre questo è più leggibile la notazione esponenziale:
     if(exp==-1 &&prec>1){
@@ -243,6 +240,7 @@ La reimplementazione della funzione virtual resizeEvent in questo file contiene 
 
     px=nullptr;
     py=nullptr;
+    pxOwned=false;
     titleRectF=QRectF(0,0,0,0);
     tooltipRect.setWidth(5);
     tooltipRect.setHeight(5);
@@ -1022,9 +1020,6 @@ int CLineChart::drawCurves(bool noCurves){
         x=xf+0.5f;
         y=yf+0.5f;
 
-        //Il seguente if, che serve per debuggare un problema lo fa scomparire! Il problema si osserva quando si traccia la variable del file Energie_Nied.adf, ma solo in release.
-        if (x<float(X0))
-          qDebug()<<"x, X0: "<<x<<X0;
 
         if(wasInRect){
           if(FC.isInRect(x,y)){ //Vecchio e nuovo punto dentro il rettangolo
@@ -2226,10 +2221,10 @@ void CLineChart::getData(SFileInfo FI, int nPlots_,  SXVarParam xVarParam_, QLis
     curveParamLst=lCurveParam_;
 
     nFiles=1;
-    delete[] px;
-    delete[] py;
+    if(pxOwned){ delete[] px; delete[] py; }
     px= new float*[1];
     py= new float **[1];
+    pxOwned=true;
     px[0]=px_;
     py[0]=py_;
     numOfTotPlots=nPlots[0];
@@ -2245,8 +2240,10 @@ void CLineChart::getData(QList <SFileInfo> FIlist, const QVector <int> &nPlots_,
     nPlots=nPlots_;
     xVarParam=xVarParam_;
     curveParamLst=lCurveParam_;
+    if(pxOwned){ delete[] px; delete[] py; }
     px=px_;
     py=py_;
+    pxOwned=false;
     numOfTotPlots=0;
     numOfVSFiles=0;
     for(int i=0; i<nFiles; i++){
@@ -3640,9 +3637,10 @@ void CLineChart::markAll(){
     */
     if(curveParamLst[iTotPlot].rightScale){
       yMinF=ryAxis.minF;
-      yRatio=ryAxis.pixPerValue ;
+      yRatio=ryAxis.pixPerValue;
     }else{
       yMinF=yAxis.minF;
+      yRatio=yAxis.pixPerValue;
     }
     if(manuMarks.lastMark>-1)
       for(iMark=0; iMark<=manuMarks.lastMark; iMark++){
@@ -3859,9 +3857,6 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
   delete[] stopIndex;
   startIndex=new int[nFiles];
   stopIndex=new int[nFiles];
-
-  if(stopIndex==nullptr)
-      return "Unable to allocate variables in CLineChart!";
   myImage->fill(Qt::white);
   if(copying)
     FC.strongFilter=strongFilter;
@@ -4100,7 +4095,7 @@ QString CLineChart::goPlot(bool Virtual, bool /*IncludeFO*/){
   cursorYValBkp=CLineChart::CreateFMatrix(nFiles,MaxPlots);
   //sPlotTime=str.number((clock()-t1)/(float)CLK_TCK,'g',3);
   update();
-  return nullptr;
+  return "";
 }
 
 
@@ -5345,7 +5340,7 @@ int CLineChart::CFilterClip::giveRectIntersect(FloatPoint & I1, FloatPoint &I2){
             //Se sono stati trovati due punti devo individuare quale è il primo che si incontra
             //andando da (X1,Y1) a (X2,Y2).
             if( (P[0].X-X1)*(P[0].X-X1) + (P[0].Y-Y1)*(P[0].Y-Y1) <
-                    (P[1].X-X1)*(P[1].X-X1) + (P[1].Y-Y1)*(P[0].Y-Y1)  ) {
+                    (P[1].X-X1)*(P[1].X-X1) + (P[1].Y-Y1)*(P[1].Y-Y1)  ) {
                 I1=P[0];
                 I2=P[1];
             }else{
@@ -5518,7 +5513,7 @@ int CLineChart::CFilterClipD::giveRectIntersect(DoublePoint & I1, DoublePoint &I
             //Se sono stati trovati due punti devo individuare quale è il primo che si incontra
             //andando da (X1,Y1) a (X2,Y2).
             if( (P[0].X-X1)*(P[0].X-X1) + (P[0].Y-Y1)*(P[0].Y-Y1) <
-                    (P[1].X-X1)*(P[1].X-X1) + (P[1].Y-Y1)*(P[0].Y-Y1)  ) {
+                    (P[1].X-X1)*(P[1].X-X1) + (P[1].Y-Y1)*(P[1].Y-Y1)  ) {
                 I1=P[0];
                 I2=P[1];
             }else{
