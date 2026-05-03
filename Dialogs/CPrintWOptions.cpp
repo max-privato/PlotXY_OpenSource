@@ -41,7 +41,7 @@ CPrintWOptions::~CPrintWOptions()
 void CPrintWOptions::on_printBtn_clicked()
 {
 
-  bwPrint=ui->bwCBOX->checkState();
+  bwPrint=ui->bwCBOX->isChecked();
 
   /*
    * Per ragioni sconosciute l'attivazione del QPrintDialog danneggia qualcosa nella myPrinter.
@@ -58,14 +58,10 @@ void CPrintWOptions::on_printBtn_clicked()
     doPrint=false;
 */
   doPrint=true;
-//  QRect prnRect=myPrinter->pageRect();
-  QRect prnRect=myPrinter->pageLayout().paintRectPixels(myPrinter->resolution());
   if(portrait)
     myPrinter->setPageOrientation(QPageLayout::Portrait);
   else
     myPrinter->setPageOrientation(QPageLayout::Landscape);
-//  prnRect=myPrinter->pageRect();
-  prnRect=myPrinter->pageLayout().paintRectPixels(myPrinter->resolution());
   close();
 }
 

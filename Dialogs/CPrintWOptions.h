@@ -36,10 +36,7 @@ public:
     bool bwPrint, //if true black/white print
     doPrint, //se true occorre stampare
     pdfOutput;  //print plot into a pdf file
-    int fpSize, //frame pen size (in printer dots)
-        cpSize,   //curve pen size (in printer dots)
-        sdSize,   //plot dot size (in ptrinter dots)
-       thinPrint;
+    bool thinPrint;
     void setPrinter(QPrinter *myPrinter_);
     explicit CPrintWOptions(QWidget *parent = 0);
     ~CPrintWOptions();
