@@ -44,7 +44,7 @@ SOURCES += main.cpp\
     Dialogs/CFunStrInput.cpp \
     Dialogs/CUnitsDlg.cpp \
     Dialogs/CCustomiseCol.cpp \
-    suppFunctions.cpp \
+    SuppFunctions.cpp \
     CParamView.cpp
 
 HEADERS  += CDataSelWin.h\
@@ -69,7 +69,7 @@ HEADERS  += CDataSelWin.h\
     Dialogs/CUnitsDlg.h \
     Dialogs/CCustomiseCol.h \
     CParamView.h \
-    suppFunctions.h \
+    SuppFunctions.h \
     ExcludeATPCode.h
 
 win32:DEFINES+=_CRT_SECURE_NO_WARNINGS \

@@ -55,12 +55,12 @@ Quindi si deve allocare anche spazio per i puntatori alle righe.*/
     matrix=new double*[numOfRows];
     if(matrix==nullptr)
       return nullptr;
-    if(matrix==nullptr)
-      return nullptr;
     //Allocaz. matrice:
     matrix[0]=new double[numOfRows*numOfCols];
-    if(matrix[0]==nullptr)
+    if(matrix[0]==nullptr){
+      delete[] matrix;
       return nullptr;
+    }
     for(i=1; i<numOfRows; i++)
         matrix[i]=matrix[0]+i*numOfCols;
     return matrix;
@@ -76,25 +76,16 @@ Quindi si deve allocare anche spazio per i puntatori alle righe.*/
     matrix=new float*[numOfRows];
     if(matrix==nullptr)
       return nullptr;
-    if(matrix==nullptr)
-      return nullptr;
     //Allocaz. matrice:
     matrix[0]=new float[numOfRows*numOfCols];
-    if(matrix[0]==nullptr)
+    if(matrix[0]==nullptr){
+      delete[] matrix;
       return nullptr;
+    }
     for(i=1; i<numOfRows; i++)
         matrix[i]=matrix[0]+i*numOfCols;
     return matrix;
 }
-
-int DeleteCMatrix(float **matrix){
-    if(matrix==nullptr)
-      return 1;
-    delete[] matrix[0];
-    delete[] matrix;
-    return 0;
-}
-
 
 int DeleteFMatrix(float **matrix){
     if(matrix==nullptr)
@@ -116,8 +107,10 @@ float* **CreateFPMatrix(int NumRows, int NumCols){
         return nullptr;
   //Allocaz. matrice:
     Matrix[0]=new float*[NumRows*NumCols];
-    if(Matrix[0]==nullptr)
+    if(Matrix[0]==nullptr){
+        delete[] Matrix;
         return nullptr;
+    }
     for(i=1; i<NumRows; i++)
         Matrix[i]=Matrix[0]+i*NumCols;
     return Matrix;
@@ -198,11 +191,8 @@ QString smartSetNum(float num, int prec){
           out.insert(i+1+1,sep);
         else
           out.insert(i+1,sep);
-        if(out[out.length()-1]=='.')
+        if(out[out.length()-1]==sep)
             out.chop(1);
-        break;
-        if(i+1!=out.length())
-          out.insert(i+1+(int)(out[0]=='-'),sep);
         break;
        }
 // Rimangono da trattare solo i casi di esponente negativo. Vengono considerati solo esponenti fino a -2 in quanto al più voglio avere due zeri dopo la virgola. Oltre questo è più leggibile la notazione esponenziale:
