@@ -5,7 +5,6 @@ CCustomiseCol::CCustomiseCol(QWidget *parent) :
   QDialog(parent), ui(new Ui::CCustomiseCol){
   ui->setupUi(this);
   for (int column=0; column<ui->customColorTable->columnCount()-1; column++){
-    ui->customColorTable->item(0,column)->setCheckState(Qt::Checked);
     ui->customColorTable->item(0,column)->setCheckState(Qt::Unchecked);
   }
   for (int column=8; column<ui->customColorTable->columnCount()-1; column++){
@@ -52,7 +51,6 @@ void CCustomiseCol::resizeEvent(QResizeEvent *){
 
   ui->stdColorTable->setRowHeight(0,int(1.5*ui->stdColorTable->rowHeight(0)));
   ui->customColorTable->setRowHeight(0,int(1.5*ui->customColorTable->rowHeight(0)));
-  ui->customColorTable->setMaximumHeight(ui->customColorTable->rowHeight(0));
   ui->stdColorTable->setMaximumHeight(ui->stdColorTable->rowHeight(0));
   ui->customColorTable->setMaximumHeight(ui->customColorTable->rowHeight(0));
 

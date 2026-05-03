@@ -74,15 +74,12 @@ SFourOptions CFourOptions::giveData(void){
     if(ui->size100Btn->isChecked()) opt.amplSize=hundred;
     opt.harm1= ui->harm1Edit->text().toInt();
     opt.harm2= ui->harm2Edit->text().toInt();
-    opt.initialTime = ui->startTimeEdit->text().toFloat();
-    opt.finalTime  = ui->endTimeEdit->text().toFloat();
     return opt;
 }
 
 void CFourOptions::updatehMax(SFourData data){
   // Funzione PURA
   int stepsPerSecond, indexLeft, indexRight;
-  int nearInt(float);
   stepsPerSecond=(data.numOfPoints-1) / (data.x[data.numOfPoints-1]-data.x[0]);
   indexLeft= NearInt( (data.opt.initialTime-data.x[0])*stepsPerSecond)+1;
   indexRight=(data.numOfPoints-1) - NearInt( (data.x[data.numOfPoints-1]-
