@@ -24,6 +24,7 @@ CUnitsDlg::CUnitsDlg(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CLabelsDlg){
     ui->setupUi(this);
+    useBrackets=false;
     useSmartUnits=true;
 }
 

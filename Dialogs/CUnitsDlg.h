@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef CLABELSDLG_H
-#define CLABELSDLG_H
+#ifndef CUNITSDLG_H
+#define CUNITSDLG_H
 
 #include <QAbstractButton>
 #include <QDialog>
@@ -42,7 +42,8 @@ public:
     void getTwinScales(bool isTwinScale_);
     void setUseBrackets(bool useBrackets_);
     void setXUnit(QString xUnit_);
-    void showEvent(QShowEvent *);
+protected:
+    void showEvent(QShowEvent *) override;
     ~CUnitsDlg();
     
 private slots:
@@ -57,4 +58,4 @@ private:
     Ui::CLabelsDlg *ui;
 };
 
-#endif // CLABELSDLG_H
+#endif // CUNITSDLG_H
