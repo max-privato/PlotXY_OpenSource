@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
 
     QStringList optLst={"/dtQtF","/dtQtI","/dtQtP","/sff","/uml","/set"};
     GV.PO.drawType=0;  // filtraggio grafici XY
+    GV.PO.showFullFilelist=false;
     GV.PO.useMatLib=false;
     GV.PO.showElapsTime=false;
     QString opt;
