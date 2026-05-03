@@ -55,7 +55,7 @@ static QString smartSetNum(float num, int prec){
     int expSize=out.size()-out.indexOf('e');
     //Se l'esponente è 0 intanto mi riparmio le ultime 4 cifre:
     int exp;
-    exp=out.right(expSize-1).toInt();
+    exp=QStringView{out}.right(expSize-1).toInt();
     //Se l'esponente è zero lo tolgo e via:
     if(exp==0){
       out.chop(expSize);
@@ -1962,7 +1962,6 @@ int CLineChart::writeText2(QPainter * myPainter, int X, int Y, EadjustType hAdju
  * msg1 che msg2 che le eventuali parentesi.
 */
   int len=0; //Lunghezza senza hOffset;
-  int ret; //valore di ritorno: lunghezza compreso hOffset
   int xPosition=X,
       width1, width2, wBracket, //larghezza testo msg1, msg2 e di una parentesi
       H1, H2; //Altezza testo msg1 e msg2.
@@ -2033,7 +2032,7 @@ Questo ha comportato nel seguente if la sostituzione di "atLeft" con "atRight" e
   if(addBrackets && msg1!="")
       len+=wBracket;
 
-  return ret=len;
+  return len;
 }
 
 void CLineChart::disableTitle(){
@@ -3625,7 +3624,6 @@ void CLineChart::markAll(){
       }
     iTotPlot=0;
   }
-  yRatio=yAxis.pixPerValue ;
   for(i=0; i<nFiles; i++)
   for(iPlot=0; iPlot<nPlots[i]; iPlot++) {
     /* Ora traccio eventuali punti a posizione determinata manualmente.
