@@ -49,7 +49,6 @@ public:
     bool useBrackets;
     QString xUnit, yUnit, ryUnit;  //Units of measure of the three axes
     explicit CScaleDlg(QWidget *parent = nullptr);
-    void getAllUnits(QString xUnit, QString yUnit, QString ryUnit);
     void getInfo(SFloatRect2 dispRect, bool twinScale);
     void getFullLimits(SFloatRect2 fullLimits_, bool manageFullLimits);
     bool giveExactMatch();
@@ -69,7 +68,7 @@ private:
     Ui::CScaleDlg *ui;
     CUnitsDlg* myUnitsDlg;
     SFloatRect2 dispRect, fullLimits;
-    void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *) override;
 
 };
 

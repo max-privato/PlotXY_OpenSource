@@ -28,6 +28,9 @@ CScaleDlg::CScaleDlg(QWidget *parent) :
     ui->setupUi(this);
     myUnitsDlg=new CUnitsDlg(this);
     exactMatch=false;
+    isTwinScale=false;
+    managefullLimits=false;
+    useBrackets=false;
     useUserUnits=false;
     useSmartUnits=true;
 }
