@@ -26,6 +26,7 @@ CPlotOptions::CPlotOptions(QWidget *parent) :
 {
     ui->setupUi(this);
     accepted=false;
+    customPoints=false;
     swSizeIsPixel=false;
 }
 
@@ -59,13 +60,6 @@ SPlotOptions CPlotOptions::giveData(){
     return opts;
 }
 
-
-
-void CPlotOptions::on_linesTypeBtn_clicked()
-{
-    ui->pointTypeGroup->setEnabled(false);
-    ui->lineWidthGroup->setEnabled(true);
-}
 
 
 void CPlotOptions::prepare(bool useGrids, EPlotType plotType, EScaleType xScaleType, EScaleType yScaleType, EPlotPenWidth penWidth) {

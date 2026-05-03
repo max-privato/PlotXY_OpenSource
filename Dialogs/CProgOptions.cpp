@@ -109,8 +109,9 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     GV.PO.trimQuotes            =TRIMQUOTES;
     GV.PO.rememberWinPosSize    =REMEMBERWINPOSANDSIZE;
 
-    GV.PO.plotPenWidth          =PLOTPENWIDTH;;
+    GV.PO.plotPenWidth          =PLOTPENWIDTH;
     getData(GV.PO);
+    emit programOptionsChanged(GV.PO);
     QMessageBox mb;
     mb.setText("Default settings restored.\nRegistry Cleared.");
     mb.exec();
@@ -140,6 +141,7 @@ void CProgOptions::on_buttonBox_clicked(QAbstractButton *button){
     settings.setValue("rememberWinPosSize", GV.PO.rememberWinPosSize);
 
     settings.setValue("defaultFreq", GV.PO.defaultFreq);
+    settings.endGroup();
 
     //do l'opportunità alle altre parti del programma di utilizzare subito i parametri cambiati:
     emit programOptionsChanged(GV.PO);

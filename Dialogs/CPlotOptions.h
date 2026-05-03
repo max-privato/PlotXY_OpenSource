@@ -50,7 +50,6 @@ public:
 
 
 private slots:
-    void on_linesTypeBtn_clicked();
     void on_barsTypeBtn_clicked();
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
