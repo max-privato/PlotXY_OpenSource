@@ -236,9 +236,9 @@ Ogni volta che compute() è chiamata dall'esterno ricopio line in intLine, mentr
      if(intLine[start-1]=='+' || intLine[start-1]=='-') unary=true;
      //ma in realtà prima di start-1, saltati gli spazi, deve esservi una parentesi aperta o inizio rigo:
      int index=start-2;
-     while(intLine[index]==' ' && index>=0)
+     while(index>=0 && intLine[index]==' ')
          index--;
-     if (intLine[index]!=' ' && intLine[index]!='(') unary = false;
+     if (index>=0 && intLine[index]!=' ' && intLine[index]!='(') unary = false;
    }
    if (unary) {
        if(intLine[start-1]=='-')unaryMinus=true;
@@ -683,14 +683,14 @@ Dopo che ha ricevuto i valori la funzione si prepara al successivo calcolo itera
      if(ret!="") return ret;
    }
 
-  // A questo punto devono essere presenti solo variabili, operatori e parentesi. Fa eccezione il carattere '.' il quale è considerato accettabile nell'alfabeto, in quanto può far parte dei numeri, ma non è al momento un operatore valido, né un carattere che può appartenere ad un nome di variabile. Pertanto devo intercettare questo caso.
+  // A questo punto devono essere presenti solo variabili, operatori e parentesi. Fa eccezione il carattere '.' il quale è considerato accettabile nell'alfabeto, in quanto può far parte dei numeri, ma non è al momento un operatore valido, né un carattere che può appartenere a un nome di variabile. Pertanto devo intercettare questo caso.
   if(ret=="" && line.contains('.')){
     int index=line.indexOf('.');
     QString dotStr;
    dotStr.setNum(index+1);
     QString ordinalStr="th";
     if(index==0)  ordinalStr="st";
-    if(index==0)  ordinalStr="nd";
+    if(index==1)  ordinalStr="nd";
     ret="the input string contains a dot (character '.') not belonging to a numerical constant. This is invalid.\n"
         "The offending dot is in the " +dotStr+ ordinalStr+ " position in the string.";
   }
