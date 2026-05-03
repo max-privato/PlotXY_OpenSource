@@ -24,6 +24,11 @@ CFourOutputInfo::CFourOutputInfo(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CFourOutputInfo){
     ui->setupUi(this);
+    accepted=false;
+    numData=false;
+    pdfOutput=false;
+    phaseChart=false;
+    amplChart=false;
 }
 
 

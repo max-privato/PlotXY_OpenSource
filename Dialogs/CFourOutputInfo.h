@@ -40,8 +40,10 @@ public:
     void setPhaseChart(bool active);
     void setType(EOutType type);
     ~CFourOutputInfo();
+protected:
+    void showEvent(QShowEvent *) override;
+
 private slots:
-    void showEvent(QShowEvent *);
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_numDataChkBox_clicked(bool checked);
