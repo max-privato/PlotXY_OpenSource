@@ -135,8 +135,10 @@ CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     //Inizializzo le variabili elementari (bool, int, e ordine alfabetico):
     commonXSet=false;
     multiFile=false;
+    numOfFuns=0;
     timeVarReset=false;
     currFileIdx=0;
+    xVarRow=1;
     xInfo.idx=-1;
     xInfo.isFunction=false;
     xInfo.isMonotonic=true;
@@ -529,8 +531,7 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
   for(r=1; r<TOTROWS; r++){
     item(r,COLORCOL)->setBackground(QColor(varColRgb[r-1]));
     if (styleData_&1<<r)
-        // il + 1 perché la riga 0 della tabella è l'header e ad essa non corrisponde alcun colore e alcun dash
-        item(r+1,COLORCOL)->setText("-");
+        item(r,COLORCOL)->setText("-");
     for(c=1;c<TOTCOLS; c++){
       i++;
       item(r,c)->setText(list[i]);
@@ -1287,8 +1288,8 @@ int CVarTableComp::varColumn(){
 }
 
 CVarTableComp::~CVarTableComp(){
-    for(int i=0; i<10; i++){
-        delete yLine[i];
+    for(int i=0; i<MAXVARSPERFUN; i++){
+        delete[] yLine[i];
     }
     delete[] yLine;
 }
