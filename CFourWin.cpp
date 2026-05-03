@@ -67,6 +67,8 @@ CFourWin::CFourWin(QWidget *parent) :
 
   dftDone=false;
   optionsSetOk=false;
+  indexLeft=0;
+  indexRight=0;
   harmOrders=nullptr;
   ampl=nullptr;
   amplitudes=nullptr;
@@ -739,6 +741,8 @@ int CFourWin::performDFT(){
   //Calcolo RMS
   if(harm1==0)
     RMS=ampl01[0]*ampl01[0];
+  else
+    RMS=0;
   for(harm=qMax(harm1,1); harm<=harm2; harm++){
     RMS+=ampl[harm]*ampl[harm]/2.f;
   }
@@ -890,6 +894,8 @@ int CFourWin::performNuDFT(){
 
   if(harm1==0)
     RMS=ampl01[0]*ampl01[0];
+  else
+    RMS=0;
   for(harm=qMax(harm1,1); harm<=harm2; harm++){
     RMS+=ampl[harm]*ampl[harm]/2.f;
   }
@@ -987,7 +993,7 @@ void CFourWin::on_gridChkBox_clicked()
     ui->phaseChart->yGrid=ui->gridChkBox->isChecked();
     ui->amplChart->yGrid=ui->gridChkBox->isChecked();
     ui->amplChart->plot();
-    ui->amplChart->plot();
+    ui->phaseChart->plot();
 }
 
 void CFourWin::on_saveSetBtn_clicked(){
