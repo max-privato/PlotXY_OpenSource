@@ -55,7 +55,7 @@ static QString smartSetNum(float num, int prec){
     int expSize=out.size()-out.indexOf('e');
     //Se l'esponente è 0 intanto mi riparmio le ultime 4 cifre:
     int exp;
-    exp=QStringView{out}.right(expSize-1).toInt();
+    exp=out.right(expSize-1).toInt();
     //Se l'esponente è zero lo tolgo e via:
     if(exp==0){
       out.chop(expSize);

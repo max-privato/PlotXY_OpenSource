@@ -411,15 +411,8 @@ void CVarTableComp::dropEvent(QDropEvent *event)  {
 
         allowSaving=true;
        //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-        //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        QSet <int>mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-        if(funSet.size()>0 || mySet.count()>1)
-           allowSaving=false;
-#else
-        if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-          allowSaving=false;
-#endif
+        if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+            allowSaving=false;
 
 
         emit contentChanged();
@@ -587,15 +580,8 @@ FINE Correzione 25/11/2020
 
   allowSaving=true;
   //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-   //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-   QSet <int>mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-   if(funSet.size()>0 || mySet.count()>1)
-      allowSaving=false;
-#else
-   if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-     allowSaving=false;
-#endif
+   if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+       allowSaving=false;
 
   //Ora faccio lo scambio di colori di riga se la x non è in prima riga
   if(xVarRow!=0){
@@ -791,15 +777,8 @@ void CVarTableComp::leftClicked(int r, int c){
 
       allowSaving=true;
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-       //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
-    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-       if(funSet.size()>0 || mySet.count()>1)
-          allowSaving=false;
-    #else
-       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-         allowSaving=false;
-    #endif
+       if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+           allowSaving=false;
 
       // Chiedo a CDataSelWin di aggiornare le informazioni sulla tabella myLineCalc.
       // Gestisce solo l'attivazione dei bottoni sotto la varTable stessa
@@ -892,15 +871,8 @@ FINE Correzione 25/11/2020
 
       allowSaving=true;
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-       //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
-    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-       if(funSet.size()>0 || mySet.count()>1)
-          allowSaving=false;
-    #else
-       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-         allowSaving=false;
-    #endif
+       if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+           allowSaving=false;
 
 
       emit contentChanged();
@@ -970,15 +942,8 @@ FINE Correzione 25/11/2020
       }
 
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-       //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
-    #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-       mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-       if(funSet.size()>0 || mySet.count()>1)
-          allowSaving=false;
-    #else
-       if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-         allowSaving=false;
-    #endif
+       if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+           allowSaving=false;
 
 
       //Se la variabile su cui si è cliccato è una funzione di variabile devo prendere l'indice a partire dal secondo carattere;
@@ -1245,15 +1210,8 @@ FINE Correzione 25/11/2020
     allowSaving=true;
 
   //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-   //Devo per ora usare il preprocessore in quanto voglio mantenere la compatibilità fra Qt 5.13 (di cui ho la compilazione statica) e 6.4. Ma 6.4 non consente la funzione "toSet(), mentre 5.13 non consente l'uso degli iteratori begin() e end().
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-   mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-   if(funSet.size()>0 || mySet.count()>1)
-      allowSaving=false;
-#else
-   if(funSet.size()>0 || tabFileNums.toSet().size()>1)
-     allowSaving=false;
-#endif
+   if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+       allowSaving=false;
 
   emit contentChanged();
   resizeEvent(event=nullptr);
