@@ -57,7 +57,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 int main(int argc, char *argv[])
 {
     int i;
-    //La seguente riga consente di sostituire errori runTtime con chiamata alla funzione qui sopra, che può poi essere debuggata.
+    //La seguente riga consente di sostituire errori runtime con chiamata alla funzione qui sopra, che può poi essere debuggata.
     //Va abilitata quando ci sono errori runtime, e poi disabilitata quando sono stati risolti.
 
     qInstallMessageHandler(myMessageOutput);

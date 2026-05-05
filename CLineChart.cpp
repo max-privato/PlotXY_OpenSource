@@ -446,9 +446,25 @@ int CLineChart::computeDecimals(float scaleMin_, float ticInterval, bool halfTic
     //diverso da '0' e anche la posizione del carattere '.'
     QString numStr;
     int i, ret, temp1, temp2;
-    numStr=QString::number(double(scaleMin_+ticInterval*(1+halfTicNum_)),'f',4);
+   /* *** Correzione del 4 maggio 2026
+    * Prima di scrivere le tacche con 4 decimali mi devo assicurare che non si abbiano
+    * valori diversi da 0 per ragioni di arrotondamenti. Il caso è capitato con il
+    * tracciamento di "v:DCLOAD-DCMENO" di RAD2.PL4. Se io manualmente impongo che la
+    * scala  verticale sia fra  3150 e 3450 mi viene passato come scaleMin_ il valore
+    * 3149.99976 Questo numero va evidentemente considerato come 3150. Pertanto prima
+    * trasformo scaleMin_ in scaleMin6, con 6 cifre significative
+    *
+    * ***
+*/
+    double scaleMin6;
+    scaleMin6=QString::number(float(scaleMin_),'g',6).toDouble();
+    numStr=QString::number(double(scaleMin6+ticInterval*(1+halfTicNum_)),'f',4);
+    numStr.truncate(6);
+    //  Questa era la vecchia riga prima della correzione del 4 maggio 2026:
+//    numStr=QString::number(double(scaleMin_+ticInterval*(1+halfTicNum_)),'f',4);
+
     i=numStr.length();
-    do{	 i--; } while(numStr[i]=='0' && i>0);
+    do{ i--; } while(numStr[i]=='0' && i>0);
     if(numStr[i]=='.') //Se trovo il puntino prima di altri caratteri non nulli ho 0 decimali
         ret=0;
     else{
@@ -458,14 +474,15 @@ int CLineChart::computeDecimals(float scaleMin_, float ticInterval, bool halfTic
         //Il numero di cifre significative non deve comunque superare 5:
         if(temp1>6)ret=qMin(ret,2);
     }
-    numStr=QString::number(double(scaleMin_+2*ticInterval*(1+halfTicNum_)),'f',4);
+    numStr=QString::number(double(scaleMin6+2*ticInterval*(1+halfTicNum_)),'f',4);
+    numStr.truncate(6);
     i=numStr.length();
-    do{	 i--; } while(numStr[i]=='0' && i>0);
+    do{i--; } while(numStr[i]=='0' && i>0);
     if(numStr[i]=='.')
         temp2=0;
     else{
         temp1=i;
-        do{	 i--; } while(numStr[i]!='.' && i>0);
+        do{i--; } while(numStr[i]!='.' && i>0);
         temp2=temp1-i;
         //Il numero di cifre significative non deve comunque superare 5:
         if(temp1>6)temp2=qMin(temp2,2);
@@ -4280,7 +4297,7 @@ void CLineChart::resizeStopped(){
   }
   markAll();
   oldRect=r;
-  chartResizeStopped();
+  emit chartResizeStopped();
 }
 
 
@@ -4596,6 +4613,7 @@ ComputeScaleFactor:
 
   // Calcolo decimali da scrivere sulle etichette numeriche:
   myAxis.ticDecimals=computeDecimals(myAxis.scaleMin,myAxis.ticInterval,myAxis.halfTicNum);
+//  myAxis.ticDecimals=computeDecimals(myAxis.minVal,myAxis.ticInterval,myAxis.halfTicNum);
 
 
   /* Calcolo  della larghezza massima delle etichette dell'asse, se di tipo LY o RY  */

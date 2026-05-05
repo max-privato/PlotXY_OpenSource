@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.2, 2026-05-04T15:08:00. -->
+<!-- Written by QtCreator 8.0.2, 2026-05-04T22:52:37. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -245,6 +245,7 @@
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory">D:/OneDrive - University of Pisa/Documenti/C++/Qt/GITHUB-LINKED/PlotXY/Data</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory.default">D:/QT_BUILDS/PlotXY 5.15</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
