@@ -34,6 +34,7 @@ private:
     Ui::CCustomiseCol *ui;
     void resizeEvent(QResizeEvent *);
     QColor setColor;
+    bool initialResized=false;
 };
 
 #endif // CCUSTOMISECOL_H

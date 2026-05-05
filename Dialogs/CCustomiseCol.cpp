@@ -28,7 +28,6 @@ CCustomiseCol::CCustomiseCol(QWidget *parent) :
 }
 
 void CCustomiseCol::resizeEvent(QResizeEvent *){
-  static bool initialResized=false;
   if(initialResized)
     return;
   initialResized=true;
@@ -46,14 +45,28 @@ void CCustomiseCol::resizeEvent(QResizeEvent *){
   }
   cWidth=ui->stdColorTable->columnWidth(coloredColumns);
   ui->stdColorTable->setColumnWidth(coloredColumns,cWidth+20);
-  cWidth=ui->customColorTable->columnWidth(coloredColumns);
-  ui->customColorTable->setColumnWidth(coloredColumns,cWidth+10);
+  // Use the same last-column width for customColorTable so both tables have
+  // identical total widths and no surplus appears as a ghost column.
+  ui->customColorTable->setColumnWidth(coloredColumns,
+                                       ui->stdColorTable->columnWidth(coloredColumns));
 
   ui->stdColorTable->setRowHeight(0,int(1.5*ui->stdColorTable->rowHeight(0)));
   ui->customColorTable->setRowHeight(0,int(1.5*ui->customColorTable->rowHeight(0)));
   ui->stdColorTable->setMaximumHeight(ui->stdColorTable->rowHeight(0));
   ui->customColorTable->setMaximumHeight(ui->customColorTable->rowHeight(0));
 
+  // Set each table's minimum width from its own column widths so neither table
+  // has surplus space that would appear as a ghost column.
+  auto tableMinWidth = [](QTableWidget *t){
+      int w = 2 * t->frameWidth();
+      for(int i = 0; i < t->columnCount(); i++)
+          w += t->columnWidth(i);
+      t->setMinimumWidth(w);
+  };
+  tableMinWidth(ui->stdColorTable);
+  tableMinWidth(ui->customColorTable);
+  adjustSize();
+  setFixedSize(size());
 }
 
 CCustomiseCol::~CCustomiseCol()
@@ -87,8 +100,6 @@ void  CCustomiseCol::getStates(int styleData, QVector <QRgb> varColRgb){
     checkStates[column]=ui->customColorTable->item(0,column)->checkState();
 //    ui->customColorTable->item(0,column)-> setBackgroundColor(QColor(varColRgb[column]));
     ui->customColorTable->item(0,column)-> setBackground(QColor(varColRgb[column]));
-
-
   }
 }
 
@@ -120,11 +131,11 @@ void CCustomiseCol::on_buttonBox_clicked(QAbstractButton *button){
 void CCustomiseCol::on_customColorTable_entered(const QModelIndex) {
   /* può accadere che quando faccio un drop, se lo faccio in fondo alla tabella viene
    * inserita una riga aggiuntiva. Non si vuole assolutamente che ciò accada. Una maniera
-   * seria di evitarlo consiste nel modificare l'evento"dropItem della tabella, ma per
+   * seria di evitarlo consiste nel modificare l'evento"dropItem" della tabella, ma per
    * far questo devo ereditare una versione custom della tabella. Per il momento adotto
-   * una tecnica semplificata: manualmente riporto sempre a 1 il numero di colonne.
+   * una tecnica semplificata: manualmente riporto sempre a 1 il numero di righe.
   */
-    ui->stdColorTable->clearSelection();
+   ui->stdColorTable->clearSelection();
    ui->customColorTable->setRowCount(1);
 }
 
