@@ -979,7 +979,6 @@ int CLineChart::drawCurves(bool noCurves){
 //        float yfplus=yAxis.width-yRatio * (py[iFile][iPlot][startIndex[iFile]]-symin)+Y0;
 
         float xfplus, yfplus;
-//        qDebug()<<"px[iFile][startIndexPlus]: "<<px[iFile][startIndexPlus];
         if(xAxis.scaleType==stLin)
           xfplus=xAxis.pixPerValue  * (px[iFile][startIndexPlus]-sxmin)+float(X0);
         else
@@ -1123,12 +1122,9 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 //      file.close();
       if(makingSVG){
         myPainter->drawPath(path);
-//        qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
       }else{
 // Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fra i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
         int i;
-//        qDebug()<<"r-g-b: "<<myPainter->pen().color().red()<< myPainter->pen().color().green()<<myPainter->pen().color().blue();
-//        qDebug()<<"width: "<<myPainter->pen().width();
         foreach(QPolygonF poly, path.toSubpathPolygons())
           for(i=0; i<poly.size()-1; i++)
             myPainter->drawLine(poly.at(i),poly.at(i+1));
@@ -1222,7 +1218,6 @@ int CLineChart::drawCurvesD(bool noCurves){
 //        float yfplus=yAxis.width-yRatio * (py[iFile][iPlot][startIndex[iFile]]-symin)+Y0;
 
         float xfplus, yfplus;
-        qDebug()<<"px[iFile][startIndexPlus]: "<<px[iFile][startIndexPlus];
         if(xAxis.scaleType==stLin)
           xfplus=xAxis.pixPerValue  * (px[iFile][startIndexPlus]-sxmin)+float(X0);
         else
@@ -1262,9 +1257,6 @@ int CLineChart::drawCurvesD(bool noCurves){
       y=NearIntD(yf);
       // Se i due punti coincidono la retta è indeterminata. Però non crea difficoltà al tracciamento in quanto FCd gestisce internamente tale situazione.
       FCd.getLine(x1,y1,x,y);
-//      bool lineDefined=FCd.getLine(x1,y1,x,y);
-//      qDebug()<<"x1: "<<x1<<"  y1: "<<y1<<"  x:"<<x<<"  y: "<<y;
-//      qDebug()<<"lineDefined: "<<lineDefined;
 
       //Grafico fino al penultimo punto, con filtraggio e "Clippaggio". L'ultimo punto
       //lo traccio fuori del loop per essere certo che venga comunque tracciato, anche
@@ -1322,7 +1314,6 @@ int CLineChart::drawCurvesD(bool noCurves){
         x1=x;
         y1=y;
       } //Fine ciclo for tracciamento curve
-      qDebug()<<"PointsDrawn"<<pointsDrawn0;
       //Tracciamento ultimo punto della curva:
       if(xAxis.scaleType==stLin)
         xf=double(xAxis.pixPerValue  * (px[iFile][stopIndex[iFile]] - sxmin) +X0);
@@ -1342,7 +1333,6 @@ Ma con qDebug() il problema non si presenta nemmeno in relase mode!
 Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le funzioni, in attesa che prima o poi il vero problema venga evidenziato.
 */
       static int iWasInRect=0;
-//      qDebug()<<"x,x1,y,y1:"<<x<<x1<<y<<y1;
       //L'ultimo punto lo traccio solo se il penultimo era nel rettangolo:
       if(wasInRect){
         iWasInRect++;
@@ -2092,7 +2082,7 @@ bool CLineChart::event(QEvent *event){
       QPoint nearP;
       QPointF valueP;
       int ttType=giveNearValue(helpEvent->pos(),nearP,valueP);
-      qDebug()<<"nearValue x: nearX: :"<<helpEvent->pos().x()<<nearP.x();
+//      qDebug()<<"nearValue x: nearX: :"<<helpEvent->pos().x()<<nearP.x();
       if(ttType==0){
           QToolTip::hideText();
           return true;
