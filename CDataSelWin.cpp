@@ -1806,7 +1806,7 @@ The index to pass to setVar is the number in the first column corresponding to t
    // if they are in multiFileMode and the var has been selected. "t" (in line 0) I do nothing:
    // if(row==0 && GV.multiFileMode)return;
   QString varName=ui->varMenuTable->item(row,column)->text();
-  QString fileName=ui->fileTable->item(selectedFileRow,2)->text();
+//  QString fileName=ui->fileTable->item(selectedFileRow,2)->text();
 
   bool bVar=ui->varMenuTable->monotonic[row];
   int varNum=ui->varMenuTable->item(row,0)->text().toInt();
@@ -3063,7 +3063,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   QDateTime dateTime;
   QFileInfo fileInfo;
   QSettings settings;
-  QString keyName, pathName, tShift;
+  QString keyName, pathName;
   settings.beginGroup("programState");
 
   //1) setto il multifileMode al valore salvato:

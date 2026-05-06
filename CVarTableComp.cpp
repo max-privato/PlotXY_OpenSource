@@ -213,7 +213,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
         //Se una riga è vuota se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Devo mettere continue e non break, perché ci possono essere righe vuote in qualsiasi posizione della tabella:
         if(str.size()==0)
             continue;
-        QChar  c=item(iRow,VARCOL)->text()[0];
+        QChar  c=item(iRow,VARCOL)->text().at(0);
         if(item(iRow,XVARCOL)->text()=="x"){
           xInfo.unitS=giveUnits(c);
           continue;
@@ -223,7 +223,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
         }else{
           if(iFile+1!=singleFileNum)
               continue;
-          if(item(iRow,VARNUMCOL)->text()[0]=='f'  ||  //si tratta di una funzione
+          if(item(iRow,VARNUMCOL)->text().at(0)=='f'  ||  //si tratta di una funzione
                        item(iRow,VARNUMCOL)->text()=="")   //riga vuota
               continue;
         }
@@ -259,7 +259,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
       //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Non posso mettere break, in quanto una riga può essere vuota anche prima delle righe con contenuti.
       if(str.size()==0)
         continue;
-      if(item(i,VARNUMCOL)->text()[0]=='f'){
+      if(item(i,VARNUMCOL)->text().at(0)=='f'){
         myLineCalc.getLine(item(i,VARCOL)->text(),currFileIdx+1);
         calcData=myLineCalc.checkAndFindNames();
         ret=calcData.ret;
@@ -566,9 +566,9 @@ FINE Correzione 25/11/2020
       // variabili; la casella sotto f diviene grigia solo se non si tratta di funzione di variabile.
       if(r>1)
         numOfTotVars++;
-      if(r>1 &&item(r,VARNUMCOL)->text()[0]!='f')
+      if(r>1 &&item(r,VARNUMCOL)->text().at(0)!='f')
         item(r,FILENUMCOL)->setBackground(neCellBkColor);
-      if(item(r,VARNUMCOL)->text()[0]=='f')
+      if(item(r,VARNUMCOL)->text().at(0)=='f')
         funStrInput->getStr(item(r,VARCOL)->text());
     }
 //    if(item(r,XVARCOL)->text()=="")
@@ -692,13 +692,12 @@ void CVarTableComp::fillFunNames(void){
     //Quando arrivo alla fine delle righe con variabili se continuo l'assegnazione qui sotto di "c" dà un warning runtime, che evito con il seguente check. Non posso mettere break, in quanto una riga può essere vuota anche prima delle righe con contenuti.
     if(str.size()==0)
       continue;
-    if(item(r,VARNUMCOL)->text()[0]=='f'){
+    if(item(r,VARNUMCOL)->text().at(0)=='f'){
       filled=fillNames(item(r,VARCOL)->text(),currFileIdx+1);
       item(r,VARCOL)->setText(filled);
     }
   }
 }
-
 
 void CVarTableComp::blankCell()  {
 //    int t=TOTROWS, v=VARCOL;
@@ -757,7 +756,7 @@ void CVarTableComp::leftClicked(int r, int c){
       }
       if(item(r,c)->text()!=""){
          numOfTotVars--;
-         if(item(r,VARNUMCOL)->text()[0]=='f'){
+         if(item(r,VARNUMCOL)->text().at(0)=='f'){
            funSet.remove(item(r,VARNUMCOL)->text().mid(1,1).toInt());
          }
          if(item(r,VARNUMCOL)->text()!="")
@@ -851,7 +850,7 @@ FINE Correzione 25/11/2020
 //Ora devo attribuire il nome alla funzione, cercando il primo disponibile a partire da 1.
 //devo però preliminarmente verificare che non si stia ridefinendo una funzione, nel qual caso il nome non deve cambiare.
       nextFun=-1;
-      if(item(r,VARNUMCOL)->text()[0]!='f'){
+      if(item(r,VARNUMCOL)->text().at(0)!='f'){
         for(int i=1;i<10; i++)
           if(!funSet.contains(i)){
             funSet<<i;
@@ -898,10 +897,10 @@ FINE Correzione 25/11/2020
         }
       }
       // If I chose as x a function plot I mustn't have other function plots, otherwise system crashes (reasons not analysed yet):
-      if(item(r,VARNUMCOL)->text()[0]=='f'){
+      if(item(r,VARNUMCOL)->text().at(0)=='f'){
         bool manyFunctionPlots=false;
         for (int i=0; i<rowCount(); i++){
-          if(item(i,VARNUMCOL)->text()[0]=='f'&&i!=r){
+          if(item(i,VARNUMCOL)->text().at(0)=='f'&&i!=r){
             manyFunctionPlots=true;
             break;
           }
