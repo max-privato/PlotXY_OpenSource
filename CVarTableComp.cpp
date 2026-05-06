@@ -725,7 +725,7 @@ void CVarTableComp::leftClicked(int r, int c){
       if(customiseCol->exec()==QDialog::Accepted){
         QList <QColor> setColors=customiseCol->setColorf();
         QVector <Qt::CheckState> checkStates=customiseCol->checkStatesf();
-        QBrush myBrush;
+        QBrush myBrush(Qt::SolidPattern);
         for (int  row=1; row<TOTROWS; row++){
           //remember that first row is the header in our table!
           int  row_1=row-1;
@@ -734,7 +734,7 @@ void CVarTableComp::leftClicked(int r, int c){
           item(row,FILENUMCOL)->setForeground(myBrush);
           item(row,VARNUMCOL)->setForeground(myBrush);
           item(row,VARCOL)->setForeground(myBrush);
-          colors[row]=customiseCol->setColorf()[row_1];
+          colors[row]=setColors[row_1];
           if(checkStates[row_1]==Qt::Checked){
             item(row,COLORCOL)->setText("-");
           }else{
