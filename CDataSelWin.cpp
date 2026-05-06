@@ -466,14 +466,14 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
     allScreensGeom.setTop(0);
     allScreensGeom.setBottom(0);
     for(i=0; i<screenCount; i++){
-      QRect geometry=QGuiApplication::screens()[i]->geometry();
+      QRect geometry=QGuiApplication::screens().at(i)->geometry();
       allScreensGeom.setLeft(qMin(allScreensGeom.left(),geometry.left()));
       allScreensGeom.setRight(qMax(allScreensGeom.right(),geometry.right()));
       allScreensGeom.setTop(qMin(allScreensGeom.top(),geometry.top()));
       allScreensGeom.setBottom(qMax(allScreensGeom.bottom(),geometry.bottom()));
     }
-    primaryScreenGeom=QGuiApplication::screens()[0]->geometry();
-    primaryScreenAvailableGeom=QGuiApplication::screens()[0]->availableGeometry();
+    primaryScreenGeom=QGuiApplication::screens().at(0)->geometry();
+    primaryScreenAvailableGeom=QGuiApplication::screens().at(0)->availableGeometry();
 
     /*La gestione smart della posizione delle finestre salvate la faccio così:
      * - per ogni finestra devo valutare sia la posizione orizzontale che verticale
@@ -2755,12 +2755,12 @@ void CDataSelWin::on_arrTBtn_clicked(){
     QRect thisFrameGeom=this->frameGeometry();
     int screenCount=QGuiApplication::screens().count();
     //the space globally available is right() of availableGeometry of the last screen
-    QScreen *lastScreen=QGuiApplication::screens()[screenCount-1];
+    QScreen *lastScreen=QGuiApplication::screens().at(screenCount-1);
     int totAvailableWidth=lastScreen->availableGeometry().right();  //Total availableWidth of all screens!!
     QScreen * myScreen=nullptr;
     availableHeight=0; //This is needed only to avoid a later warning of availableHeight uninitialised, since some compilers do not see that in the following loop it is initialised anyway
     for(int i=0; i<screenCount; i++){
-      myScreen=QGuiApplication::screens()[i];
+      myScreen=QGuiApplication::screens().at(i);
       availableHeight=myScreen->availableGeometry().height();
       int rightPix=myScreen->availableGeometry().right();
       if(this->x()<rightPix){
@@ -3327,7 +3327,7 @@ void CDataSelWin::moveEvent(QMoveEvent *){
   int screenCount=QGuiApplication::screens().count();
   int screenIdx;
   for (screenIdx=0; screenIdx<screenCount; screenIdx++){
-    QRect currAvGeom=QGuiApplication::screens()[screenIdx]->availableGeometry();
+    QRect currAvGeom=QGuiApplication::screens().at(screenIdx)->availableGeometry();
     QPoint myPos;
     myPos=this->pos();
     if (currAvGeom.contains(myPos)){
@@ -3339,7 +3339,7 @@ void CDataSelWin::moveEvent(QMoveEvent *){
     return;
   }
 
-  QScreen * screen=QGuiApplication::screens()[screenIdx];
+  QScreen * screen=QGuiApplication::screens().at(screenIdx);
   int DPI=int(screen->logicalDotsPerInch());
   if (DPI!=int(currentDPI)){
     //  Voglio che la massima altezza della parte utile sia pari alla massima utilizzabile sul desktop. L'altezza che passo a adaptToDPI è invece l'altezza della parte utile della finestra.
