@@ -720,8 +720,6 @@ void CVarTableComp::leftClicked(int r, int c){
   QString defaultStr=item(r,VARCOL)->text();
   if(r==0) return;  //si è cliccato sull'intestazione
 
-  QSet <int> mySet=QSet <int>(tabFileNums.begin(),tabFileNums.end());
-
   switch(c){
     case COLORCOL:
       if(customiseCol->exec()==QDialog::Accepted){
@@ -776,8 +774,8 @@ void CVarTableComp::leftClicked(int r, int c){
 
       allowSaving=true;
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-       if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
-           allowSaving=false;
+     if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+       allowSaving=false;
 
       // Chiedo a CDataSelWin di aggiornare le informazioni sulla tabella myLineCalc.
       // Gestisce solo l'attivazione dei bottoni sotto la varTable stessa
@@ -870,9 +868,8 @@ FINE Correzione 25/11/2020
 
       allowSaving=true;
       //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-       if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
-           allowSaving=false;
-
+     if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+       allowSaving=false;
 
       emit contentChanged();
       break;
@@ -1209,8 +1206,8 @@ FINE Correzione 25/11/2020
     allowSaving=true;
 
   //Copio la lista di numeri di tabFileNums in un set, in modo da evitare i duplicati, prima di verificare quanti files differenti sono presenti nella tabella corrente.
-   if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
-       allowSaving=false;
+  if(funSet.size()>0 || QSet<int>(tabFileNums.begin(),tabFileNums.end()).size()>1)
+    allowSaving=false;
 
   emit contentChanged();
   resizeEvent(event=nullptr);
