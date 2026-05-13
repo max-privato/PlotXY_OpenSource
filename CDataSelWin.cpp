@@ -2747,11 +2747,13 @@ void CDataSelWin::on_arrTBtn_clicked(){
     avGeom=avGeom.marginsRemoved(QMargins(10,10,10,10));
 */
     int availableHeight;
-    QRect win1Rect, win2Rect;
+    QRect win1Rect, win2Rect, win3Rect;
     if(plotWin[0]->isVisible())
       win1Rect=plotWin[0]->frameGeometry();
     if(plotWin[1]->isVisible())
       win2Rect=plotWin[1]->frameGeometry();
+    if(plotWin[2]->isVisible())
+      win3Rect=plotWin[2]->frameGeometry();
     QRect thisFrameGeom=this->frameGeometry();
     int screenCount=QGuiApplication::screens().count();
     //the space globally available is right() of availableGeometry of the last screen
@@ -2766,6 +2768,42 @@ void CDataSelWin::on_arrTBtn_clicked(){
       if(this->x()<rightPix){
         break;
       }
+    }
+
+    // Special case: exactly 3 PlotWins + their 3 FourWins → 3-column layout if screen is wide enough
+    bool threeColFourWin = plotWin[2]->isVisible() && !plotWin[3]->isVisible()
+                           && fourWin[0]->isVisible() && fourWin[1]->isVisible() && fourWin[2]->isVisible();
+    bool threeColEnoughWidth = (totAvailableWidth - thisFrameGeom.width() - thisFrameGeom.x()
+                                >= win1Rect.width() + win2Rect.width() + win3Rect.width());
+    if(threeColFourWin && threeColEnoughWidth){
+        QRect r=thisFrameGeom;
+        r.moveLeft(r.x()+r.width()+1);
+        plotWin[0]->move(r.topLeft());
+
+        r=plotWin[0]->frameGeometry();
+        r.moveLeft(r.x()+win1Rect.width()+1);
+        plotWin[1]->move(r.topLeft());
+
+        r=plotWin[1]->frameGeometry();
+        r.moveLeft(r.x()+win2Rect.width()+1);
+        plotWin[2]->move(r.topLeft());
+
+        r=plotWin[0]->frameGeometry();
+        r.moveTop(r.y()+win1Rect.height()+1);
+        fourWin[0]->move(r.topLeft());
+        fourWin[0]->raise();
+
+        r=plotWin[1]->frameGeometry();
+        r.moveTop(r.y()+win1Rect.height()+1);
+        fourWin[1]->move(r.topLeft());
+        fourWin[1]->raise();
+
+        r=plotWin[2]->frameGeometry();
+        r.moveTop(r.y()+win1Rect.height()+1);
+        fourWin[2]->move(r.topLeft());
+        fourWin[2]->raise();
+
+        return;
     }
 
     //but if I have a single window, the available space is reduced, since we do not
