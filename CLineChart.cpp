@@ -1010,11 +1010,11 @@ int CLineChart::drawCurves(bool noCurves){
 
         int xPlus=NearInt(xfplus);
         int yPlus=NearInt(yfplus);
-        CLineChart::CFilterClip::FloatPoint I1, I2;
+        CLineChart::CFilterClip::FloatPoint I1{}, I2{}; //"{}" garantisce l'inizializzazione a zero
         if(FC.isInRect(xPlus,yPlus)){
           FC.getLine(x1,y1,xPlus,yPlus);
-          FC.giveRectIntersect(I1,I2);
-          path.moveTo(NearInt(I1.X), NearInt(I1.Y));
+          if(FC.giveRectIntersect(I1,I2) >= 1) //verifica del valore di ritorno per evitare un warning: il codice garantisce che è sempre >=1
+            path.moveTo(NearInt(I1.X), NearInt(I1.Y));
         }
       }else{
         path.moveTo(static_cast<double>(x1),static_cast<double>(y1));
@@ -1249,11 +1249,11 @@ int CLineChart::drawCurvesD(bool noCurves){
 
         int xPlus=NearInt(xfplus);
         int yPlus=NearInt(yfplus);
-        CLineChart::CFilterClipD::DoublePoint I1, I2;
+        CLineChart::CFilterClipD::DoublePoint I1{}, I2{}; //"{}" garantisce l'inizializzazione a zero
         if(FCd.isInRect(xPlus,yPlus)){
           FCd.getLine(x1,y1,xPlus,yPlus);
-          FCd.giveRectIntersect(I1,I2);
-          path.moveTo(NearIntD(I1.X), NearIntD(I1.Y));
+          if(FCd.giveRectIntersect(I1,I2) >= 1) //verifica del valore di ritorno per evitare un warning: il codice garantisce che è sempre >=1
+            path.moveTo(NearIntD(I1.X), NearIntD(I1.Y));
         }
       }else{
         path.moveTo(x1,y1);
