@@ -21,7 +21,7 @@
  * La ragione del warning risiede nel fatto che QtGui include moltissimi header, mentre
  * sarebbe più pulito includere solo quelli effettivamente usati.
  * In alternativa al silenziamento avrei dovuto eliminare la riga e poi includere manualmente
- * i vari ingclude necessari, che potrebberto essere molti.
+ * i vari include necessari, che potrebbero essere molti.
  * Anche dietro consiglio di Claude non faccio questa modifica, abbastanza impattante sul
  * codice, ma pochissimo  sulla compilazione e assolutamente nulla sull'esevcuzione
  */

@@ -31,8 +31,9 @@ int **CreateIMatrix(long numRows, long numCols){
     int  **Matrix;
     //Allocaz. vettore puntatori alle righe:
     Matrix=new int *[numRows];
-    if(Matrix==nullptr)
-        return nullptr;
+    /* Le seguenti due righe sono state commentate dopo analisi con Claude il 19/5/26 in quanto  in C++ moderno new non restituisce mai nullptr, lancia std::bad_alloc in caso di fallimento*/
+    // if(Matrix==nullptr)
+    //    return nullptr;
   //Allocaz. matrice:
     Matrix[0]=new int[numRows*numCols];
     for(i=1; i<numRows; i++)
