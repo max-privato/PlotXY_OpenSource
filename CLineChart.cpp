@@ -37,11 +37,23 @@
 #include <stdio.h>
 #include "CLineChart.h"
 // Le seguenti due righe sono state commentate il 19/11/2018 in quanto è stato introdotto l'uso di qMin() e qMax()
-//#define max(a, b)  (((a) > (b)) ? (a) : (b))
-//#define min(a, b)  (((a) < (b)) ? (a) : (b))
+
+/* Le seguenti due macro arrotondano all'intero più vicino.
+ * In C++11 e successivi esiste `std::lround()` (da `<cmath>`) che fa esattamente questo:
+ * arrotonda al più vicino e restituisce un intero. Ad esempio:
+ * std::lround(2.7f)  →  3
+ * std::lround(2.3f)  →  2
+ * std::lround(-2.7f) → -3
+ *
+ * L'unico problema delle mie macro è con i numeri negativi. Siccome le uso solo per numeri
+ * positivi, non faccio il cambiamento per non stravolgere il codice, con guadagno di
+ * efficienza che sarebbe nullo.
+ * Fra l'altro la correzione necessiterebbe di un cast a int da tute le parti:
+ * static_cast<int>(std::lround(...))
+
+*/
 #define NearInt(x) (int(x+0.5f))
 #define NearIntD(x) (int(x+0.5))
-
 
 
 [[maybe_unused]] static QString smartSetNum(float num, int prec){
