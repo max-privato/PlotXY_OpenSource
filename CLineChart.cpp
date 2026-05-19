@@ -17,7 +17,15 @@
  *
  */
 
-#include <QtGui>
+/* Spiegazione del silenziamento del seguente warning.
+ * La ragione del warning risiede nel fatto che QtGui include moltissimi header, mentre
+ * sarebbe più pulito includere solo quelli effettivamente usati.
+ * In alternativa al silenziamento avrei dovuto eliminare la riga e poi includere manualmente
+ * i vari ingclude necessari, che potrebberto essere molti.
+ * Anche dietro consiglio di Claude non faccio questa modifica, abbastanza impattante sul
+ * codice, ma pochissimo  sulla compilazione e assolutamente nulla sull'esevcuzione
+ */
+#include <QtGui>  // clazy:exclude=no-module-include
 #include <QApplication>
 #include <QFontMetrics>
 #include <QInputDialog>
@@ -27,7 +35,6 @@
 #include <QSvgGenerator>
 #include <QString>
 #include <stdio.h>
-#include <time.h>
 #include "CLineChart.h"
 // Le seguenti due righe sono state commentate il 19/11/2018 in quanto è stato introdotto l'uso di qMin() e qMax()
 //#define max(a, b)  (((a) > (b)) ? (a) : (b))
@@ -37,7 +44,7 @@
 
 
 
-static QString smartSetNum(float num, int prec){
+[[maybe_unused]] static QString smartSetNum(float num, int prec){
     /*  Funzione PURA che scrive su stringa i numeri con un numero prefissato di cifre
      * significative nella versione più compatta possibile, ma senza perdita di informazioni.
      *  E' stato necessario implementarla
@@ -55,7 +62,7 @@ static QString smartSetNum(float num, int prec){
     int expSize=out.size()-out.indexOf('e');
     //Se l'esponente è 0 intanto mi riparmio le ultime 4 cifre:
     int exp;
-    exp=out.right(expSize-1).toInt();
+    exp=out.right(expSize-1).toInt(); // clazy:exclude=qstring-ref
     //Se l'esponente è zero lo tolgo e via:
     if(exp==0){
       out.chop(expSize);

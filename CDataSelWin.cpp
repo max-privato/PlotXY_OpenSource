@@ -268,8 +268,8 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   QFont font8Pt=QFont("arial",8);
   QFont font9Pt=QFont("arial",9);
 //  QFont font10Pt=QFont("arial",10);
-  QFont font11Pt=QFont("arial",11);
-  QFont font12Pt=QFont("arial",12);
+//  QFont font11Pt=QFont("arial",11);
+//  QFont font12Pt=QFont("arial",12);
  if (GV.PO.largerFonts)
    myFont=font9Pt;
  else
@@ -2330,7 +2330,7 @@ void CDataSelWin::on_fourTBtn_clicked() {
                 "Selected Fourier analysis on the full time-range.\n\n"
                 "Please select wished range manually, and possibly save it\n"
                 "using \"Save settings\" button"    ;
-        QMessageBox::information(this,"CDataSelWin", msg,"");
+        QMessageBox::information(this,"CDataSelWin", msg);
         fourData.opt.initialTime=mySO[selectedFileIdx]->y[mySO[selectedFileIdx]->timeVarIndex][0];
         fourData.opt.finalTime=mySO[selectedFileIdx]->y[mySO[selectedFileIdx]->timeVarIndex][mySO[selectedFileIdx] -> numOfPoints-1];
       }
@@ -2338,7 +2338,7 @@ void CDataSelWin::on_fourTBtn_clicked() {
     firstFourPerSession=false;
     myFourWin->getData(fourData);
     if(fourData.ret!=""){
-      QMessageBox::information(this,"CDataSelWin", fourData.ret,"");
+      QMessageBox::information(this,"CDataSelWin", fourData.ret);
       qDebug()<<"Sent fourier Information";
     }
     myFourWin->close();
