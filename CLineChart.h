@@ -408,12 +408,7 @@ class CFilterClipD{
 
 // *************  4) FUNZIONI PRIVATE in ordine alfabetico
 
-  char **CreateCMatrix(long NumRows, long NumCols);
-  float **CreateFMatrix(long NumRows, long NumCols);
-  int **CreateIMatrix(long NumRows, long NumCols);
-  void DeleteCMatrix(char **Matrix);
-  int DeleteFMatrix(float **Matrix);
-  void DeleteIMatrix(int  **Matrix);
+
   void drawAllLabelsAndGrid(SAxis axis);
   void drawAllLabelsAndGridDB(SAxis axis);
   void drawAllLabelsAndGridLog(SAxis axis);
