@@ -1111,7 +1111,8 @@ Ma con qDebug() il problema non si presenta nemmeno in relase mode!
 Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le funzioni, in attesa che prima o poi il vero problema venga evidenziato.
 */
       static int iWasInRect=0;
-//      qDebug()<<"x,x1,y,y1:"<<x<<x1<<y<<y1;
+      Q_UNUSED(iWasInRect)
+      //      qDebug()<<"x,x1,y,y1:"<<x<<x1<<y<<y1;
       //L'ultimo punto lo traccio solo se il penultimo era nel rettangolo:
       if(wasInRect){
         iWasInRect++;
@@ -1351,6 +1352,7 @@ Ma con qDebug() il problema non si presenta nemmeno in relase mode!
 Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le funzioni, in attesa che prima o poi il vero problema venga evidenziato.
 */
       static int iWasInRect=0;
+      Q_UNUSED(iWasInRect)
       //L'ultimo punto lo traccio solo se il penultimo era nel rettangolo:
       if(wasInRect){
         iWasInRect++;
