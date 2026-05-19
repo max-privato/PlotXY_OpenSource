@@ -1132,7 +1132,7 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
       }else{
 // Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fra i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
         int i;
-        foreach(QPolygonF poly, path.toSubpathPolygons())
+        foreach(const QPolygonF &poly, path.toSubpathPolygons())
           for(i=0; i<poly.size()-1; i++)
             myPainter->drawLine(poly.at(i),poly.at(i+1));
 //          qDebug() << "foreach operation took" << timer.elapsed() << "milliseconds";
@@ -1371,7 +1371,7 @@ Per ora pertanto si lascia il codice con queste righe, riducendone al minimo le 
 //          qDebug() << "drawpath operation took" << timer.elapsed() << "milliseconds";
       }else{
 // Qui uso la sintassi che mi è stata suggerita da Samuel Rodal, ma è superflua l'iterazione fra i poligoni, visto che le mie curve sono composte tutte da un unico poligono. Notare l'uso di foreach(), estensione di Qt al C++ (significato accessibile via help).
-          foreach(QPolygonF poly, path.toSubpathPolygons())
+          foreach(const QPolygonF &poly, path.toSubpathPolygons())
               for(int i=0; i<poly.size()-1; i++)
                   myPainter->drawLine(poly.at(i),poly.at(i+1));
       }
@@ -2074,7 +2074,7 @@ bool CLineChart::event(QEvent *event){
       if( pos.x()<X0 || pos.x()>X1  || pos.y()<Y0 || pos.y()>Y1){
           setCursor(Qt::ArrowCursor);
           setToolTip("");
-          foreach(SHoveringData hovData, hovDataLst){
+          foreach(const SHoveringData &hovData, hovDataLst){
             if(hovData.rect.contains(pos)){
               if(!curveParamLst[hovData.iTotPlot].isFunction)break;
               hovVarRect= hovData.rect;
@@ -2694,7 +2694,7 @@ void CLineChart::mouseMoveEvent(QMouseEvent *event)
     setCursor(Qt::ArrowCursor);
     //1) verifico se sono all'interno di un'area contenente il nome di variabile.
     setToolTip("");
-    foreach(SHoveringData hovData, hovDataLst){
+    foreach(const SHoveringData &hovData, hovDataLst){
       if(hovData.rect.contains(event->pos())){
         if(!lCurveParam[hovData.iTotPlot].isFunction)break;
         hovVarRect= hovData.rect;
