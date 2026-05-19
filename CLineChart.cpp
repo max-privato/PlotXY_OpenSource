@@ -973,7 +973,7 @@ int CLineChart::drawCurves(bool noCurves){
         else
           symin=static_cast<float>(yAxis.eMin);
       }
-      CFilterClip::FloatPoint P1,P2;
+      CFilterClip::FloatPoint P1{},P2{}; //"{}" garantisce l'inizializzazione a zero
       pointsDrawn0=0;
       if(xAxis.scaleType==stLin)
         x1f=xAxis.pixPerValue  * (px[iFile][startIndex[iFile]]-sxmin)+static_cast<float>(X0);
@@ -1010,11 +1010,11 @@ int CLineChart::drawCurves(bool noCurves){
 
         int xPlus=NearInt(xfplus);
         int yPlus=NearInt(yfplus);
-        CLineChart::CFilterClip::FloatPoint I1, I2;
+        CLineChart::CFilterClip::FloatPoint I1{}, I2{}; //"{}" garantisce l'inizializzazione a zero
         if(FC.isInRect(xPlus,yPlus)){
           FC.getLine(x1,y1,xPlus,yPlus);
-          FC.giveRectIntersect(I1,I2);
-          path.moveTo(NearInt(I1.X), NearInt(I1.Y));
+          if(FC.giveRectIntersect(I1,I2) >= 1) //verifica del valore di ritorno per evitare un warning: il codice garantisce che è sempre >=1
+            path.moveTo(NearInt(I1.X), NearInt(I1.Y));
         }
       }else{
         path.moveTo(static_cast<double>(x1),static_cast<double>(y1));
@@ -1075,7 +1075,7 @@ int CLineChart::drawCurves(bool noCurves){
            if(FC.isInRect(x,y)){ //Il vecchio punto era fuori, il nuovo dentro il rettangolo
              FC.getLine(x1,y1,x,y);
              wasInRect=true;
-             FC.giveRectIntersect(P1,P2);
+             if(FC.giveRectIntersect(P1,P2) >= 1) //verifica del valore di ritorno per evitare un warning: il codice garantisce che è sempre >=1
              path.moveTo(qreal(P1.X),qreal(P1.Y));
              path.lineTo(qreal(x),qreal(y));
              pointsDrawn0++;
@@ -1212,7 +1212,7 @@ int CLineChart::drawCurvesD(bool noCurves){
         else
           symin=static_cast<float>(yAxis.eMin);
       }
-      CFilterClipD::DoublePoint P1,P2;
+      CFilterClipD::DoublePoint P1{},P2{}; //"{}" garantisce l'inizializzazione a zero
       pointsDrawn0=0;
       if(xAxis.scaleType==stLin)
         x1f=static_cast<double>(xAxis.pixPerValue  * (px[iFile][startIndex[iFile]]-sxmin)+static_cast<float>(X0));
@@ -1249,11 +1249,11 @@ int CLineChart::drawCurvesD(bool noCurves){
 
         int xPlus=NearInt(xfplus);
         int yPlus=NearInt(yfplus);
-        CLineChart::CFilterClipD::DoublePoint I1, I2;
+        CLineChart::CFilterClipD::DoublePoint I1{}, I2{}; //"{}" garantisce l'inizializzazione a zero
         if(FCd.isInRect(xPlus,yPlus)){
           FCd.getLine(x1,y1,xPlus,yPlus);
-          FCd.giveRectIntersect(I1,I2);
-          path.moveTo(NearIntD(I1.X), NearIntD(I1.Y));
+          if(FCd.giveRectIntersect(I1,I2) >= 1) //verifica del valore di ritorno per evitare un warning: il codice garantisce che è sempre >=1
+            path.moveTo(NearIntD(I1.X), NearIntD(I1.Y));
         }
       }else{
         path.moveTo(x1,y1);
@@ -1317,7 +1317,7 @@ int CLineChart::drawCurvesD(bool noCurves){
            if(FCd.isInRect(x,y)){ //Il vecchio punto era fuori, il nuovo dentro il rettangolo
              FCd.getLine(x1,y1,x,y);
              wasInRect=true;
-             FCd.giveRectIntersect(P1,P2);
+             if(FCd.giveRectIntersect(P1,P2) >= 1) //verifica del valore di ritorno per evitare un warning: il codice garantisce che è sempre >=1
              path.moveTo(P1.X,P1.Y);
              path.lineTo(x,y);
              pointsDrawn0++;
