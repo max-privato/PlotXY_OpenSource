@@ -1802,12 +1802,11 @@ Since (July 2015) the varMenu has been realized in two columns, to allow an easy
 always take place on the index column 1, and therefore if instead the column is 0 I do nothing.
 The index to pass to setVar is the number in the first column corresponding to the row in which it was clicked.
 */
-   if(column==0)return;
    //se sono in multifile e si è selezionata la var. "t" (di riga 0) non faccio nulla:
 
    // if they are in multiFileMode and the var has been selected. "t" (in line 0) I do nothing:
    // if(row==0 && GV.multiFileMode)return;
-  QString varName=ui->varMenuTable->item(row,column)->text();
+  QString varName=ui->varMenuTable->item(row,1)->text();
 //  QString fileName=ui->fileTable->item(selectedFileRow,2)->text();
 
   bool bVar=ui->varMenuTable->monotonic[row];
