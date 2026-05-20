@@ -3325,7 +3325,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     // A partire da maggio 2026 diventa importante passare prima i numeri dei files e poi lo "stato". Infatti quando la tabella riceve lo stato fa una verifica per vedere se per caso qualche numero di file va omesso . Questo capita quando si ricarica lo stato del sistema da disco e un file è stato prima cancellato dall'utente e quindi ora non caricato. Il numero del file non viene caricato, quando le tabelle ricevono lo stato devono sapere quali grafici escludere in quanto i relativi files non sono presenti.
     //Occorrerebbe unificare getFileNums e getState. Perima di farlo mi accontento per ora di stare attento di richiamare queste due funzioni nella sequenza giusta: ora lo stato è correttamente recepito dalle tabelle solo se prima hanno informazioni aggiornate sui numeri di file
     myVarTable->getFileNums(fileNumsLst, varMaxNumsLst);
-    myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, multifileMode);
+    myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, GV.multiFileMode);
     if(myVarTable->numOfTotVars>1){
       ui->tabWidget->setCurrentIndex(iSheet);
       myPlotWin=plotWin[iSheet];
