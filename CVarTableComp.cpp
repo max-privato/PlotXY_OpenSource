@@ -285,6 +285,21 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
 
 }
 
+void CVarTableComp::removeFileAndFunctions(int iFile) {
+  /* Questa funzione è utile quando durante un loadState non viene trovato su disco un file.
+   * In questo caso non si possono rimettere nelle tabelle i dati precedenti senza
+   * risistemarli.
+   * Questa funzione:
+   * - rimuove in ogni tabella tutti i grafici che fanno riferimento al file
+   *   caricato di indice iFile,
+   * - rimuove tutte le funzioni di variabili (è troppo complicato andare a verificare
+   *   se una funzione usa il file da scartare o meno: occorrerebbe realizzare una
+   *   funzione specifica in CLineCalc, e per ora mi sembra overkill).
+   */
+  // 1. Se ho un unico grafico ed è relativo al file mancante resetto completamente la tabella:
+  if(tabFileNums.count()==1 && tabFileNums.contains(iFile))
+      myReset(true);
+  }
 
 void CVarTableComp::myReset(bool deep) {
   timeVarReset=false;
@@ -507,7 +522,7 @@ void CVarTableComp::getColorScheme(bool useOldColors_){
 void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_ ){
   /* In questa routine si ripristina lo stato salvato sulla baase dei dati salvati in
    * precedenza sul registro. In realtà passo solo
-   * il testo da mettere nelle celle e i colori delll variabili; sulla base dei contenuti
+   * il testo da mettere nelle celle e i colori delle variabili; sulla base dei contenuti
    * del testo vengono poi ricomposte le altre variabili strutturate che vengono
    * compilate durante il normale funzionamento del programma.
 */
@@ -531,7 +546,7 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
 /*******************************************
 Correzione 25/11/2020
 Nella versione 5.15.2 è stato riscontrato che per ragioni sconosciute qui si perde l'informazione del colore del testo, correttamente fissata al momento della creazione della tabella.
-Come workaround Ho pensato di ricopiare Come qui sotto,  il colore dalla casella della colonna 0, che invece è corretto.
+Come workaround Ho pensato di ricopiare come qui sotto il colore dalla casella della colonna 0, che invece è corretto.
 *** Questo workaround va esteso a quando si carica lo stato e alla variabile x.***
  *******************************************/
        QBrush brush_=item(r,0)->background();
@@ -603,7 +618,7 @@ int CVarTableComp::givehighestUsedRowIdx(){
 
 
 SVarTableState CVarTableComp::giveState(){
-  /* Fornisce lo stato della tabella per il successivo dsalvataggio sul registro di
+  /* Fornisce lo stato della tabella per il successivo salvataggio sul registro di
    * del sistema. Occorre notare che se si salva lo stato prima di aver cliccato
    * almeno una volta su uno sheet, nella corrispondente tabella mancano le informazioni
    * default di prima riga. Infatti tali informazioni vengono create proprio

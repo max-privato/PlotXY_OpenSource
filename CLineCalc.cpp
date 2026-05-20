@@ -586,14 +586,14 @@ La costruzione di lineFullNames segue la seguente logica:
   //In una prima passata vedo se esiste almeno un nome del tipo f#:
   foreach(QString str,nameList){
     if(str[0]=='f'){
-        oneFileIndex=str.mid(1,1).toInt()-1; // clazy:exclude=qstring-ref
+        oneFileIndex=str.mid(1,1).toInt()-1;
        break;
     }
   }
   // Nella seconda passata verifico se eventuali ulteriori nomi f# provengono dal medesimo file:
   foreach(QString str,nameList){
     if(str[0]=='f'){
-      if(str.mid(1,1).toInt()!=oneFileIndex+1){ // clazy:exclude=qstring-ref
+      if(str.mid(1,1).toInt()!=oneFileIndex+1){
          allNamesFromOneFile=false;
          break;
       }
@@ -925,7 +925,7 @@ Se il nome è di tipo v# il filenum è defaultFileNum*/
         j=rxNotDigit.indexIn(varStr,1); //j dovrebbe contenere il primo carattere dopo il numero dopo f
         if(j<0)
             goto errorReturn;
-        fileNum=varStr.mid(1,j-1).toInt(&ok); // clazy:exclude=qstring-ref
+        fileNum=varStr.mid(1,j-1).toInt(&ok);
         if(ok==false)
             goto errorReturn;
         if(varStr[j]!='v')

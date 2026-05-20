@@ -268,8 +268,8 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   QFont font8Pt=QFont("arial",8);
   QFont font9Pt=QFont("arial",9);
 //  QFont font10Pt=QFont("arial",10);
-//  QFont font11Pt=QFont("arial",11);
-//  QFont font12Pt=QFont("arial",12);
+  QFont font11Pt=QFont("arial",11);
+  QFont font12Pt=QFont("arial",12);
  if (GV.PO.largerFonts)
    myFont=font9Pt;
  else
@@ -2330,7 +2330,7 @@ void CDataSelWin::on_fourTBtn_clicked() {
                 "Selected Fourier analysis on the full time-range.\n\n"
                 "Please select wished range manually, and possibly save it\n"
                 "using \"Save settings\" button"    ;
-        QMessageBox::information(this,"CDataSelWin", msg);
+        QMessageBox::information(this,"CDataSelWin", msg,"");
         fourData.opt.initialTime=mySO[selectedFileIdx]->y[mySO[selectedFileIdx]->timeVarIndex][0];
         fourData.opt.finalTime=mySO[selectedFileIdx]->y[mySO[selectedFileIdx]->timeVarIndex][mySO[selectedFileIdx] -> numOfPoints-1];
       }
@@ -2338,7 +2338,7 @@ void CDataSelWin::on_fourTBtn_clicked() {
     firstFourPerSession=false;
     myFourWin->getData(fourData);
     if(fourData.ret!=""){
-      QMessageBox::information(this,"CDataSelWin", fourData.ret);
+      QMessageBox::information(this,"CDataSelWin", fourData.ret,"");
       qDebug()<<"Sent fourier Information";
     }
     myFourWin->close();
@@ -3134,34 +3134,87 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     QMessageBox::critical(this,"State not restored", "Error 1 reading Registry");
     return;
   }
+
+  // 2.1) Leggo i dati di ogni file e faccio la validità in un unico loop.
+  //      Per i file non trovati rimuovo solo la voce relativa dai settings.
+  //      Per i file con timestamp diverso chiedo conferma all'utente.
+  QStringList fileNameLst, fileShiftLst;
+  QList<int> fileNumList;
+  QList<QDateTime> fileDateList;
+  bool settingsNeedUpdate=false;
+
   for(int j=1; j<=filesStored; j++){
-    keyName="File_"+QString::number(j)+".name";
-    pathName=settings.value(keyName,"").value<QString>();
-    keyName="File_"+QString::number(j)+".date";
-    dateTime=settings.value(keyName).value<QDateTime>();
-    //Verifico se il file esiste e se ora e data coincidono con quelli memorizzati
-    // I check if the file exists and if time and date coincide with those stored
+    keyName="File_"+QString::number(j);
+    pathName=settings.value(keyName+".name","").value<QString>();
+    dateTime=settings.value(keyName+".date").value<QDateTime>();
+    int fileNum=settings.value(keyName+".num").toInt();
+    QString fileShift=settings.value(keyName+".shift").value<QString>();
+
     fileInfo.setFile(pathName);
-    bool valid=fileInfo.isFile();
-    if(!valid || fileInfo.lastModified()!=dateTime){
-
+    if(!fileInfo.isFile()){
+      // File non trovato: verrà rimosso dai settings, non viene aggiunto alle liste
+      QMessageBox::warning(this,"PlotXY",
+        "File not found:\n\""+pathName+"\"\n"
+        "This entry will be removed from the saved state.\n"
+        "After loading completes, the state will be automatically re-saved.");
+      settingsNeedUpdate=true;
+    } else if(fileInfo.lastModified()!=dateTime){
+      //Verifico se il file esiste e se ora e data coincidono con quelli memorizzati
+      // I check if the file exists and if time and date coincide with those stored
       QMessageBox msgBox;
-        msgBox.setText(
-          "Warning:\n file \""+pathName+"\"\n"+
-          "has time and date stamps that do not correspond to those stored when saving state\n"
-          "Continuing may cause issues or even program crash in case of file-state inconsistencies\n"
-         );
-        msgBox.setInformativeText(
-          "Do you want to proceed with reloading it?");
-        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No );
-        msgBox.setDefaultButton(QMessageBox::No);
-        int ret = msgBox.exec();
-
-        if(ret==QMessageBox::No)
-          return;
-
+      msgBox.setText(
+        "Warning:\n file \""+pathName+"\"\n"+
+        "has time and date stamps that do not correspond to those stored when saving state\n"
+        "Continuing may cause issues or even program crash in case of file-state inconsistencies\n"
+      );
+      msgBox.setInformativeText("Do you want to proceed with reloading it?");
+      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+      msgBox.setDefaultButton(QMessageBox::No);
+      if(msgBox.exec()==QMessageBox::No)
+        return;
+      fileNameLst.append(pathName);
+      fileNumList.append(fileNum);
+      fileShiftLst.append(fileShift);
+      fileDateList.append(dateTime);
+    } else {
+      fileNameLst.append(pathName);
+      fileNumList.append(fileNum);
+      fileShiftLst.append(fileShift);
+      fileDateList.append(dateTime);
     }
   }
+
+  // Se alcuni files non erano trovati, aggiorno i settings rimuovendo le voci obsolete
+  // e riscrivendo solo quelle dei files validi con numerazione consecutiva
+  if(settingsNeedUpdate){
+    for(int j=1; j<=filesStored; j++){
+      keyName="File_"+QString::number(j);
+      settings.remove(keyName+".name");
+      settings.remove(keyName+".date");
+      settings.remove(keyName+".num");
+      settings.remove(keyName+".shift");
+    }
+    for(int j=0; j<fileNameLst.count(); j++){
+      keyName="File_"+QString::number(j+1);
+      settings.setValue(keyName+".name", fileNameLst[j]);
+      settings.setValue(keyName+".date", fileDateList[j]);
+      settings.setValue(keyName+".num",  fileNumList[j]);
+      settings.setValue(keyName+".shift",fileShiftLst[j]);
+    }
+    filesStored=fileNameLst.count();
+    settings.setValue("Number Of Files", filesStored);
+    // I dati VarTables erano salvati per il vecchio set di files: li rimuoviamo
+    // per evitare che Phase 4 tenti di ripristinare variabili di files non più presenti.
+    // on_saveStateTBtn_clicked() alla fine salverà lo stato pulito.
+    settings.remove("VarTables");
+  }
+
+  if(filesStored<1){
+    QMessageBox::critical(this,"State not restored",
+      "No valid files remaining after checking saved state.\nState not restored.");
+    return;
+  }
+
   /*2.2) Se sono arrivato qui tutti i files sono validi, e posso procedere a eliminare quelli attualmente caricati e ricaricare quelli nuovi.
   La manovra è un po' delicata in quanto può darsi il caso che io sia in singleFile ma vi sono più files in memoria che sono visibili solo dopo commutazione in multiFile.
   Pertanto adotto la seguente tecnica:
@@ -3202,18 +3255,11 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   // variable table. These numbers have been marked along with the names of the
   // files and here they are restored
 
-  QStringList fileNameLst, fileShiftLst;
 //  fileNumsLst.clear();
 //  varMaxNumsLst.clear();
   selectedFileIdx=-1;
-  for(i=0; i<filesStored; i++){
-    QString ret;
-    keyName="File_"+QString::number(i+1);
-    fileNameLst.append(settings.value(keyName+".name","").value<QString>());
-    fileNumsLst[i]=settings.value(keyName+".num").toInt();
-    fileShiftLst.append(settings.value(keyName+".shift").value<QString>());
-    ret="";
-  }
+  for(i=0; i<filesStored; i++)
+    fileNumsLst[i]=fileNumList[i];
   qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
   loadFileListLS(fileNameLst,fileNumsLst,fileShiftLst);
   qApp->restoreOverrideCursor();
@@ -3232,11 +3278,12 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 
   // Phase 4: Retrieve text, color palette and cell styles of tableComp's, and send to them.
   // When tableComp receives the strings it reconstructs the other internal data that complete its status.
+  // Se alcuni files erano mancanti, VarTables è stato rimosso dai settings: saltiamo Phase 4.
   QStringList list;
   bool xIsFunction;
   int xInfoIdx;
-  settings.beginGroup("VarTables");
-  for (int iSheet=0; iSheet<actualPlotWins; iSheet++){
+  if(!settingsNeedUpdate) settings.beginGroup("VarTables");
+  for (int iSheet=0; settingsNeedUpdate==false && iSheet<actualPlotWins; iSheet++){
     keyName="VarTable_"+QString::number(iSheet+1)+".names";
     list.clear();
     list=settings.value(keyName,"").value<QStringList>();
@@ -3273,8 +3320,10 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   // Note that the following line implicitly runs an on_tabWidget_currentChanged (), which in turn runs a setCommon() if necessary.
 
     myVarTable=varTable[iSheet];
-    myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, multifileMode);
+    // A partire da maggio 2026 diventa importante passare prima i numeri dei files e poi lo "stato". Infatti quando la tabella riceve lo stato fa una verifica per vedere se per caso qualche numero di file va omesso . Questo capita quando si ricarica lo stato del sistema da disco e un file è stato prima cancellato dall'utente e quindi ora non caricato. Il numero del file non viene caricato, quando le tabelle ricevono lo stato devono sapere quali grafici escludere in quanto i relativi files non sono presenti.
+    //Occorrerebbe unificare getFileNums e getState. Perima di farlo mi accontento per ora di stare attento di richiamare queste due funzioni nella sequenza giusta: ora lo stato è correttamente recepito dalle tabelle solo se prima hanno informazioni aggiornate sui numeri di file
     myVarTable->getFileNums(fileNumsLst, varMaxNumsLst);
+    myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, multifileMode);
     if(myVarTable->numOfTotVars>1){
       ui->tabWidget->setCurrentIndex(iSheet);
       myPlotWin=plotWin[iSheet];
@@ -3283,7 +3332,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
         on_fourTBtn_clicked();
     }
   }
-  settings.endGroup();  //VarTables
+  if(!settingsNeedUpdate) settings.endGroup();  //VarTables
 
 
   //Fase 5: operazioni finali:
@@ -3317,6 +3366,11 @@ void CDataSelWin::on_loadStateTBtn_clicked()
 
   settings.endGroup();
 //  on_resetTBtn_clicked();
+
+  // Se alcuni files mancavano, salviamo subito lo stato aggiornato (senza VarTables
+  // obsolete) in modo che il Registry sia coerente con la situazione effettiva.
+  if(settingsNeedUpdate)
+    on_saveStateTBtn_clicked();
 
   QTimer::singleShot(700, this, SLOT(resetStateBtns()));
 

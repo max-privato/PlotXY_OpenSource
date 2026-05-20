@@ -145,6 +145,7 @@ public:
     SVarTableState giveState();
     QList <SXYNameData> giveFunInfo();
     void myReset(bool deep=false);
+    void removeFileAndFunctions(int iFile);
     int setCommonX(QString str);
     void setNameNumber(int number_); //setst the current index of the container tab
     void setMultiFile(bool multifile_);
