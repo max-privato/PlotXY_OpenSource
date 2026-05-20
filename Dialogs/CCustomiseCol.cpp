@@ -121,6 +121,7 @@ void CCustomiseCol::on_buttonBox_clicked(QAbstractButton *button){
       */
       QBrush myBrush=ui->stdColorTable->item(0,column)->background();
       ui->customColorTable->item(0,column)->  setBackground(myBrush);
+      checkStates[column]=ui->stdColorTable->item(0,column)->checkState();
       ui->customColorTable->item(0,column)->setCheckState(checkStates[column]);
     }
   }

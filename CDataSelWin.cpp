@@ -268,8 +268,8 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   QFont font8Pt=QFont("arial",8);
   QFont font9Pt=QFont("arial",9);
 //  QFont font10Pt=QFont("arial",10);
-  QFont font11Pt=QFont("arial",11);
-  QFont font12Pt=QFont("arial",12);
+//  QFont font11Pt=QFont("arial",11);
+//  QFont font12Pt=QFont("arial",12);
  if (GV.PO.largerFonts)
    myFont=font9Pt;
  else
@@ -1042,8 +1042,9 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   if (freeFileIndex.isEmpty())
     return "File table already full";
 
-  if(selectedFileIdx==fileIndex && !refresh && !refreshUpdate)
-    updatingFile=true;
+//  if(selectedFileIdx==fileIndex && !refresh && !refreshUpdate)
+  if(!ui->multifTBtn->isChecked()  && !refresh && !refreshUpdate)
+      updatingFile=true;
 
   //Fase 1: caricamento del file di nome fileName.
   // Step 1: upload the file named fileName.
@@ -1352,6 +1353,7 @@ QString CDataSelWin::loadFileList(QStringList fileNameList, QString tShift){
     // if I have dropped a single file, they are in single file, and there is
     // already a selected file remaining in single file and replacing the
     // previous file with the dropped file:
+
     if(fileNameList.count()==1 && !ui->multifTBtn->isChecked() && selectedFileIdx>-1){
       ret=loadFile(selectedFileIdx,path);  //aggiorna anche numOfSelFiles
                                            // also update numOfSelFiles
@@ -3109,7 +3111,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   bool multifileMode=settings.value("multifileMode").toBool();
   if(GV.multiFileMode!=multifileMode){
     on_multifTBtn_clicked(multifileMode);
-    ui->multifTBtn->setChecked(!ui->multifTBtn->isChecked());
+    ui->multifTBtn->setChecked(multifileMode);
   }
   int wins=settings.value("numOfPlotWins",4).toInt();
   //The following row internally sets variable "actualPlotWins"
