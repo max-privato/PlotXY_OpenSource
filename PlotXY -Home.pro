@@ -6,8 +6,6 @@
 
 QT       += core gui svg printsupport
 
-greaterThan(QT_MAJOR_VERSION,5)  QT += core5compat
-
 # QTPLUGIN += qico
 
 # QT       += core gui svg

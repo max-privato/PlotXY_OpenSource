@@ -23,7 +23,7 @@
 #include <QColor>
 #include <QList>
 #include <QVector>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <math.h>
 #define MAXBINARYOPS 5 //massimo numero di operatori binari
 #define MAXFUNCTIONS 13 //massimo numero di funzioni matematiche
@@ -162,7 +162,7 @@ class CLineCalc{
     // Array dei nomi espliciti di tutte le variabili di tutti i files. Si tratta di un array di array, con dimensioni dinamiche. As esempio explicitNames[2][3] dà la stringa che descrive la terza variabile del secondo file
     QList<QList <QString> >  explicitNames;
 
-    QRegExp rxNum, //number
+    QRegularExpression rxNum, //number
          rxOper, //operator
          rxNotDigit, //not a digit
          rxNotNum, //not a character allowable in a number
