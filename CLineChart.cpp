@@ -37,7 +37,7 @@
 
 
 
-static QString smartSetNum(float num, int prec){
+[[maybe_unused]] static QString smartSetNum(float num, int prec){
     /*  Funzione PURA che scrive su stringa i numeri con un numero prefissato di cifre
      * significative nella versione più compatta possibile, ma senza perdita di informazioni.
      *  E' stato necessario implementarla
@@ -954,7 +954,7 @@ int CLineChart::drawCurves(bool noCurves){
         else
           symin=float(yAxis.eMin);
       }
-      CFilterClip::FloatPoint P1,P2;
+      CFilterClip::FloatPoint P1{},P2{};
       pointsDrawn0=0;
       if(xAxis.scaleType==stLin)
         x1f=xAxis.pixPerValue  * (px[iFile][startIndex[iFile]]-sxmin)+float(X0);
@@ -991,7 +991,7 @@ int CLineChart::drawCurves(bool noCurves){
 
         int xPlus=NearInt(xfplus);
         int yPlus=NearInt(yfplus);
-        CLineChart::CFilterClip::FloatPoint I1, I2;
+        CLineChart::CFilterClip::FloatPoint I1{}, I2{};
         if(FC.isInRect(xPlus,yPlus)){
           FC.getLine(x1,y1,xPlus,yPlus);
           FC.giveRectIntersect(I1,I2);
@@ -1193,7 +1193,7 @@ int CLineChart::drawCurvesD(bool noCurves){
         else
           symin=float(yAxis.eMin);
       }
-      CFilterClipD::DoublePoint P1,P2;
+      CFilterClipD::DoublePoint P1{},P2{};
       pointsDrawn0=0;
       if(xAxis.scaleType==stLin)
         x1f=double(xAxis.pixPerValue  * (px[iFile][startIndex[iFile]]-sxmin)+float(X0));
@@ -1230,7 +1230,7 @@ int CLineChart::drawCurvesD(bool noCurves){
 
         int xPlus=NearInt(xfplus);
         int yPlus=NearInt(yfplus);
-        CLineChart::CFilterClipD::DoublePoint I1, I2;
+        CLineChart::CFilterClipD::DoublePoint I1{}, I2{};
         if(FCd.isInRect(xPlus,yPlus)){
           FCd.getLine(x1,y1,xPlus,yPlus);
           FCd.giveRectIntersect(I1,I2);
