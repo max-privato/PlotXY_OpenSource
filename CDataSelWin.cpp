@@ -1771,7 +1771,7 @@ void CDataSelWin::on_tabWidget_currentChanged(int index){
     }else{
       if(ui->varMenuTable->rowCount()>0 && myVarTable->isEmpty())
 //        if(myVarTable->xInfo.idx==-1)
-         varMenuTable_cellClicked(0,1,false);
+         varMenuTable_cellClicked(0,false);
     }
     // manage the activation of the various buttons:
     varTableChanged();
@@ -1784,23 +1784,16 @@ void CDataSelWin::on_resetTBtn_clicked()
   if(GV.multiFileMode && fileLoaded)
     myVarTable->setCommonX(computeCommonX());
   else
-    varMenuTable_cellClicked(0,1,false);
+    varMenuTable_cellClicked(0,false);
    ui->moreLbl->setVisible(false);
 }
 
 
-void CDataSelWin::varMenuTable_cellClicked(int row, int column, bool rightBtn)
+void CDataSelWin::varMenuTable_cellClicked(int row, bool rightBtn)
 {
   /* slot di cellClicked di varMenuTable
 Quando ho cliccato su varMenuTable, in DataSelWin processo il comando e mando i dati a myVarTable
-Da quando (lug 2015) la varMenu è stata realizzata in due colonne, per consentire un agevole sort, il click deve avvenire sempre sulla colonna di indice 1, e quindi se invece la colonna è 0 non faccio niente.
-L'indice da passare a setVar è il numero presente nella prima colonna in corrispondenza della riga nella quale si è cliccato.
-*/
-  /* varMenuTable cellClicked slot
-When I clicked on varMenuTable, in the DataSelWin process the command and send the data to myVarTable
-Since (July 2015) the varMenu has been realized in two columns, to allow an easy sort, the click must
-always take place on the index column 1, and therefore if instead the column is 0 I do nothing.
-The index to pass to setVar is the number in the first column corresponding to the row in which it was clicked.
+Fino a maggio 2026 la funzione era sensibile alla colonna su cui si era cliccato. Questo richiedeva che il click dovesse avvenire proprrio nella colonna nedel nome e non in quella del numsro alla sua sinistra. Nel mnaggio 2026 è stata modfificata in modo che il click sulla riga dà lo stesso effetto qualunque sia la ccolonna, e la colonna non è più passata. ss to setVar is the number in the first column corresponding to the row in which it was clicked.
 */
    //se sono in multifile e si è selezionata la var. "t" (di riga 0) non faccio nulla:
 
@@ -1981,7 +1974,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
      * directly to myVarTable.
     */
     if(ui->varMenuTable->rowCount()>0 && myVarTable->isEmpty())
-      varMenuTable_cellClicked(0,1,false);
+      varMenuTable_cellClicked(0,false);
   }
   ui->plotBtn->setEnabled(false);
 }

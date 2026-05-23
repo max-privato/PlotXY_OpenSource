@@ -4883,7 +4883,8 @@ int CLineChart::writeAxisLabel(int X, int Y, SAxis &axis, bool _virtual ){
  */
   char prefix[]={'f','p','n','u','m','0','k','M','G','T','P'};
   int iTotPlot;
-  EadjustType hAdjust, vAdjust;
+  // Nella seguente riga le inizializzazioni di hAdjust e vAdjust sono superflue in quanto lo switch(axis.type) all'inizio della "Fase 1" poche righe più sotto copre tutti i casi possibili dell'enum axis.type. Il compilatore usato però non fa questo tipo di verifica e in assenza di questa inizializzazione emette un warning. Questa inizializzazione lo fa scomparire.
+  EadjustType hAdjust=atCenter, vAdjust=atCenter;
   QString unitS=""; //E' l'unità di misura dell'asse corrente, valutata considerando i valori di autoLabelXY e useUserUnits (v. spiegazione inizio funzione).
 
 

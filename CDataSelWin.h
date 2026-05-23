@@ -69,7 +69,7 @@ private:
     void adaptToDPI(qreal currentDPI_, int maxHeight_);
     void fillVarMenuTable(int fileIndex);
     void groupSelected(int beginRow, int endRow);
-    void varMenuTable_cellClicked(int row, int column, bool rightBtn);
+    void varMenuTable_cellClicked(int row, bool rightBtn);
     void moveEvent(QMoveEvent *) override;
     void setActualPlotWins(int wins);
     void varTableChanged ();

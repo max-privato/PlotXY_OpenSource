@@ -33,7 +33,7 @@ public:
 signals:
     void draggingDone();
     void groupSelected(int beginRow, int endRow);
-    void myCellClicked(int row, int column, bool rightBtn);
+    void myCellClicked(int row, bool rightBtn);
 
 public slots:
     void setCurrFile(int);

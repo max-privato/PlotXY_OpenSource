@@ -145,7 +145,7 @@ void CParamView::fillTable(){
 
 void CParamView::rearrangeTable(bool excludeMatrices){
    /* Questa funzione include o esclude la visualizzazione delle righe contenenti elementi
-    * di matrici. Non deve generare tutte le volte glil item che sono già stati generati
+    * di matrici. Non deve generare tutte le volte gli item che sono già stati generati
     * in fillTable.
 */
   int itemIdx=0;
@@ -154,7 +154,6 @@ void CParamView::rearrangeTable(bool excludeMatrices){
     return;
 
   for (int i=0; i<names.count(); i++){
-    QString strDbg=names[i];
     if(names[i].contains("[")&& excludeMatrices)
        continue;
     QString str;

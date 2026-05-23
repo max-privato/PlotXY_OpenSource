@@ -150,7 +150,7 @@ void CVarMenu::mouseReleaseEvent(QMouseEvent *event){
       rightBtn=true;
     // Il seguente emit causa l'esecuzione di CDataSelWin::varMenuTable_cellClicked()
     // (connect in CDataSelWin::CDataSelWin()  )
-    emit myCellClicked(iy,ix, rightBtn);
+    emit myCellClicked(iy, rightBtn);
   }
 }
 
