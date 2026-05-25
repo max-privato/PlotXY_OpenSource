@@ -198,7 +198,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
       if(item(iRow,XVARCOL)->text()!="x")
         continue;
 
-      // valuto dati relativi alla function plots
+      // valuto dati relativi alle function plots
       str=item(iRow,VARNUMCOL)->text();
       if(str[0]=='f'){
         xInfo.isFunction=true;
@@ -457,7 +457,7 @@ void CVarTableComp::getFileNums(QList <int> fileNums, QList <int> varNums) {
     allFileNums=fileNums;
     varMaxNumsLst=varNums;
     // Se ho selezionato un unico file il valore di singleFileNum deve prendere il numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzione quando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
-    //Ma quando carico lo stato questa variabile rimarrebbe a 0 e essa viene testata in CVarTable::Analyse(). Se quindi sto caricando uno stato che ha informazioni sia in plot1 che in plot2, e singlefileNum non è scelto, al secondo plot analyse() non mette il valore corretto di yFile e alle fine il programma va in crash.
+    //Ma quando carico lo stato questa variabile rimarrebbe a 0 e essa viene testata in CVarTable::analyse(). Se quindi sto caricando uno stato che ha informazioni sia in plot1 che in plot2, e singlefileNum non è scelto, al secondo plot analyse() non mette il valore corretto di yFile e alle fine il programma va in crash.
     int numOfFiles=0, numOfSingleFile=-1;
 
     for (int i=0; i<MAXFILES; i++)

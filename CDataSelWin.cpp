@@ -1917,10 +1917,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
     ui->fileTable->setMaximumHeight(tableHeight);
     ui->fileTable->setMinimumHeight(tableHeight);
     ui->multifTBtn->setToolTip(tr("Go to single-file mode"));
-    // Rimetto nella riga di indice selectedFileRow (l'inidice 0 indica la riga di intestazione della tabella) il contenuto salvato precedentemente (o stringhe vuote se non era stato salvato nulla):
-
-    // Return to the selectedFileRow index row (the inidic 0 indicates the table header row)
-    // the previously saved content (or empty strings if nothing had been saved):
+    // Rimetto nella riga di indice selectedFileRow (l'indice 0 indica la riga di intestazione della tabella) il contenuto salvato precedentemente (o stringhe vuote se non era stato salvato nulla):
     if(goneToSingleFile && selectedFileRow!=1){
       for(int icol=0; icol<ui->fileTable->columnCount(); icol++){
         if(selectedFileIdx<0)
