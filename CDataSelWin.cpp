@@ -1155,6 +1155,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
         freeGridRow=selectedFileRow;
       else{
         freeGridRow=1;
+        selectedFileRow=1;
       }
   }
 
@@ -1695,7 +1696,8 @@ void CDataSelWin::selectFile(int row){
   // If there is no file in the selected row I do nothing:
   str=ui->fileTable->item(row,1)->text();
   if(str=="")return;
-  ui->fileTable->item(selectedFileRow,0)->setText("");
+  if(selectedFileRow>=0)
+    ui->fileTable->item(selectedFileRow,0)->setText("");
   if(selectedFileIdx<0){
     QMessageBox::critical(this,"CDataSelWin","critical error 1");
     QCoreApplication::exit(0);
@@ -1868,7 +1870,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
     ui->multifTBtn->setToolTip(tr("Go to multi-file mode"));
     /* devo salvare il contenuto della riga di indice 1 e copiare il contenuto della riga del file selezionato in riga di indice 1:*/
     /* I have to save the contents of the index line 1 and copy the contents of the row of the selected file to index line 1: */
-    if(selectedFileIdx>-1 && selectedFileRow!=1)
+    if(selectedFileIdx>-1 && selectedFileRow>1)
       for(int icol=0; icol<ui->fileTable->columnCount(); icol++){
         saveStrings[icol]= ui->fileTable->item(1,icol)->text();
         ui->fileTable->item(1,icol)->setText(ui->fileTable->item(selectedFileRow,icol)->text());
