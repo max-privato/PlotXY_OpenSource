@@ -24,6 +24,16 @@
 #include <QScreen>
 #include <QtWidgets>
 
+/* La seguente riga serve a escludere un warning che dà Qt5. Infatti questo warning
+ * suggerisce di usare poi midRef() che è stata a sua volta deprecata in Qt6. L'uso
+ * che faccio io di mid(1,1) comporta un leggero aggravio di disallocazione interna
+ * di memoria, ma che è sostanzialmente ininfluente in quanto questo tipo di operazione
+ * viene mandata in esecuzione in tutto il file a seguito di azioni dell'utente e quindi
+ * sempre in numero limitatissimo di volte
+ */
+
+// clazy:excludeall=qstring-ref
+
 CVarTableComp::CVarTableComp(QWidget *parent): QTableWidget(parent){
     int i,j;
     Qt::ItemFlags flags;
@@ -441,12 +451,12 @@ void CVarTableComp::getFileNums(QList <int> fileNums, QList <int> varNums) {
    * Però vi è un caso in cui il processo è inverso. Questo accade quando sto facendo
    * il load state, e devo caricare i valori di queste liste per consentire a CLineCalc
    * di fare la verifica sintattica.
-   * In questo caso CDataSelQin chiamerà la presente funzione
+   * In questo caso CDataSelWin chiamerà la presente funzione
    *
 */
     allFileNums=fileNums;
     varMaxNumsLst=varNums;
-    // Se ho selezionato un unico file il valore di singleFileNum deve prendere il numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzion equando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
+    // Se ho selezionato un unico file il valore di singleFileNum deve prendere il numero di quel file. Questo perché nel normale funzionamento singleFileNum è settato nella funzione setVar() mandata in esecuzione quando si seleziona una variabile, incluso quando si switcha su una tabella Plot.
     //Ma quando carico lo stato questa variabile rimarrebbe a 0 e essa viene testata in CVarTable::Analyse(). Se quindi sto caricando uno stato che ha informazioni sia in plot1 che in plot2, e singlefileNum non è scelto, al secondo plot analyse() non mette il valore corretto di yFile e alle fine il programma va in crash.
     int numOfFiles=0, numOfSingleFile=-1;
 

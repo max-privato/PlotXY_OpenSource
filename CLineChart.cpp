@@ -28,7 +28,6 @@
 #include <QSvgGenerator>
 #include <QString>
 #include <stdio.h>
-#include <time.h>
 #include "CLineChart.h"
 // Le seguenti due righe sono state commentate il 19/11/2018 in quanto è stato introdotto l'uso di qMin() e qMax()
 //#define max(a, b)  (((a) > (b)) ? (a) : (b))
