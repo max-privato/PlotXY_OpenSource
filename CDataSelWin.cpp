@@ -2923,10 +2923,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
         on_multifTBtn_clicked(true);
         ui->multifTBtn->setChecked(true);
     }
-    // Phase 1: saving the multifileMode. It should be noted that the
-    // multifileMode is also saved in the GV.PO.multifilemode, but in
-    // a different moment. You can not therefore rely on that value as
-    // it can be different from what you have at the time of saving the state.
+    // Phase 1: saving the multifileMode.
     settings.setValue("multifileMode",GV.multifileMode);
     settings.setValue("numOfPlotWins",actualPlotWins);
 
