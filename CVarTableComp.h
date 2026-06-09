@@ -139,7 +139,7 @@ public:
     void getVarNumVect(QVector<int> list); //serve per consentire la diagnostica delle funzioni di variabile
     void getColorScheme(bool useOldColors_);
 
-    void getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_);
+    void getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multifileMode_);
     int giveFileNum(int row);
     int givehighestUsedRowIdx();
     SVarTableState giveState();

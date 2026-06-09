@@ -99,7 +99,7 @@ struct SOptions{
 
 
 struct SGlobalVars {
-  bool multiFileMode;
+  bool multifileMode;
   int shiftWin, //Variabile globale rappresentante lo spostamento verticale, in pixel, delle finestre principali del programma
       instNum, //Variabile globale rappresentante il numero dell'istanza del programma
       firstNameIndex, //indice fra i parametri passati del primo fileName.

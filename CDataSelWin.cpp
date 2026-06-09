@@ -393,7 +393,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   // ***
   QSettings settings;
   if(GV.PO.rememberWinPosSize){
-    GV.multiFileMode=settings.value("multifileMode").toBool();
+    GV.multifileMode=settings.value("multifileMode").toBool();
     //La seguente riga non può essere usata perché in questo momento non sono stati ancora allocati gli items per la varTable, e quindi non si possono fare su di essa le trasformazioni richieste (altrimenti: SEGMENT FAULT!) Pertanto essa viene spostata in showEvent().
 
     // The following line can not be used because at this time the items for
@@ -668,7 +668,7 @@ CDataSelWin::CDataSelWin(QWidget *parent): QMainWindow(parent), ui(new Ui::CData
   for (int tab=0; tab<MAXPLOTWINS; tab++)
     varTable[tab]->neCellBkColor=neCellBkColor;
 
-  myVarTable->setMultiFile(GV.multiFileMode);
+  myVarTable->setMultiFile(GV.multifileMode);
   //L'altezza delle righe in CDataSelWin.::adaptToDPI
   // The height of the lines in CDataSelWin.::adaptToDPI
 
@@ -785,7 +785,7 @@ void CDataSelWin::closeEvent(QCloseEvent *){
     goto quit;
   settings.setValue("dataSelWin/size", size());
   settings.setValue("dataSelWin/pos", pos());
-  settings.setValue("multifileMode", GV.multiFileMode);
+  settings.setValue("multifileMode", GV.multifileMode);
 
   for (int win=0; win<MAXPLOTWINS; win++){
     QString valueNum, value;
@@ -1134,7 +1134,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   // I find the line on fileTable to write on and put it in selectedFileRow
   // (if refresh is true selectedFileRow and selectedFileIdx should not be changed):
   if(!refresh && !updatingFile){
-    if(GV.multiFileMode){
+    if(GV.multifileMode){
       for(i=1; i<=MAXFILES; i++)
         if(ui->fileTable->item(i,FILENAMECOL)->text()=="")break;
       freeGridRow=i;
@@ -1151,7 +1151,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
     selectedFileRow=freeGridRow;
     selectedFileIdx=fileIndex;
   } else {
-      if(GV.multiFileMode)
+      if(GV.multifileMode)
         freeGridRow=selectedFileRow;
       else{
         freeGridRow=1;
@@ -1207,7 +1207,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   else if (mySO[fileIndex]->runType==rtFreqScan)
       fileTooltip.append("; <I>frequency scan</I>.");
   //Altrimenti runTime è rtUndefined e non aggiungo nulla
-  if(GV.multiFileMode){
+  if(GV.multifileMode){
     ui->fileTable->item(selectedFileRow,2)->setToolTip(fileTooltip);
     ui->fileTable->item(selectedFileRow,3)->setText(QString::number(mySO[fileIndex]->numOfVariables));
     ui->fileTable->item(selectedFileRow,4)->setText(QString::number(mySO[fileIndex]->numOfPoints));
@@ -1235,7 +1235,7 @@ QString CDataSelWin::loadFile(int fileIndex, QString fileName, bool refresh, boo
   //Fase 3: Gestione numOfLoadedFiles. Si ricordi che il refresh ricarica il solo file selezionato. Il numero di files caricati non cambia.
   // Phase 3: Management of numOfLoadedFiles. Remember tht when refreshing we re-load just the selected file, and the number of total loaded files does not change
   // ***
-  if(!updatingFile && GV.multiFileMode &&!refresh)
+  if(!updatingFile && GV.multifileMode &&!refresh)
       numOfLoadedFiles++;
   if(numOfLoadedFiles>=MAXFILES){
     setAcceptDrops(false);
@@ -1389,9 +1389,9 @@ QString CDataSelWin::loadFileList(QStringList fileNameList, QString tShift){
       return ret;
     }
     freeFileIndex.remove(j);
-    if(!GV.multiFileMode)
+    if(!GV.multifileMode)
       break;
-    if(GV.multiFileMode)
+    if(GV.multifileMode)
       myVarTable->setCommonX(computeCommonX());
   }
 
@@ -1471,13 +1471,13 @@ QString CDataSelWin::loadFileListLS(QStringList fileNamesList, QList <int>fileNu
         return ret;
     }
     freeFileIndex.remove(fileNumList[i]-1);
-    if(!GV.multiFileMode) break;
-    if(GV.multiFileMode)
+    if(!GV.multifileMode) break;
+    if(GV.multifileMode)
       myVarTable->setCommonX(computeCommonX());
   }
   // Adattamento altezza tabella:
   // Table height adaptation:
-  if(GV.multiFileMode)
+  if(GV.multifileMode)
     visibleFileRows=qMax(fileNamesList.count(),3);
   else
     visibleFileRows=fileNamesList.count();
@@ -1605,15 +1605,15 @@ void CDataSelWin::showEvent(QShowEvent *){
   // position of the multifile is correct regardless of how I left it in Qt Designer
   int i0=GV.PO.firstFileIndex;
   if(QCoreApplication::arguments().count()>i0+1){
-    GV.multiFileMode=true;
+    GV.multifileMode=true;
     ui->multifTBtn->setChecked(true);
     on_multifTBtn_clicked(true);
-  } else if(GV.multiFileMode && !ui->multifTBtn->isChecked()){
-    GV.multiFileMode=true;
+  } else if(GV.multifileMode && !ui->multifTBtn->isChecked()){
+    GV.multifileMode=true;
     ui->multifTBtn->setChecked(true);
     on_multifTBtn_clicked(true);
-  }else if(!GV.multiFileMode && ui->multifTBtn->isChecked()){
-    GV.multiFileMode=false;
+  }else if(!GV.multifileMode && ui->multifTBtn->isChecked()){
+    GV.multifileMode=false;
     ui->multifTBtn->setChecked(false);
     on_multifTBtn_clicked(false);
   }
@@ -1762,13 +1762,13 @@ void CDataSelWin::on_tabWidget_currentChanged(int index){
 
     myPlotWin->raise();
     myPlotWin->setFocus();
-    myVarTable->setMultiFile(GV.multiFileMode);
+    myVarTable->setMultiFile(GV.multifileMode);
     myVarTable->setCurrFile(selectedFileIdx);
     if(!fileLoaded)
       return;
 
     // Select time variable:
-    if(myVarTable->xInfo.idx==-1 && GV.multiFileMode){
+    if(myVarTable->xInfo.idx==-1 && GV.multifileMode){
        myVarTable->setCommonX(computeCommonX());
     }else{
       if(ui->varMenuTable->rowCount()>0 && myVarTable->isEmpty())
@@ -1783,7 +1783,7 @@ void CDataSelWin::on_tabWidget_currentChanged(int index){
 void CDataSelWin::on_resetTBtn_clicked()
 {
   myVarTable->myReset();
-  if(GV.multiFileMode && fileLoaded)
+  if(GV.multifileMode && fileLoaded)
     myVarTable->setCommonX(computeCommonX());
   else
     varMenuTable_cellClicked(0,false);
@@ -1799,8 +1799,8 @@ Fino a maggio 2026 la funzione era sensibile alla colonna su cui si era cliccato
 */
    //se sono in multifile e si è selezionata la var. "t" (di riga 0) non faccio nulla:
 
-   // if they are in multiFileMode and the var has been selected. "t" (in line 0) I do nothing:
-   // if(row==0 && GV.multiFileMode)return;
+   // if they are in multifileMode and the var has been selected. "t" (in line 0) I do nothing:
+   // if(row==0 && GV.multifileMode)return;
   QString varName=ui->varMenuTable->item(row,1)->text();
 //  QString fileName=ui->fileTable->item(selectedFileRow,2)->text();
 
@@ -1832,7 +1832,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
   if(!checked){
     //Vado in singleFile
     // I go in singleFile
-    GV.multiFileMode=false;
+    GV.multifileMode=false;
     goneToSingleFile=true;
     // Il tooltip del nome deve essere quello del file selezionato, non quello della riga dove c'era, in multifile, la x. Faccio quindi lo swap dei tooltip:
 
@@ -1883,7 +1883,7 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
   }else{
     //Vado in multiFile
     // I go to multiFile
-    GV.multiFileMode=true;
+    GV.multifileMode=true;
     if(goneToSingleFile&&selectedFileRow>-1){
       // Il tooltip del nome deve essere quello del file selezionato, non quello della riga dove c'era, in multifile, la x. Può esserci stato infatti un aggiornamento in singlefile del file caricato. Faccio quindi lo swap dei tooltip:
 
@@ -1945,8 +1945,8 @@ void CDataSelWin::on_multifTBtn_clicked(bool checked){
   // or showing columns. So I have to enable custom resizing with the following resizeEvent:
   resizeEvent(nullptr);
 
-  myVarTable->setMultiFile(GV.multiFileMode);
-  if(GV.multiFileMode && fileLoaded){
+  myVarTable->setMultiFile(GV.multifileMode);
+  if(GV.multifileMode && fileLoaded){
    //Il commonX non lo devo solo passare alla tabella corrente ma a tutte. Infatti se  parto da single file,  carico un file, e passo in multifile, resterebbe nelle altre tabellle "1! nelle colonna "f" invece di "a".
 
    // The commonX should not just pass it to the current table but to all.
@@ -2094,7 +2094,7 @@ void CDataSelWin::removeFile(int row_) {
    * allow the new file to be uploaded.
   */
   int row, col, fileIndex;
-  if(!GV.multiFileMode)return;
+  if(!GV.multifileMode)return;
   //Il file da rimuovere è sempre quello corrente, in quanto il doppio click è sempre interpretato anche come singolo click che ha selezionato il file.
   //Rendo corrente il primo file della tabella:
 
@@ -2900,7 +2900,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     /* Pressing the saveStateTBtn key causes the "status" of the program to be saved.
 
     Saving phases:
-    1) saving the multiFileMode and number of plots
+    1) saving the multifileMode and number of plots
     2) saving the name, accompanied by information, date and time, files currently loaded in memory, fourWin visibility
     3) saving the contents of the varTable# tables
     4) saving the currently displayed table-plot index
@@ -2916,7 +2916,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
 
     // Phase 0: swtch into mutifilemode in case numOfLoadedFiles>1: this means we have other files loaded and related plots probably displayed, and we do not want to lose this information
 
-    if(numOfLoadedFiles>1 && !GV.multiFileMode){
+    if(numOfLoadedFiles>1 && !GV.multifileMode){
         QMessageBox::information(this, "MC's PlotXY",
                 "Switching into multifileMode before saving\n"
                 "because we have more than one file loaded");
@@ -2927,11 +2927,11 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     // multifileMode is also saved in the GV.PO.multifilemode, but in
     // a different moment. You can not therefore rely on that value as
     // it can be different from what you have at the time of saving the state.
-    settings.setValue("multifileMode",GV.multiFileMode);
+    settings.setValue("multifileMode",GV.multifileMode);
     settings.setValue("numOfPlotWins",actualPlotWins);
 
     // Phase 2: saving the name of the files, and info on the date and time; fourWin visibility
-    if(GV.multiFileMode)
+    if(GV.multifileMode)
       filesSaved=numOfLoadedFiles;
     else
       filesSaved=1;
@@ -2970,7 +2970,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
 
       //Se non sono in multifile, anche se in memoria sono presenti più files salvo solo quello correntemente attivo:
       // If they are not in multifile, even if there are more files in the memory, except for the one currently active:
-      if(!GV.multiFileMode && i!=selectedFileIdx+1)
+      if(!GV.multifileMode && i!=selectedFileIdx+1)
         continue;
       keyName="File_"+QString::number(++j);
       //Oltre al nome del file salvo anche l'informazione su data e ora dell'ultima modifica. In tal modo se al ricaricamento non corrispondono posso accorgermi che i due files sono in realtà diversi e quindi non mi devo attenderere lo stesso contenuto in termini di variabili.
@@ -2997,7 +2997,7 @@ void CDataSelWin::on_saveStateTBtn_clicked()
         QString str="fourWin"+QString::number(iTab+1)+"Visible";
         settings.setValue(str,  fourWin[iTab]->isVisible());
       }
-      if(!GV.multiFileMode)
+      if(!GV.multifileMode)
         break;
     }
 
@@ -3107,7 +3107,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
   //1) setto il multifileMode al valore salvato:
   // 1) sets the multifileMode to the saved value:
   bool multifileMode=settings.value("multifileMode").toBool();
-  if(GV.multiFileMode!=multifileMode){
+  if(GV.multifileMode!=multifileMode){
     on_multifTBtn_clicked(multifileMode);
     ui->multifTBtn->setChecked(multifileMode);
   }
@@ -3323,7 +3323,7 @@ void CDataSelWin::on_loadStateTBtn_clicked()
     // A partire da maggio 2026 diventa importante passare prima i numeri dei files e poi lo "stato". Infatti quando la tabella riceve lo stato fa una verifica per vedere se per caso qualche numero di file va omesso . Questo capita quando si ricarica lo stato del sistema da disco e un file è stato prima cancellato dall'utente e quindi ora non caricato. Il numero del file non viene caricato, quando le tabelle ricevono lo stato devono sapere quali grafici escludere in quanto i relativi files non sono presenti.
     //Occorrerebbe unificare getFileNums e getState. Prima di farlo mi accontento per ora di stare attento di richiamare queste due funzioni nella sequenza giusta: ora lo stato è correttamente recepito dalle tabelle solo se prima hanno informazioni aggiornate sui numeri di file
     myVarTable->getFileNums(fileNumsLst, varMaxNumsLst);
-    myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, GV.multiFileMode);
+    myVarTable->getState(list, colorVect, styleData, xIsFunction, xInfoIdx, GV.multifileMode);
     if(myVarTable->numOfTotVars>1){
       ui->tabWidget->setCurrentIndex(iSheet);
       myPlotWin=plotWin[iSheet];

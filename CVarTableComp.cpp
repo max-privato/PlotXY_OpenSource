@@ -529,7 +529,7 @@ void CVarTableComp::getColorScheme(bool useOldColors_){
   }
 }
 
-void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multiFileMode_ ){
+void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int styleData_, bool xIsFunction_, int xInfoIdx_, bool multifileMode_ ){
   /* In questa routine si ripristina lo stato salvato sulla baase dei dati salvati in
    * precedenza sul registro. In realtà passo solo
    * il testo da mettere nelle celle e i colori delle variabili; sulla base dei contenuti
@@ -542,7 +542,7 @@ void CVarTableComp::getState(QStringList &list, QVector <QRgb> varColRgb, int st
   commonXSet=false;
   xInfo.isFunction=xIsFunction_;
   xInfo.idx=xInfoIdx_;
-  multiFile=multiFileMode_;
+  multiFile=multifileMode_;
   styleData=styleData_;
   tabFileNums.clear();
   funSet.clear();

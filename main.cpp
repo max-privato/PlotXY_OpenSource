@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     GV.PO.useCopiedDialog=settings.value("useCopiedDialog",USECOPIEDDIALOG).toBool();
     GV.PO.defaultFreq=settings.value("defaultFreq",DEFAULTFREQ).toDouble();
     settings.endGroup();
-    GV.multiFileMode =settings.value("multifileMode",true).toBool();
+    GV.multifileMode =settings.value("multifileMode",true).toBool();
     for(int i=0;i<MAXFILES; i++)
       GV.varNumsLst.append(0);
 
