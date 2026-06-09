@@ -2914,8 +2914,15 @@ void CDataSelWin::on_saveStateTBtn_clicked()
     // Delete the previously saved state:
     settings.remove("");
 
-    // Fase 1: salvataggio del multifileMode. Occorre notare che il multifileMode viene salvato anche i GV.PO.multifilemode, ma in un momemto diverso. Non si può quindi fare affidamento a quel valore in quanto può essere diverso da quello che si ha al momento del salvataggio dello stato.
+    // Phase 0: swtch into mutifilemode in case numOfLoadedFiles>1: this means we have other files loaded and related plots probably displayed, and we do not want to lose this information
 
+    if(numOfLoadedFiles>1 && !GV.multiFileMode){
+        QMessageBox::information(this, "MC's PlotXY",
+                "Switching into multifileMode before saving\n"
+                "because we have more than one file loaded");
+        on_multifTBtn_clicked(true);
+        ui->multifTBtn->setChecked(true);
+    }
     // Phase 1: saving the multifileMode. It should be noted that the
     // multifileMode is also saved in the GV.PO.multifilemode, but in
     // a different moment. You can not therefore rely on that value as
