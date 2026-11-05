@@ -6,11 +6,19 @@
 
 QT       += core gui svg printsupport
 
-# QTPLUGIN += qico
-
+QTPLUGIN += qico
 # QT       += core gui svg
 # DEFINES= += QT_DISABLE_DEPRECATED_BEFORE=0x050f00
 
+# --- Solo per il kit statico MSYS2 (Windows/MinGW con Qt statica) ---
+win32-g++:CONFIG(static, static|shared) {
+    QMAKE_LFLAGS += -static
+    # dipendenze delle librerie esterne, messe in coda al link nell'ordine giusto
+    QMAKE_LIBS_PRIVATE += -lharfbuzz -lfreetype -lharfbuzz -lgraphite2 -lpng16 \
+                          -lbz2 -lbrotlidec -lbrotlicommon -lz \
+                          -lglib-2.0 -lintl -liconv -lpcre2-8 \
+                          -lrpcrt4 -lusp10 -lgdi32 -lws2_32 -lole32 -lwinmm -lshlwapi -luuid
+}
 win32{
 #   QTPLUGIN += windowsprintersupport
 } else:mac{
