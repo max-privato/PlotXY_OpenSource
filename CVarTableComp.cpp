@@ -233,7 +233,7 @@ La funzione tiene conto del fatto che si può operare o meno in multiFile. Nel c
         }else{
           if(iFile+1!=singleFileNum)
               continue;
-          if(item(iRow,VARNUMCOL)->text().at(0)=='f'  ||  //si tratta di una funzione
+          if(item(iRow,VARNUMCOL)->text().startsWith('f')  ||  //si tratta di una funzione
                        item(iRow,VARNUMCOL)->text()=="")   //riga vuota
               continue;
         }
@@ -591,9 +591,9 @@ FINE Correzione 25/11/2020
       // variabili; la casella sotto f diviene grigia solo se non si tratta di funzione di variabile.
       if(r>1)
         numOfTotVars++;
-      if(r>1 &&item(r,VARNUMCOL)->text().at(0)!='f')
+      if(r>1 &&!item(r,VARNUMCOL)->text().startsWith('f'))
         item(r,FILENUMCOL)->setBackground(neCellBkColor);
-      if(item(r,VARNUMCOL)->text().at(0)=='f')
+      if(item(r,VARNUMCOL)->text().startsWith('f'))
         funStrInput->getStr(item(r,VARCOL)->text());
     }
 //    if(item(r,XVARCOL)->text()=="")
@@ -779,7 +779,7 @@ void CVarTableComp::leftClicked(int r, int c){
       }
       if(item(r,c)->text()!=""){
          numOfTotVars--;
-         if(item(r,VARNUMCOL)->text().at(0)=='f'){
+         if(item(r,VARNUMCOL)->text().startsWith('f')){
            funSet.remove(item(r,VARNUMCOL)->text().mid(1,1).toInt());
          }
          if(item(r,VARNUMCOL)->text()!="")
@@ -873,7 +873,7 @@ FINE Correzione 25/11/2020
 //Ora devo attribuire il nome alla funzione, cercando il primo disponibile a partire da 1.
 //devo però preliminarmente verificare che non si stia ridefinendo una funzione, nel qual caso il nome non deve cambiare.
       nextFun=-1;
-      if(item(r,VARNUMCOL)->text().at(0)!='f'){
+      if(!item(r,VARNUMCOL)->text().startsWith('f')){
         for(int i=1;i<10; i++)
           if(!funSet.contains(i)){
             funSet<<i;
@@ -919,10 +919,10 @@ FINE Correzione 25/11/2020
         }
       }
       // If I chose as x a function plot I mustn't have other function plots, otherwise system crashes (reasons not analysed yet):
-      if(item(r,VARNUMCOL)->text().at(0)=='f'){
+      if(item(r,VARNUMCOL)->text().startsWith('f')){
         bool manyFunctionPlots=false;
         for (int i=0; i<rowCount(); i++){
-          if(item(i,VARNUMCOL)->text().at(0)=='f'&&i!=r){
+          if(item(i,VARNUMCOL)->text().startsWith('f')&&i!=r){
             manyFunctionPlots=true;
             break;
           }
