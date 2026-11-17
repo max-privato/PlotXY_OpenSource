@@ -1,9 +1,9 @@
 MIME-Version: 1.0
-Content-Type: multipart/related; boundary="----=_NextPart_01D6C0F7.82AB7C60"
+Content-Type: multipart/related; boundary="----=_NextPart_01DD76C0.4982F320"
 
-This document is a Single File Web Page, also known as a Web Archive file.  If you are seeing this message, your browser or editor doesn't support Web Archive files.  Please download a browser that supports Web Archive.
+Questo documento è una pagina Web in file unico, nota anche come archivio Web. La visualizzazione di questo messaggio indica che il browser o l'editor in uso non supporta gli archivi Web. Scaricare un browser che supporti gli archivi Web.
 
-------=_NextPart_01D6C0F7.82AB7C60
+------=_NextPart_01DD76C0.4982F320
 Content-Location: file:///C:/88544090/Historyandroadmap.htm
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/html; charset="windows-1252"
@@ -20,38 +20,41 @@ xmlns=3D"http://www.w3.org/TR/REC-html40">
 <meta name=3DProgId content=3DWord.Document>
 <meta name=3DGenerator content=3D"Microsoft Word 15">
 <meta name=3DOriginator content=3D"Microsoft Word 15">
-<link rel=3DFile-List href=3D"Historyandroadmap_files/filelist.xml">
+<link rel=3DFile-List href=3D"Historyandroadmap_file/filelist.xml">
 <!--[if gte mso 9]><xml>
  <o:DocumentProperties>
   <o:Author>Max_adm</o:Author>
   <o:LastAuthor>Massimo Ceraolo</o:LastAuthor>
-  <o:Revision>31</o:Revision>
-  <o:TotalTime>1916</o:TotalTime>
-  <o:LastPrinted>2020-01-04T20:16:00Z</o:LastPrinted>
+  <o:Revision>32</o:Revision>
+  <o:TotalTime>1918</o:TotalTime>
+  <o:LastPrinted>2026-11-17T17:20:00Z</o:LastPrinted>
   <o:Created>2014-04-02T18:52:00Z</o:Created>
-  <o:LastSaved>2020-11-22T16:47:00Z</o:LastSaved>
-  <o:Pages>1</o:Pages>
-  <o:Words>640</o:Words>
-  <o:Characters>3653</o:Characters>
+  <o:LastSaved>2026-11-17T17:20:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>660</o:Words>
+  <o:Characters>3765</o:Characters>
   <o:Company>One</o:Company>
-  <o:Lines>30</o:Lines>
+  <o:Lines>31</o:Lines>
   <o:Paragraphs>8</o:Paragraphs>
-  <o:CharactersWithSpaces>4285</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>4417</o:CharactersWithSpaces>
   <o:Version>16.00</o:Version>
  </o:DocumentProperties>
  <o:OfficeDocumentSettings>
   <o:AllowPNG/>
  </o:OfficeDocumentSettings>
 </xml><![endif]-->
-<link rel=3DdataStoreItem href=3D"Historyandroadmap_files/item0006.xml"
-target=3D"Historyandroadmap_files/props007.xml">
-<link rel=3DthemeData href=3D"Historyandroadmap_files/themedata.thmx">
+<link rel=3DdataStoreItem href=3D"Historyandroadmap_file/item0006.xml"
+target=3D"Historyandroadmap_file/props007.xml">
+<link rel=3DthemeData href=3D"Historyandroadmap_file/themedata.thmx">
 <link rel=3DcolorSchemeMapping
-href=3D"Historyandroadmap_files/colorschememapping.xml">
+href=3D"Historyandroadmap_file/colorschememapping.xml">
 <!--[if gte mso 9]><xml>
  <w:WordDocument>
   <w:View>Print</w:View>
+  <w:Zoom>110</w:Zoom>
   <w:DontDisplayPageBoundaries/>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
   <w:TrackMoves>false</w:TrackMoves>
   <w:TrackFormatting/>
   <w:HyphenationZone>14</w:HyphenationZone>
@@ -974,14 +977,14 @@ ue"
 	mso-font-charset:0;
 	mso-generic-font-family:roman;
 	mso-font-pitch:variable;
-	mso-font-signature:3 0 0 0 1 0;}
+	mso-font-signature:-536869121 1107305727 33554432 0 415 0;}
 @font-face
 	{font-family:Calibri;
 	panose-1:2 15 5 2 2 2 4 3 2 4;
 	mso-font-charset:0;
 	mso-generic-font-family:swiss;
 	mso-font-pitch:variable;
-	mso-font-signature:-469750017 -1073732485 9 0 511 0;}
+	mso-font-signature:-469750017 -1040178053 9 0 511 0;}
 @font-face
 	{font-family:Cambria;
 	panose-1:2 4 5 3 5 4 6 3 2 4;
@@ -1015,159 +1018,46 @@ h1
 	{mso-style-priority:9;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-link:"Heading 1 Char";
-	mso-style-next:Normale;
-	margin-top:24.0pt;
+	mso-style-link:"Titolo 1 Carattere";
+	margin-top:0cm;
 	margin-right:0cm;
-	margin-bottom:12.0pt;
+	margin-bottom:10.0pt;
 	margin-left:0cm;
 	line-height:115%;
-	mso-pagination:widow-orphan lines-together;
-	page-break-after:avoid;
+	mso-pagination:widow-orphan;
 	mso-outline-level:1;
-	font-size:14.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
 	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#365F91;
-	mso-themecolor:accent1;
-	mso-themeshade:191;
+	mso-bidi-theme-font:minor-bidi;
 	mso-font-kerning:0pt;
-	mso-fareast-language:EN-US;}
+	mso-fareast-language:EN-US;
+	font-weight:normal;}
 p.MsoTitle, li.MsoTitle, div.MsoTitle
 	{mso-style-priority:10;
 	mso-style-unhide:no;
 	mso-style-qformat:yes;
-	mso-style-link:"Title Char";
-	mso-style-next:Normale;
+	mso-style-link:"Titolo Carattere";
 	margin-top:0cm;
 	margin-right:0cm;
-	margin-bottom:15.0pt;
+	margin-bottom:10.0pt;
 	margin-left:0cm;
-	mso-add-space:auto;
+	line-height:115%;
 	mso-pagination:widow-orphan;
-	border:none;
-	mso-border-bottom-alt:solid #4F81BD 1.0pt;
-	mso-border-bottom-themecolor:accent1;
-	padding:0cm;
-	mso-padding-alt:0cm 0cm 4.0pt 0cm;
-	font-size:26.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
 	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#17365D;
-	mso-themecolor:text2;
-	mso-themeshade:191;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;
-	mso-fareast-language:EN-US;}
-p.MsoTitleCxSpFirst, li.MsoTitleCxSpFirst, div.MsoTitleCxSpFirst
-	{mso-style-priority:10;
-	mso-style-unhide:no;
-	mso-style-qformat:yes;
-	mso-style-link:"Title Char";
-	mso-style-next:Normale;
-	mso-style-type:export-only;
-	margin:0cm;
-	mso-add-space:auto;
-	mso-pagination:widow-orphan;
-	border:none;
-	mso-border-bottom-alt:solid #4F81BD 1.0pt;
-	mso-border-bottom-themecolor:accent1;
-	padding:0cm;
-	mso-padding-alt:0cm 0cm 4.0pt 0cm;
-	font-size:26.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#17365D;
-	mso-themecolor:text2;
-	mso-themeshade:191;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;
-	mso-fareast-language:EN-US;}
-p.MsoTitleCxSpMiddle, li.MsoTitleCxSpMiddle, div.MsoTitleCxSpMiddle
-	{mso-style-priority:10;
-	mso-style-unhide:no;
-	mso-style-qformat:yes;
-	mso-style-link:"Title Char";
-	mso-style-next:Normale;
-	mso-style-type:export-only;
-	margin:0cm;
-	mso-add-space:auto;
-	mso-pagination:widow-orphan;
-	border:none;
-	mso-border-bottom-alt:solid #4F81BD 1.0pt;
-	mso-border-bottom-themecolor:accent1;
-	padding:0cm;
-	mso-padding-alt:0cm 0cm 4.0pt 0cm;
-	font-size:26.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#17365D;
-	mso-themecolor:text2;
-	mso-themeshade:191;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;
-	mso-fareast-language:EN-US;}
-p.MsoTitleCxSpLast, li.MsoTitleCxSpLast, div.MsoTitleCxSpLast
-	{mso-style-priority:10;
-	mso-style-unhide:no;
-	mso-style-qformat:yes;
-	mso-style-link:"Title Char";
-	mso-style-next:Normale;
-	mso-style-type:export-only;
-	margin-top:0cm;
-	margin-right:0cm;
-	margin-bottom:15.0pt;
-	margin-left:0cm;
-	mso-add-space:auto;
-	mso-pagination:widow-orphan;
-	border:none;
-	mso-border-bottom-alt:solid #4F81BD 1.0pt;
-	mso-border-bottom-themecolor:accent1;
-	padding:0cm;
-	mso-padding-alt:0cm 0cm 4.0pt 0cm;
-	font-size:26.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#17365D;
-	mso-themecolor:text2;
-	mso-themeshade:191;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;
+	mso-bidi-theme-font:minor-bidi;
 	mso-fareast-language:EN-US;}
 a:link, span.MsoHyperlink
 	{mso-style-noshow:yes;
@@ -1277,9 +1167,65 @@ phCxSpLast
 	mso-bidi-font-family:"Times New Roman";
 	mso-bidi-theme-font:minor-bidi;
 	mso-fareast-language:EN-US;}
-p.Normale, li.Normale, div.Normale
-	{mso-style-name:Normale;
+span.Titolo1Carattere
+	{mso-style-name:"Titolo 1 Carattere";
+	mso-style-priority:9;
 	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:"Titolo 1";
+	mso-ansi-font-size:14.0pt;
+	mso-bidi-font-size:14.0pt;
+	font-family:"Cambria",serif;
+	mso-ascii-font-family:Cambria;
+	mso-ascii-theme-font:major-latin;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:major-fareast;
+	mso-hansi-font-family:Cambria;
+	mso-hansi-theme-font:major-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:major-bidi;
+	color:#365F91;
+	mso-themecolor:accent1;
+	mso-themeshade:191;
+	font-weight:bold;}
+p.msonormal0, li.msonormal0, div.msonormal0
+	{mso-style-name:msonormal;
+	mso-style-unhide:no;
+	mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman",serif;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:minor-fareast;}
+span.TitoloCarattere
+	{mso-style-name:"Titolo Carattere";
+	mso-style-priority:10;
+	mso-style-unhide:no;
+	mso-style-locked:yes;
+	mso-style-link:Titolo;
+	mso-ansi-font-size:26.0pt;
+	mso-bidi-font-size:26.0pt;
+	font-family:"Cambria",serif;
+	mso-ascii-font-family:Cambria;
+	mso-ascii-theme-font:major-latin;
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-theme-font:major-fareast;
+	mso-hansi-font-family:Cambria;
+	mso-hansi-theme-font:major-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:major-bidi;
+	color:#17365D;
+	mso-themecolor:text2;
+	mso-themeshade:191;
+	letter-spacing:.25pt;
+	mso-font-kerning:14.0pt;}
+p.Heading1, li.Heading1, div.Heading1
+	{mso-style-name:"Heading 1";
+	mso-style-unhide:no;
+	mso-style-link:"Heading 1 Char";
 	margin-top:0cm;
 	margin-right:0cm;
 	margin-bottom:10.0pt;
@@ -1317,18 +1263,27 @@ span.Heading1Char
 	color:#365F91;
 	mso-themecolor:accent1;
 	mso-themeshade:191;}
-p.msonormal0, li.msonormal0, div.msonormal0
-	{mso-style-name:msonormal;
+p.Title, li.Title, div.Title
+	{mso-style-name:Title;
 	mso-style-unhide:no;
-	mso-margin-top-alt:auto;
+	mso-style-link:"Title Char";
+	margin-top:0cm;
 	margin-right:0cm;
-	mso-margin-bottom-alt:auto;
+	margin-bottom:10.0pt;
 	margin-left:0cm;
+	line-height:115%;
 	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman",serif;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:minor-fareast;}
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;
+	mso-ascii-font-family:Calibri;
+	mso-ascii-theme-font:minor-latin;
+	mso-fareast-font-family:Calibri;
+	mso-fareast-theme-font:minor-latin;
+	mso-hansi-font-family:Calibri;
+	mso-hansi-theme-font:minor-latin;
+	mso-bidi-font-family:"Times New Roman";
+	mso-bidi-theme-font:minor-bidi;
+	mso-fareast-language:EN-US;}
 span.TitleChar
 	{mso-style-name:"Title Char";
 	mso-style-priority:10;
@@ -1348,91 +1303,12 @@ span.TitleChar
 	mso-bidi-theme-font:major-bidi;
 	letter-spacing:-.5pt;
 	mso-font-kerning:14.0pt;}
-span.Titolo1Carattere
-	{mso-style-name:"Titolo 1 Carattere";
-	mso-style-priority:9;
-	mso-style-unhide:no;
-	mso-style-locked:yes;
-	mso-style-link:"Titolo 1";
-	mso-ansi-font-size:14.0pt;
-	mso-bidi-font-size:14.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#365F91;
-	mso-themecolor:accent1;
-	mso-themeshade:191;
-	font-weight:bold;}
-p.Titolo1, li.Titolo1, div.Titolo1
-	{mso-style-name:"Titolo 1";
-	mso-style-unhide:no;
-	mso-style-link:"Titolo 1 Carattere";
-	margin-top:0cm;
-	margin-right:0cm;
-	margin-bottom:10.0pt;
-	margin-left:0cm;
-	line-height:115%;
-	mso-pagination:widow-orphan;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;
-	mso-ascii-font-family:Calibri;
-	mso-ascii-theme-font:minor-latin;
-	mso-fareast-font-family:Calibri;
-	mso-fareast-theme-font:minor-latin;
-	mso-hansi-font-family:Calibri;
-	mso-hansi-theme-font:minor-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:minor-bidi;
-	mso-fareast-language:EN-US;}
-span.TitoloCarattere
-	{mso-style-name:"Titolo Carattere";
-	mso-style-priority:10;
-	mso-style-unhide:no;
-	mso-style-locked:yes;
-	mso-style-link:Titolo;
-	mso-ansi-font-size:26.0pt;
-	mso-bidi-font-size:26.0pt;
-	font-family:"Cambria",serif;
-	mso-ascii-font-family:Cambria;
-	mso-ascii-theme-font:major-latin;
-	mso-fareast-font-family:"Times New Roman";
-	mso-fareast-theme-font:major-fareast;
-	mso-hansi-font-family:Cambria;
-	mso-hansi-theme-font:major-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:major-bidi;
-	color:#17365D;
-	mso-themecolor:text2;
-	mso-themeshade:191;
-	letter-spacing:.25pt;
-	mso-font-kerning:14.0pt;}
-p.Titolo, li.Titolo, div.Titolo
-	{mso-style-name:Titolo;
-	mso-style-unhide:no;
-	mso-style-link:"Titolo Carattere";
-	margin-top:0cm;
-	margin-right:0cm;
-	margin-bottom:10.0pt;
-	margin-left:0cm;
-	line-height:115%;
-	mso-pagination:widow-orphan;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;
-	mso-ascii-font-family:Calibri;
-	mso-ascii-theme-font:minor-latin;
-	mso-fareast-font-family:Calibri;
-	mso-fareast-theme-font:minor-latin;
-	mso-hansi-font-family:Calibri;
-	mso-hansi-theme-font:minor-latin;
-	mso-bidi-font-family:"Times New Roman";
-	mso-bidi-theme-font:minor-bidi;
-	mso-fareast-language:EN-US;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
 .MsoChpDefault
 	{mso-style-type:export-only;
 	mso-default-props:yes;
@@ -1448,6 +1324,8 @@ p.Titolo, li.Titolo, div.Titolo
 	mso-hansi-theme-font:minor-latin;
 	mso-bidi-font-family:"Times New Roman";
 	mso-bidi-theme-font:minor-bidi;
+	mso-font-kerning:0pt;
+	mso-ligatures:none;
 	mso-fareast-language:EN-US;}
 @page WordSection1
 	{size:595.3pt 841.9pt;
@@ -1672,7 +1550,7 @@ ul
 <style>
  /* Style Definitions */
  table.MsoNormalTable
-	{mso-style-name:"Table Normal";
+	{mso-style-name:"Tabella normale";
 	mso-tstyle-rowband-size:0;
 	mso-tstyle-colband-size:0;
 	mso-style-noshow:yes;
@@ -1690,8 +1568,8 @@ ul
 	mso-bidi-font-family:"Times New Roman";
 	mso-bidi-theme-font:minor-bidi;
 	mso-fareast-language:EN-US;}
-table.Tabellanormale
-	{mso-style-name:"Tabella normale";
+table.TableNormal
+	{mso-style-name:"Table Normal";
 	mso-tstyle-rowband-size:0;
 	mso-tstyle-colband-size:0;
 	mso-style-noshow:yes;
@@ -1719,7 +1597,8 @@ table.Tabellanormale
  </o:shapelayout></xml><![endif]-->
 </head>
 
-<body lang=3DEN-GB link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4pt'>
+<body lang=3DIT link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4pt;wor=
+d-wrap:break-word'>
 
 <div class=3DWordSection1>
 
@@ -1727,265 +1606,351 @@ table.Tabellanormale
 4F81BD 1.0pt;
 mso-border-bottom-themecolor:accent1;padding:0cm 0cm 4.0pt 0cm'>
 
-<p class=3DMsoTitle align=3Dcenter style=3D'text-align:center'>PLOTXY HISTO=
-RY AND
-ROAD-MAP</p>
+<p class=3DMsoTitle align=3Dcenter style=3D'margin-bottom:15.0pt;mso-margin=
+-bottom-alt:
+10.0pt;mso-margin-top-alt:0cm;mso-add-space:auto;text-align:center;border:n=
+one;
+mso-border-bottom-alt:solid #4F81BD 1.0pt;mso-border-bottom-themecolor:acce=
+nt1;
+padding:0cm;mso-padding-alt:0cm 0cm 4.0pt 0cm'><span lang=3DEN-GB
+style=3D'font-size:26.0pt;line-height:115%;font-family:"Cambria",serif;
+mso-ascii-theme-font:major-latin;mso-fareast-font-family:"Times New Roman";
+mso-fareast-theme-font:major-fareast;mso-hansi-theme-font:major-latin;
+mso-bidi-font-family:"Times New Roman";mso-bidi-theme-font:major-bidi;
+color:#17365D;mso-themecolor:text2;mso-themeshade:191;letter-spacing:.25pt;
+mso-font-kerning:14.0pt;mso-ansi-language:EN-GB'>PLOTXY HISTORY AND ROAD-MA=
+P<o:p></o:p></span></p>
 
 </div>
 
 <p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><i style=3D=
 'mso-bidi-font-style:
-normal'><span style=3D'font-size:14.0pt;line-height:115%'>January 2020<o:p>=
-</o:p></span></i></p>
+normal'><span lang=3DEN-GB style=3D'font-size:14.0pt;line-height:115%;mso-a=
+nsi-language:
+EN-GB'>November 2026<o:p></o:p></span></i></p>
 
 <p class=3DMsoNormal style=3D'text-align:justify'><b style=3D'mso-bidi-font=
 -weight:
-normal'>PlotXY</b> was created initially in 1998 as an answer to the need of
-the community that used the well-known electromagnetic transients program E=
-MPT/ATP
-to have a Windows-based fast and practical program to make plots. The progr=
-ams
-available at those times were mainly based on old Microsoft DOS<span
-style=3D'mso-spacerun:yes'>  </span>and were, in the opinion of the writer,
-either too slow or a bit tricky to use.</p>
+normal'><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>PlotXY</span><=
+/b><span
+lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'> was created initially in 19=
+98 as an
+answer to the need of the community that used the well-known electromagnetic
+transients program EMPT/ATP to have a Windows-based fast and practical prog=
+ram
+to make plots. The programs available at those times were mainly based on o=
+ld
+Microsoft <span class=3DGramE>DOS<span style=3D'mso-spacerun:yes'>=A0 </spa=
+n>and</span>
+were, in the opinion of the writer, either too slow or a bit tricky to use.=
+<o:p></o:p></span></p>
 
-<p class=3DMsoNormal>Since then PlorXY has grown steadily over the years, u=
-p to
-2011.</p>
+<p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>S=
+ince <span
+class=3DGramE>then</span> <span class=3DSpellE>PlorXY</span> has grown stea=
+dily
+over the years, up to 2011.<o:p></o:p></span></p>
 
-<p class=3DMsoNormal style=3D'text-align:justify'>During 2013, after 15 yea=
-rs from
-the first version, the program showed its age. The compiler (Borland’s C’’
-Builder 1.0) with which it was written no longer existed, and newer version=
-s of
-that compiler were not compatible with one key component that PlotXY intern=
-ally
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>During 2013, after 15 years from the first
+version, the program showed its age. The compiler (Borland=92s C=92=92 Buil=
+der 1.0)
+with which it was written no longer existed, and newer versions of that
+compiler were not compatible with one key component that PlotXY internally
 used, that was taken from the Internet. Any new feature had to be implement=
 ed
 using that very old compiler. Otherwise very large programming efforts were
-required.</p>
+required.<o:p></o:p></span></p>
 
-<p class=3DMsoNormal style=3D'text-align:justify'>Moreover the whole scenar=
-io of
-ITC had changed with many more operating systems in the arena: Mac computers
-had become common, and other such as Linux were increasingly popular.</p>
+<p class=3DMsoNormal style=3D'text-align:justify'><span class=3DGramE><span
+lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>Moreover</span></span><span
+lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'> the whole scenario of ITC h=
+ad
+changed with many more operating systems in the arena: Mac computers had be=
+come
+common, and other such as Linux were increasingly popular.<o:p></o:p></span=
+></p>
 
-<p class=3DMsoNormal style=3D'text-align:justify'>Finally, it was decided t=
-hat time
-had come to make a large effort of rewriting the program, using a compiler =
-that
-would reduce future needs of rewrite, especially in case new platforms had =
-to
-be supported. A compiler allowing this indeed existed, it is the Qt compiler
-that is distributed in both commercially and open source versions.</p>
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>Finally, it was decided that time had com=
+e to
+make a large effort of rewriting the program, using a compiler that would
+reduce future needs of rewrite, especially in case new platforms had to be
+supported. A compiler allowing this indeed existed, it is the Qt compiler t=
+hat
+is distributed in both commercially and <span class=3DGramE>open source</sp=
+an>
+versions.<o:p></o:p></span></p>
 
-<p class=3DMsoNormal style=3D'text-align:justify'>It was decided to use the=
- open
-source Qt. In the beginning Microsoft Windows and Apple Macintosh versions =
-were
-created using Qt 5.7 and distributed. During December 2017 and January 2018
-Perry Clements from Canada has produced a Linux version, starting from
-Ceraolo’s source code, and made it available for distribution. So now we ha=
-ve
-three versions, with nearly exactly the same functionality.</p>
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>It was decided to use the <span class=3DG=
+ramE>open
+source</span> Qt. In the beginning Microsoft Windows and Apple Macintosh
+versions were created using Qt 5.7 and distributed. During December 2017 and
+January 2018 Perry Clements from Canada has produced a Linux version, start=
+ing
+from Ceraolo=92s source code, and made it available for distribution. So no=
+w we
+have three versions, with nearly <span class=3DGramE>exactly the same</span>
+functionality.<o:p></o:p></span></p>
 
-<p class=3DMsoNormal><o:p>&nbsp;</o:p></p>
+<p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'><=
+o:p>&nbsp;</o:p></span></p>
 
-<p class=3DMsoNormal>This new version (i.e. the version from 2013 created u=
-sing
-Qt) has important enhancements over the old one:</p>
-
-<p class=3DMsoListParagraphCxSpFirst style=3D'text-align:justify;text-inden=
-t:-18.0pt;
-mso-list:l2 level1 lfo2'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Now it is input compatible with Modelica out=
-put
-files (from Dymola and OpenModelica) Specific Modelica-related functions ad=
-ded</p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l2 level1 lfo2'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Now it is input compatible with National
-Instrument’s lab-view files. Compatibility is partial but easily expandable=
-</p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l2 level1 lfo2'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Now it is able to create copies of the plots=
- it
-makes in SVG, PNG and PDF formats</p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l2 level1 lfo2'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>It is much faster. In particular, the old
-version was dramatically slow when resizing complex plots (since it redrew =
-them
-continuously during resizing). This does not happen anymore.</p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l2 level1 lfo2'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Now you have much more freedom in post-proce=
-ssing
-data: you can create rather arbitrary algebraic combinations of the data pl=
-ots
-(earlier you could just sum, subtract or multiply two plots).</p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l2 level1 lfo2'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>The program comes with a tutorial that expla=
-ins
-all its features with examples that the user can reproduce since the
-corresponding data files are provided</p>
-
-<p class=3DMsoListParagraphCxSpLast><o:p>&nbsp;</o:p></p>
-
-<p class=3DMsoNormal>There are plans to further enhance the program.</p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'><o:p>&nbsp;</o:p></p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'>Between April 2014 and Ma=
-rch 2018
-enhancements have been made mainly on:</p>
+<p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>T=
+his new
+version (i.e. the version from 2013 created using Qt) has important
+enhancements over the old one:<o:p></o:p></span></p>
 
 <p class=3DMsoListParagraphCxSpFirst style=3D'text-align:justify;text-inden=
 t:-18.0pt;
-mso-list:l0 level1 lfo4'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>Modelica compatibility and special
-Modelica-related functions added</p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l0 level1 lfo4'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>the “function plots” </p>
-
-<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
-nt:-18.0pt;
-mso-list:l0 level1 lfo4'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>the automatic determination of axis scales</=
+mso-list:l2 level1 lfo2'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>Now
+it is input compatible with Modelica output files (from Dymola and
+OpenModelica) Specific Modelica-related functions added<o:p></o:p></span></=
 p>
 
-<p class=3DMsoListParagraphCxSpLast style=3D'text-align:justify;text-indent=
-:-18.0pt;
-mso-list:l0 level1 lfo4'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>the flexibility of user-defined units of mea=
-sure</p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'>Furthermore, all known is=
-sues
-affecting stability have been corrected, so the program is much more stable
-now.</p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'>The document “Tutorial.pd=
-f” has
-been continuously kept updated.</p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'><o:p>&nbsp;</o:p></p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'><b>Since November 2018</b=
-> PlotXY
-has become Open-source, and anyone can have a look at the source code from
-GitHub, under Max-Privato/PlotXY. </p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'>Note that the Open source=
- code
-does not include the code to interpret the pl4 file format, since this is s=
-till
-an Atp secret.</p>
-
-<p class=3DMsoNormal style=3D'text-align:justify'><b>During 2019</b>, more
-flexibility has been added in the choice of curve colours and line style; t=
-he
-maximum number of plotting windows has been raised to 8.</p>
-
-<p class=3DMsoNormal style=3D'margin-bottom:0cm;text-align:justify'>Moreove=
-r,
-Fourier analysis has been enhanced:</p>
-
-<p class=3DMsoListParagraphCxSpFirst style=3D'text-align:justify;text-inden=
-t:-18.0pt;
-mso-list:l1 level1 lfo6'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>corrected a bug in the computation of THD</p>
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l2 level1 lfo2'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>Now
+it is input compatible with National Instrument=92s lab-view files. Compati=
+bility
+is partial but easily expandable<o:p></o:p></span></p>
 
 <p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
 nt:-18.0pt;
-mso-list:l1 level1 lfo6'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>changed algorithm from uniform to non-uniform
-DFT</p>
+mso-list:l2 level1 lfo2'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>Now
+it <span class=3DGramE>is able to</span> create copies of the plots it make=
+s in
+SVG, PNG and PDF formats<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l2 level1 lfo2'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>It
+is much faster. In particular, the old version was dramatically slow when
+resizing complex plots (since it redrew them continuously during resizing).
+This does not happen anymore.<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l2 level1 lfo2'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>Now
+you have much more freedom in post-processing data: you can create rather
+arbitrary algebraic combinations of the data plots (earlier you could just =
+sum,
+subtract or multiply two plots).<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l2 level1 lfo2'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>The
+program comes with a tutorial that explains all its features with examples =
+that
+the user can reproduce since the corresponding data files are provided<o:p>=
+</o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpLast><span lang=3DEN-GB style=3D'mso-ansi-la=
+nguage:
+EN-GB'><o:p>&nbsp;</o:p></span></p>
+
+<p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>T=
+here are
+plans to further enhance the program.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'><o:p>&nbsp;</o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>Between April 2014 and March 2018 enhance=
+ments
+have been made mainly on:<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpFirst style=3D'text-align:justify;text-inden=
+t:-18.0pt;
+mso-list:l0 level1 lfo4'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>Modelica
+compatibility and special Modelica-related functions added<o:p></o:p></span=
+></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l0 level1 lfo4'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>the
+=93function plots=94 <o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l0 level1 lfo4'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>the
+automatic determination of axis scales<o:p></o:p></span></p>
 
 <p class=3DMsoListParagraphCxSpLast style=3D'text-align:justify;text-indent=
 :-18.0pt;
-mso-list:l1 level1 lfo6'><![if !supportLists]><span style=3D'font-family:Sy=
-mbol;
-mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol'><span
-style=3D'mso-list:Ignore'>·<span style=3D'font:7.0pt "Times New Roman"'>&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]>added possibility to have one Fourier windows
-per plot window, i.e. up to a maximum of 8 simultaneous Fourier charts can =
-be
-displayed.</p>
+mso-list:l0 level1 lfo4'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>the
+flexibility of user-defined units of measure<o:p></o:p></span></p>
 
-<p class=3DMsoNormal style=3D'text-align:justify'><b>During August 2020</b>=
- Corrected
-a mistake that caused the precision of Fourier Charts to be power when a ve=
-ry
-small number of point was involved The error was very large for a few tens =
-of
-points, average with hundreds of points, negligible for at least a thousand=
- points.
-Now everything should work as expected whatever the number of points.</p>
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>Furthermore, all known issues affecting
+stability have been corrected, so the program is much more stable now.<o:p>=
+</o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>The document =93<span class=3DSpellE>Tuto=
+rial.pdf</span>=94
+has been continuously kept updated.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'><o:p>&nbsp;</o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><b><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>Since November 2018</span></b><span lang=
+=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'> PlotXY has become Open-source, and anyon=
+e can
+have a look at the source code from GitHub, under Max-<span class=3DSpellE>=
+Privato</span>/PlotXY.
+<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>Note that the <span class=3DGramE>Open so=
+urce</span>
+code does not include the code to interpret the pl4 file format, since this=
+ is
+still an <span class=3DSpellE>Atp</span> secret.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><b><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>During 2019</span></b><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>, more flexibility has been added in the =
+choice
+of curve colours and line style; the maximum number of plotting windows has
+been raised to 8.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'margin-bottom:0cm;text-align:justify'><span
+lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>Moreover, Fourier analysis h=
+as been
+enhanced:<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpFirst style=3D'text-align:justify;text-inden=
+t:-18.0pt;
+mso-list:l1 level1 lfo6'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>corrected
+a bug in the computation of THD<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-align:justify;text-inde=
+nt:-18.0pt;
+mso-list:l1 level1 lfo6'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>changed
+algorithm from uniform to non-uniform DFT<o:p></o:p></span></p>
+
+<p class=3DMsoListParagraphCxSpLast style=3D'text-align:justify;text-indent=
+:-18.0pt;
+mso-list:l1 level1 lfo6'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
+style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>added
+possibility to have one Fourier windows per plot window, i.e. up to a maxim=
+um
+of 8 simultaneous Fourier charts can be displayed.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><b><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>During August 2020</span></b><span lang=
+=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'> Corrected a mistake that caused the prec=
+ision
+of Fourier Charts to be power when a very small number of points was involv=
+ed.
+The error was very large for a few tens of points, average with hundreds of
+points, negligible for at least a thousand points. Now everything should wo=
+rk
+as expected whatever the number of points.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal style=3D'text-align:justify'><b><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'>After August 2020</span></b><span lang=3D=
+EN-GB
+style=3D'mso-ansi-language:EN-GB'>. the Qt version passed from 5.x and 6.x,=
+ with
+corresponding updates. A few bugs were discovered and corrected.<o:p></o:p>=
+</span></p>
 
 </div>
 
@@ -1993,8 +1958,8 @@ Now everything should work as expected whatever the number of points.</p>
 
 </html>
 
-------=_NextPart_01D6C0F7.82AB7C60
-Content-Location: file:///C:/88544090/Historyandroadmap_files/item0006.xml
+------=_NextPart_01DD76C0.4982F320
+Content-Location: file:///C:/88544090/Historyandroadmap_file/item0006.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml
 
@@ -2002,8 +1967,8 @@ Content-Type: text/xml
 ctedStyle=3D"\APA.XSL" StyleName=3D"APA" xmlns:b=3D"http://schemas.openxmlf=
 ormats.org/officeDocument/2006/bibliography" xmlns=3D"http://schemas.openxm=
 lformats.org/officeDocument/2006/bibliography"></b:Sources>
-------=_NextPart_01D6C0F7.82AB7C60
-Content-Location: file:///C:/88544090/Historyandroadmap_files/props007.xml
+------=_NextPart_01DD76C0.4982F320
+Content-Location: file:///C:/88544090/Historyandroadmap_file/props007.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml
 
@@ -2012,8 +1977,8 @@ Content-Type: text/xml
 s:ds=3D"http://schemas.openxmlformats.org/officeDocument/2006/customXml"><d=
 s:schemaRefs><ds:schemaRef ds:uri=3D"http://schemas.openxmlformats.org/offi=
 ceDocument/2006/bibliography"/></ds:schemaRefs></ds:datastoreItem>
-------=_NextPart_01D6C0F7.82AB7C60
-Content-Location: file:///C:/88544090/Historyandroadmap_files/themedata.thmx
+------=_NextPart_01DD76C0.4982F320
+Content-Location: file:///C:/88544090/Historyandroadmap_file/themedata.thmx
 Content-Transfer-Encoding: base64
 Content-Type: application/vnd.ms-officetheme
 
@@ -2073,8 +2038,8 @@ AAAAAAAAAADWAgAAdGhlbWUvdGhlbWUvdGhlbWUxLnhtbFBLAQItABQABgAIAAAAIQAN0ZCftgAA
 ABsBAAAnAAAAAAAAAAAAAAAAALMJAAB0aGVtZS90aGVtZS9fcmVscy90aGVtZU1hbmFnZXIueG1s
 LnJlbHNQSwUGAAAAAAUABQBdAQAArgoAAAAA
 
-------=_NextPart_01D6C0F7.82AB7C60
-Content-Location: file:///C:/88544090/Historyandroadmap_files/colorschememapping.xml
+------=_NextPart_01DD76C0.4982F320
+Content-Location: file:///C:/88544090/Historyandroadmap_file/colorschememapping.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml
 
@@ -2083,8 +2048,8 @@ Content-Type: text/xml
  bg1=3D"lt1" tx1=3D"dk1" bg2=3D"lt2" tx2=3D"dk2" accent1=3D"accent1" accent=
 2=3D"accent2" accent3=3D"accent3" accent4=3D"accent4" accent5=3D"accent5" a=
 ccent6=3D"accent6" hlink=3D"hlink" folHlink=3D"folHlink"/>
-------=_NextPart_01D6C0F7.82AB7C60
-Content-Location: file:///C:/88544090/Historyandroadmap_files/filelist.xml
+------=_NextPart_01DD76C0.4982F320
+Content-Location: file:///C:/88544090/Historyandroadmap_file/filelist.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml; charset="utf-8"
 
@@ -2096,4 +2061,4 @@ Content-Type: text/xml; charset="utf-8"
  <o:File HRef=3D"colorschememapping.xml"/>
  <o:File HRef=3D"filelist.xml"/>
 </xml>
-------=_NextPart_01D6C0F7.82AB7C60--
+------=_NextPart_01DD76C0.4982F320--

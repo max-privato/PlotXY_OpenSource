@@ -1,9 +1,9 @@
 MIME-Version: 1.0
-Content-Type: multipart/related; boundary="----=_NextPart_01D387EB.52D3C170"
+Content-Type: multipart/related; boundary="----=_NextPart_01DD76B3.91E32930"
 
-Questo documento è una pagina Web in file unico, nota anche come archivio Web. La visualizzazione di questo messaggio indica che il browser o l'editor in uso non supporta gli archivi Web. Scaricare un browser che supporti gli archivi Web, come Windows® Internet Explorer®.
+Questo documento è una pagina Web in file unico, nota anche come archivio Web. La visualizzazione di questo messaggio indica che il browser o l'editor in uso non supporta gli archivi Web. Scaricare un browser che supporti gli archivi Web.
 
-------=_NextPart_01D387EB.52D3C170
+------=_NextPart_01DD76B3.91E32930
 Content-Location: file:///C:/8E85D2B4/READMEFIRST.htm
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/html; charset="windows-1252"
@@ -24,19 +24,19 @@ xmlns=3D"http://www.w3.org/TR/REC-html40">
 <!--[if gte mso 9]><xml>
  <o:DocumentProperties>
   <o:Author>Max_adm</o:Author>
-  <o:LastAuthor>Max</o:LastAuthor>
-  <o:Revision>43</o:Revision>
-  <o:TotalTime>529</o:TotalTime>
-  <o:LastPrinted>2018-01-07T18:11:00Z</o:LastPrinted>
+  <o:LastAuthor>Massimo Ceraolo</o:LastAuthor>
+  <o:Revision>44</o:Revision>
+  <o:TotalTime>533</o:TotalTime>
+  <o:LastPrinted>2026-11-17T15:48:00Z</o:LastPrinted>
   <o:Created>2014-01-05T16:07:00Z</o:Created>
-  <o:LastSaved>2018-01-07T18:11:00Z</o:LastSaved>
-  <o:Pages>1</o:Pages>
-  <o:Words>676</o:Words>
-  <o:Characters>3857</o:Characters>
+  <o:LastSaved>2026-11-17T15:49:00Z</o:LastSaved>
+  <o:Pages>2</o:Pages>
+  <o:Words>694</o:Words>
+  <o:Characters>3960</o:Characters>
   <o:Company>One</o:Company>
-  <o:Lines>32</o:Lines>
+  <o:Lines>33</o:Lines>
   <o:Paragraphs>9</o:Paragraphs>
-  <o:CharactersWithSpaces>4524</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>4645</o:CharactersWithSpaces>
   <o:Version>16.00</o:Version>
  </o:DocumentProperties>
  <o:OfficeDocumentSettings>
@@ -51,6 +51,8 @@ xml">
 <!--[if gte mso 9]><xml>
  <w:WordDocument>
   <w:View>Print</w:View>
+  <w:Zoom>110</w:Zoom>
+  <w:DontDisplayPageBoundaries/>
   <w:SpellingState>Clean</w:SpellingState>
   <w:GrammarState>Clean</w:GrammarState>
   <w:TrackMoves>false</w:TrackMoves>
@@ -93,7 +95,7 @@ xml">
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <w:LatentStyles DefLockedState=3D"false" DefUnhideWhenUsed=3D"false"
   DefSemiHidden=3D"false" DefQFormat=3D"false" DefPriority=3D"99"
-  LatentStyleCount=3D"371">
+  LatentStyleCount=3D"376">
   <w:LsdException Locked=3D"false" Priority=3D"0" QFormat=3D"true" Name=3D"=
 Normal"/>
   <w:LsdException Locked=3D"false" Priority=3D"9" QFormat=3D"true" Name=3D"=
@@ -942,6 +944,21 @@ k Accent 6"/>
    Name=3D"List Table 6 Colorful Accent 6"/>
   <w:LsdException Locked=3D"false" Priority=3D"52"
    Name=3D"List Table 7 Colorful Accent 6"/>
+  <w:LsdException Locked=3D"false" SemiHidden=3D"true" UnhideWhenUsed=3D"tr=
+ue"
+   Name=3D"Mention"/>
+  <w:LsdException Locked=3D"false" SemiHidden=3D"true" UnhideWhenUsed=3D"tr=
+ue"
+   Name=3D"Smart Hyperlink"/>
+  <w:LsdException Locked=3D"false" SemiHidden=3D"true" UnhideWhenUsed=3D"tr=
+ue"
+   Name=3D"Hashtag"/>
+  <w:LsdException Locked=3D"false" SemiHidden=3D"true" UnhideWhenUsed=3D"tr=
+ue"
+   Name=3D"Unresolved Mention"/>
+  <w:LsdException Locked=3D"false" SemiHidden=3D"true" UnhideWhenUsed=3D"tr=
+ue"
+   Name=3D"Smart Link"/>
  </w:LatentStyles>
 </xml><![endif]-->
 <style>
@@ -957,24 +974,24 @@ k Accent 6"/>
 @font-face
 	{font-family:"Cambria Math";
 	panose-1:2 4 5 3 5 4 6 3 2 4;
-	mso-font-charset:1;
+	mso-font-charset:0;
 	mso-generic-font-family:roman;
 	mso-font-pitch:variable;
-	mso-font-signature:0 0 0 0 0 0;}
+	mso-font-signature:-536869121 1107305727 33554432 0 415 0;}
 @font-face
 	{font-family:Calibri;
 	panose-1:2 15 5 2 2 2 4 3 2 4;
 	mso-font-charset:0;
 	mso-generic-font-family:swiss;
 	mso-font-pitch:variable;
-	mso-font-signature:-536859905 -1073732485 9 0 511 0;}
+	mso-font-signature:-469750017 -1040178053 9 0 511 0;}
 @font-face
 	{font-family:Cambria;
 	panose-1:2 4 5 3 5 4 6 3 2 4;
 	mso-font-charset:0;
 	mso-generic-font-family:roman;
 	mso-font-pitch:variable;
-	mso-font-signature:-536869121 1073743103 0 0 415 0;}
+	mso-font-signature:-536869121 1107305727 33554432 0 415 0;}
  /* Style Definitions */
  p.MsoNormal, li.MsoNormal, div.MsoNormal
 	{mso-style-unhide:no;
@@ -1067,7 +1084,6 @@ p.MsoTitleCxSpFirst, li.MsoTitleCxSpFirst, div.MsoTitleCxSpFirst
 	mso-style-next:Normale;
 	mso-style-type:export-only;
 	margin:0cm;
-	margin-bottom:.0001pt;
 	mso-add-space:auto;
 	mso-pagination:widow-orphan;
 	border:none;
@@ -1099,7 +1115,6 @@ p.MsoTitleCxSpMiddle, li.MsoTitleCxSpMiddle, div.MsoTitleCxSpMiddle
 	mso-style-next:Normale;
 	mso-style-type:export-only;
 	margin:0cm;
-	margin-bottom:.0001pt;
 	mso-add-space:auto;
 	mso-pagination:widow-orphan;
 	border:none;
@@ -1203,7 +1218,6 @@ raphCxSpFirst
 	margin-right:0cm;
 	margin-bottom:0cm;
 	margin-left:36.0pt;
-	margin-bottom:.0001pt;
 	mso-add-space:auto;
 	line-height:115%;
 	mso-pagination:widow-orphan;
@@ -1228,7 +1242,6 @@ agraphCxSpMiddle
 	margin-right:0cm;
 	margin-bottom:0cm;
 	margin-left:36.0pt;
-	margin-bottom:.0001pt;
 	mso-add-space:auto;
 	line-height:115%;
 	mso-pagination:widow-orphan;
@@ -1343,6 +1356,8 @@ span.GramE
 	mso-hansi-theme-font:minor-latin;
 	mso-bidi-font-family:"Times New Roman";
 	mso-bidi-theme-font:minor-bidi;
+	mso-font-kerning:0pt;
+	mso-ligatures:none;
 	mso-fareast-language:EN-US;}
 @page WordSection1
 	{size:595.3pt 841.9pt;
@@ -1726,7 +1741,6 @@ ul
 	mso-style-parent:"";
 	mso-padding-alt:0cm 5.4pt 0cm 5.4pt;
 	mso-para-margin:0cm;
-	mso-para-margin-bottom:.0001pt;
 	mso-pagination:widow-orphan;
 	font-size:10.0pt;
 	font-family:"Calibri",sans-serif;
@@ -1746,7 +1760,8 @@ ul
  </o:shapelayout></xml><![endif]-->
 </head>
 
-<body lang=3DIT link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4pt'>
+<body lang=3DIT link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4pt;wor=
+d-wrap:break-word'>
 
 <div class=3DWordSection1>
 
@@ -1756,23 +1771,21 @@ mso-border-bottom-themecolor:accent1;padding:0cm 0cm 4.0pt 0cm'>
 
 <p class=3DMsoTitle align=3Dcenter style=3D'text-align:center'><span lang=
 =3DEN-GB
-style=3D'mso-ansi-language:EN-GB'>MC’s PLOTXY basic information <o:p></o:p>=
-</span></p>
+style=3D'mso-ansi-language:EN-GB'>MC=92s PLOTXY basic information <o:p></o:=
+p></span></p>
 
 </div>
 
-<h1><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>What MC’s <span
-class=3DSpellE>PlotXY</span> is<o:p></o:p></span></h1>
+<h1><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>What MC=92s PlotXY=
+ is<o:p></o:p></span></h1>
 
 <p class=3DMsoNormal><b style=3D'mso-bidi-font-weight:normal'><span lang=3D=
 EN-GB
-style=3D'mso-ansi-language:EN-GB'>MC’s <span class=3DSpellE>PlotXY</span></=
-span></b><span
-lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'> (in the following just <span
-class=3DSpellE>PlotXY</span>) is a program to create scientific plots from =
-files
-produced by simulation programs or laboratory instruments.<o:p></o:p></span=
-></p>
+style=3D'mso-ansi-language:EN-GB'>MC=92s PlotXY</span></b><span lang=3DEN-GB
+style=3D'mso-ansi-language:EN-GB'> (in the following just PlotXY) is a prog=
+ram to
+create scientific plots from files produced by simulation programs or
+laboratory instruments.<o:p></o:p></span></p>
 
 <p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>I=
 t is
@@ -1808,8 +1821,22 @@ e:
 EN-GB'><span style=3D'mso-list:Ignore'>-<span style=3D'font:7.0pt "Times Ne=
 w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
-e:EN-GB'>Apple
-(MAC) operating systems since 10.7 (Lion)<o:p></o:p></span></p>
+e:EN-GB'>For
+Apple (MAC) operating systems since 10.7 (Lion) on chips Intel<o:p></o:p></=
+span></p>
+
+<p class=3DMsoListParagraphCxSpMiddle style=3D'text-indent:-18.0pt;mso-list=
+:l3 level1 lfo2'><![if !supportLists]><span
+lang=3DEN-GB style=3D'mso-ascii-font-family:Calibri;mso-fareast-font-family=
+:Calibri;
+mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-languag=
+e:
+EN-GB'><span style=3D'mso-list:Ignore'>-<span style=3D'font:7.0pt "Times Ne=
+w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>For
+Apple (MAC) operating systems since 2026 on chips Mac Apple Silicon<o:p></o=
+:p></span></p>
 
 <p class=3DMsoListParagraphCxSpLast style=3D'text-indent:-18.0pt;mso-list:l=
 3 level1 lfo2'><![if !supportLists]><span
@@ -1819,22 +1846,21 @@ mso-hansi-font-family:Calibri;mso-bidi-font-family:Calibri;mso-ansi-languag=
 e:
 EN-GB'><span style=3D'mso-list:Ignore'>-<span style=3D'font:7.0pt "Times Ne=
 w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span></span><![endif]><span class=3DGramE><span lang=3DEN-GB
-style=3D'mso-ansi-language:EN-GB'>for</span></span><span lang=3DEN-GB
-style=3D'mso-ansi-language:EN-GB'> Linux 64 bit distributions (first availa=
-ble on
-January 2018). The Linux <span class=3DSpellE>AppImage</span> was created a=
-nd
-tested on Ubuntu 16.04 but should work on other recent distributions.<o:p><=
-/o:p></span></p>
+</span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
+e:EN-GB'>for
+Linux <span class=3DGramE>64 bit</span> distributions (first available <span
+class=3DGramE>on</span> January 2018). The Linux <span class=3DSpellE>AppIm=
+age</span>
+was created and tested on Ubuntu 16.04 but should work on other recent
+distributions.<o:p></o:p></span></p>
 
-<p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>B=
-oth
-versions have nearly exactly the same functionality. The appearance, howeve=
-r,
-is slightly different, since it is coherent with the user interface
-recommendations from the operating systems manufacturers, for both systems.=
-<o:p></o:p></span></p>
+<p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>A=
+ll versions,
+at the same issue year/month, have nearly <span class=3DGramE>exactly the s=
+ame</span>
+functionality. The appearance, however, is slightly different, since it is
+coherent with the user interface recommendations from the operating systems
+manufacturers, for both systems.<o:p></o:p></span></p>
 
 <p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>T=
 he file
@@ -1889,7 +1915,7 @@ EN-GB'><span style=3D'mso-list:Ignore'>-<span style=3D'font:7.0pt "Times Ne=
 w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
 e:EN-GB'>Mat-Modelica
-files. They <span style=3D'mso-spacerun:yes'> </span>are special mat files
+files. They<span style=3D'mso-spacerun:yes'>=A0 </span>are special mat files
 written by Modelica simulation tools, such as Dymola and OpenModelica<o:p><=
 /o:p></span></p>
 
@@ -1915,8 +1941,8 @@ EN-GB'><span style=3D'mso-list:Ignore'>-<span style=3D'font:7.0pt "Times Ne=
 w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
 e:EN-GB'>LVM
-files (output from National Instruments’ Lab-view compatible software) <o:p=
-></o:p></span></p>
+files (output from National Instruments=92 Lab-view compatible software) <o=
+:p></o:p></span></p>
 
 <p class=3DMsoListParagraphCxSpMiddle style=3D'text-indent:-18.0pt;mso-list=
 :l1 level1 lfo4'><![if !supportLists]><span
@@ -1946,9 +1972,9 @@ files (simple comma-</span><span lang=3DEN-GB style=3D'mso-ansi-language:EN=
 lang=3DFR style=3D'mso-ansi-language:FR'> values file format)<o:p></o:p></s=
 pan></p>
 
-<h1><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>What <span class=
-=3DSpellE>PlotXY</span>
-can basically do<o:p></o:p></span></h1>
+<h1><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>What PlotXY can ba=
+sically
+do<o:p></o:p></span></h1>
 
 <p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>T=
 he
@@ -1979,8 +2005,9 @@ w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
 e:EN-GB'>From
 the same set of files different curves can be simultaneously displayed in a
-single plot; up to four different plots (each having several curves) can be
-managed using the same program instance<o:p></o:p></span></p>
+single plot; up to four different plots (each having several curves) can be=
+ managed
+using the same program instance<o:p></o:p></span></p>
 
 <p class=3DMsoListParagraphCxSpMiddle style=3D'text-indent:-18.0pt;mso-list=
 :l2 level1 lfo6'><![if !supportLists]><span
@@ -2018,8 +2045,8 @@ EN-GB'><span style=3D'mso-list:Ignore'>-<span style=3D'font:7.0pt "Times Ne=
 w Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
 e:EN-GB'>The
-produced plots can be exported as images in the system’s clipboard or as a =
-SVG
+produced plots can be exported as images in the system=92s clipboard or as =
+a SVG
 (scalable Vector Graphics) file. They can also be printed on an actual prin=
 ter
 or as a pdf file<o:p></o:p></span></p>
@@ -2055,8 +2082,8 @@ PlotXY<o:p></o:p></span></h1>
 
 <p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>I=
 t you read
-these notes, <span class=3DGramE>you’ve</span> downloaded the archive
-PlotXY-2017, to which this file belongs.<o:p></o:p></span></p>
+these notes, you=92ve downloaded the archive PlotXY-2017, to which this file
+belongs.<o:p></o:p></span></p>
 
 <p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>I=
 f you want
@@ -2065,12 +2092,12 @@ o:p></o:p></span></p>
 
 <p class=3DMsoListParagraph style=3D'margin-top:0cm;margin-right:0cm;margin=
 -bottom:
-0cm;margin-left:35.7pt;margin-bottom:.0001pt;mso-add-space:auto;text-align:
-justify;text-indent:-17.85pt;mso-list:l4 level1 lfo8'><![if !supportLists]>=
-<span
-lang=3DEN-GB style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso=
--bidi-font-family:
-Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>·<span
+0cm;margin-left:35.7pt;mso-add-space:auto;text-align:justify;text-indent:-1=
+7.85pt;
+mso-list:l4 level1 lfo8'><![if !supportLists]><span lang=3DEN-GB
+style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-fa=
+mily:
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
 style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
 &nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
@@ -2082,30 +2109,28 @@ class=3DSpellE><b style=3D'mso-bidi-font-weight:normal'>PlotXY.app</b></spa=
 n> for
 Apple Mac users, or <span class=3DSpellE>PlotXY.AppImage</span> for Linux u=
 sers)
-of the <span class=3DSpellE>PlotXY</span> archive in a directory of choice =
-and
-using it. Windows users might find it convenient to create a link to PlotXY=
-.exe
-and to put that link wherever they like, for instance in Windows’ desktop. =
-At
-this point, to run the program all you have to do is to double-click on
-PlotXY.exe or its link. Windows users can also just drag &amp; drop input
-file(s) on PlotXY.exe application file or its link.<o:p></o:p></span></p>
+of the PlotXY archive in a directory of choice and using it. Windows users
+might find it convenient to create a link to PlotXY.exe and to put that link
+wherever they like, for instance in Windows=92 desktop. At this point, to r=
+un the
+program all you have to do is to double-click on PlotXY.exe or its link.
+Windows users can also just drag &amp; drop input file(s) on PlotXY.exe
+application file or its link.<o:p></o:p></span></p>
 
 <p class=3DMsoNormal style=3D'margin-left:35.45pt;text-align:justify'><span
 lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>Linux users may need to make=
  <span
 class=3DSpellE>PlotXY.AppImage</span> executable by selecting the execute b=
-ox on
-the Permissions tab of the file Properties; some users may need to set the
-Group Access to Read &amp; Write to access network or attached devices.<o:p=
-></o:p></span></p>
+ox on the
+Permissions tab of the file Properties; some users may need to set the Group
+Access to Read &amp; Write to access network or attached devices.<o:p></o:p=
+></span></p>
 
 <p class=3DMsoListParagraph style=3D'text-indent:-18.0pt;mso-list:l4 level1=
  lfo8'><![if !supportLists]><span
 lang=3DEN-GB style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso=
 -bidi-font-family:
-Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>·<span
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
 style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
 &nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
@@ -2113,12 +2138,13 @@ e:EN-GB'>Have
 a look at the first pages of file <b style=3D'mso-bidi-font-weight:normal'>=
 Tutorial.pdf</b>.
 It explains how to do nearly everything. If by looking these first pages you
-find that <span class=3DSpellE>PlotXY</span> may be useful for you, you are
-strongly recommended to follow the whole tutorial, reproducing the supplied
-plots using the supplied files (in folder “Data sets”). It will require 30-=
- 40
-minutes, but I think it will be a good investment of your time.<o:p></o:p><=
-/span></p>
+find that PlotXY may be useful for you, you are strongly recommended to fol=
+low
+the whole tutorial, reproducing the supplied plots using the supplied files=
+ (in
+folder =93Data sets=94). It will require 30- 40 minutes, but I think it wil=
+l be a
+good investment of your time.<o:p></o:p></span></p>
 
 <p class=3DMsoNormal><span lang=3DEN-GB style=3D'mso-ansi-language:EN-GB'>I=
 n the same
@@ -2129,7 +2155,7 @@ folder of this document, you can find also the following support documents:=
 l0 level1 lfo10'><![if !supportLists]><span
 lang=3DEN-GB style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso=
 -bidi-font-family:
-Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>·<span
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
 style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
 &nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
@@ -2144,14 +2170,15 @@ are read, and how names are converted between different file formats <o:p><=
 0 level1 lfo10'><![if !supportLists]><span
 lang=3DEN-GB style=3D'font-family:Symbol;mso-fareast-font-family:Symbol;mso=
 -bidi-font-family:
-Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>·<span
+Symbol;mso-ansi-language:EN-GB'><span style=3D'mso-list:Ignore'>=B7<span
 style=3D'font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
 &nbsp;&nbsp;
 </span></span></span><![endif]><span lang=3DEN-GB style=3D'mso-ansi-languag=
 e:EN-GB'>File
-<b style=3D'mso-bidi-font-weight:normal'>History and road-map.pdf</b> <span
-class=3DGramE>A</span> rapid résumé of the past history of PlotXY and progr=
-ammed
+<b style=3D'mso-bidi-font-weight:normal'>History and road-map.pdf</b> A rap=
+id
+r=E9sum=E9 of the <span class=3DGramE>past history</span> of PlotXY and pro=
+grammed
 developments.<o:p></o:p></span></p>
 
 <p class=3DMsoNormal><i style=3D'mso-bidi-font-style:normal'><span lang=3DE=
@@ -2160,13 +2187,11 @@ style=3D'mso-ansi-language:EN-GB'>*****<o:p></o:p></span></i></p>
 
 <p class=3DMsoNormal><i style=3D'mso-bidi-font-style:normal'><span lang=3DE=
 N-GB
-style=3D'mso-ansi-language:EN-GB'>NOTE. The Windows distribution archive <s=
-pan
-class=3DSpellE>PlotXY</span> contains also the directory named <b
-style=3D'mso-bidi-font-weight:normal'>Pro &amp; Object files.</b> It is int=
-ended
-only for programmers. Any other user can totally ignore this folder, or even
-delete it.<o:p></o:p></span></i></p>
+style=3D'mso-ansi-language:EN-GB'>NOTE. The Windows distribution archive Pl=
+otXY contains
+also the directory named <b style=3D'mso-bidi-font-weight:normal'>Pro &amp;
+Object files.</b> It is intended only for programmers. Any other user can
+totally ignore this folder, or even delete it.<o:p></o:p></span></i></p>
 
 </div>
 
@@ -2174,7 +2199,7 @@ delete it.<o:p></o:p></span></i></p>
 
 </html>
 
-------=_NextPart_01D387EB.52D3C170
+------=_NextPart_01DD76B3.91E32930
 Content-Location: file:///C:/8E85D2B4/READMEFIRST_file/item0006.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml
@@ -2183,7 +2208,7 @@ Content-Type: text/xml
 ctedStyle=3D"\APA.XSL" StyleName=3D"APA" xmlns:b=3D"http://schemas.openxmlf=
 ormats.org/officeDocument/2006/bibliography" xmlns=3D"http://schemas.openxm=
 lformats.org/officeDocument/2006/bibliography"></b:Sources>
-------=_NextPart_01D387EB.52D3C170
+------=_NextPart_01DD76B3.91E32930
 Content-Location: file:///C:/8E85D2B4/READMEFIRST_file/props007.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml
@@ -2193,7 +2218,7 @@ Content-Type: text/xml
 s:ds=3D"http://schemas.openxmlformats.org/officeDocument/2006/customXml"><d=
 s:schemaRefs><ds:schemaRef ds:uri=3D"http://schemas.openxmlformats.org/offi=
 ceDocument/2006/bibliography"/></ds:schemaRefs></ds:datastoreItem>
-------=_NextPart_01D387EB.52D3C170
+------=_NextPart_01DD76B3.91E32930
 Content-Location: file:///C:/8E85D2B4/READMEFIRST_file/themedata.thmx
 Content-Transfer-Encoding: base64
 Content-Type: application/vnd.ms-officetheme
@@ -2254,7 +2279,7 @@ AAAAAAAAAADWAgAAdGhlbWUvdGhlbWUvdGhlbWUxLnhtbFBLAQItABQABgAIAAAAIQAN0ZCftgAA
 ABsBAAAnAAAAAAAAAAAAAAAAALMJAAB0aGVtZS90aGVtZS9fcmVscy90aGVtZU1hbmFnZXIueG1s
 LnJlbHNQSwUGAAAAAAUABQBdAQAArgoAAAAA
 
-------=_NextPart_01D387EB.52D3C170
+------=_NextPart_01DD76B3.91E32930
 Content-Location: file:///C:/8E85D2B4/READMEFIRST_file/colorschememapping.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml
@@ -2264,7 +2289,7 @@ Content-Type: text/xml
  bg1=3D"lt1" tx1=3D"dk1" bg2=3D"lt2" tx2=3D"dk2" accent1=3D"accent1" accent=
 2=3D"accent2" accent3=3D"accent3" accent4=3D"accent4" accent5=3D"accent5" a=
 ccent6=3D"accent6" hlink=3D"hlink" folHlink=3D"folHlink"/>
-------=_NextPart_01D387EB.52D3C170
+------=_NextPart_01DD76B3.91E32930
 Content-Location: file:///C:/8E85D2B4/READMEFIRST_file/filelist.xml
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/xml; charset="utf-8"
@@ -2277,4 +2302,4 @@ Content-Type: text/xml; charset="utf-8"
  <o:File HRef=3D"colorschememapping.xml"/>
  <o:File HRef=3D"filelist.xml"/>
 </xml>
-------=_NextPart_01D387EB.52D3C170--
+------=_NextPart_01DD76B3.91E32930--
